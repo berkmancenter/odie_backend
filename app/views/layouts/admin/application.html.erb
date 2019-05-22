@@ -23,6 +23,7 @@ By default, it renders:
   </title>
   <%= render "stylesheet" %>
   <%= csrf_meta_tags %>
+  <%= favicon_link_tag asset_path('favicon.ico') %>
 </head>
 <body>
   <%= render 'shared/flashes' %>
