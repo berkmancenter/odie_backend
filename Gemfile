@@ -8,6 +8,7 @@ ruby '2.6.3'
 gem 'administrate', git: 'https://github.com/thoughtbot/administrate'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'coffee-rails', '~> 4.2'
+gem 'dotenv-rails'
 gem 'jbuilder', '~> 2.5'
 gem 'rails', '~> 5.2.3'
 gem 'pg'
@@ -21,6 +22,7 @@ group :development, :test do
 end
 
 group :development do
+  gem 'annotate'
   gem 'listen', '>= 3.0.5', '< 3.2'
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
@@ -29,6 +31,7 @@ group :development do
 end
 
 group :test do
+  gem 'coveralls', require: false
   gem 'capybara', '>= 2.15'
   gem 'webdrivers'
 end
