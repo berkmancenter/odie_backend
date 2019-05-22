@@ -1,6 +1,15 @@
-# These two lines must be first.
+# These lines must be first.
+require 'simplecov'
 require 'coveralls'
-Coveralls.wear!('rails')
+SimpleCov.formatters = [
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start 'rails' do
+  add_filter do |source_file|
+    source_file.lines.count < 5
+  end
+end
 
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'

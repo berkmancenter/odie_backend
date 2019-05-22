@@ -1,0 +1,12 @@
+language: ruby
+rvm: 2.6.3
+addons:
+  postgresql: '9.6'
+services:
+  - postgresql
+cache: bundler
+before_script:
+  - psql -c 'create database odie_test;' -U postgres
+  - cp config/database.yml.example config/database.yml
+  - bundle exec rake db:schema:load RAILS_ENV=test
+script: bin/rails test

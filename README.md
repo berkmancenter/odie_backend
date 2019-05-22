@@ -1,6 +1,15 @@
+[![Build Status](https://travis-ci.org/berkmancenter/odie_backend.svg?branch=master)](https://travis-ci.org/berkmancenter/odie_backend)
+[![Coverage Status](https://coveralls.io/repos/github/berkmancenter/odie_backend/badge.svg?branch=master)](https://coveralls.io/github/berkmancenter/odie_backend?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/80c54b5a43b952542cdb/maintainability)](https://codeclimate.com/github/berkmancenter/odie_backend/maintainability)
+
 # README
 
 The ODIE API requires ruby 2.6 and postgres.
+
+## Getting started
+* Copy `config/database.yml.example` to `config/database.yml` and change its values to match your postgres.
+* `bundle install`
+* `rails db:setup`
 
 ## Environment Variables
 For production, set:
@@ -14,25 +23,18 @@ For production, set:
 * `DEFAULT_URL_OPTIONS_HOST` (defaults to `localhost`)
 * `DEFAULT_URL_OPTIONS_PORT` (optional)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+In production, or in dev if you want to write `twitter.conf` files, you will need:
+* `TWITTER_CONSUMER_KEY`
+* `TWITTER_CONSUMER_SECRET`
+* `TWITTER_OAUTH_TOKEN`
+* `TWITTER_OAUTH_SECRET`
+* `ELASTICSEARCH_HOST`
+* `ELASTICSEARCH_INDEX`
 
-Things you may want to cover:
+## Running tests
+`rails t`
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## General development instructions
+* Keep test coverage above 90%. (`open coverage/index.html` after a test run to see how you're doing.)
+* Use a rubocop-based linter.
+* Travis, Coveralls, and CodeClimate checks must all be passing before code is merged; `master` should always be deployable.
