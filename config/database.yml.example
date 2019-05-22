@@ -1,0 +1,21 @@
+development: &default
+  adapter: postgresql
+  encoding: utf8
+  database: odie_dev
+  pool: 5
+  username: postgres
+  password: postgres
+
+test:
+  <<: *default
+  database: odie_test
+
+production:
+  <<: *default
+  username: <%= ENV['DATABASE_USERNAME'] %>
+  password: <%= ENV['DATABASE_PASSWORD'] %>
+  database: <%= ENV['DATABASE_NAME'] %>
+  host: <%= ENV['DATABASE_HOST'] %>
+  port: <%= (ENV['DATABASE_PORT'] || 5432).to_i %>
+  min_messages: warning
+  timeout: <%= (ENV['DATABASE_TIMEOUT'] || 5000).to_i %>

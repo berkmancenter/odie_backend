@@ -3,6 +3,9 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.6.3'
 
+# Use bleeding-edge administrate because the rubygems version still uses
+# ruby-sass (which is deprecated) and we're on sassc-rails.
+gem 'administrate', git: 'https://github.com/thoughtbot/administrate'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'coffee-rails', '~> 4.2'
 gem 'jbuilder', '~> 2.5'
