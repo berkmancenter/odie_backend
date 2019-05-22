@@ -8,6 +8,7 @@ ruby '2.6.3'
 gem 'administrate', git: 'https://github.com/thoughtbot/administrate'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'coffee-rails', '~> 4.2'
+gem 'devise'
 gem 'dotenv-rails'
 gem 'jbuilder', '~> 2.5'
 gem 'rails', '~> 5.2.3'
