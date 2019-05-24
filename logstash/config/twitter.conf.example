@@ -1,0 +1,28 @@
+# Copy this file to twitter.conf (it's .gitignored)
+# Replace keys, secrets, and filepath with your values
+
+input {
+  twitter {
+      consumer_key => "consumer_key"
+      consumer_secret => "consumer_secret"
+      oauth_token => "access_token"
+      oauth_token_secret => "access_token_secret"
+      keywords => ["keyword","keyword","keyword"]
+      full_tweet => true
+  }
+}
+
+filter {
+}
+
+output {
+  stdout { }
+  elasticsearch {
+      hosts         => ["localhost:9200"]
+      index         => "odie"
+      document_type => "tweets"
+      template      => "/path/to/twitter_template.json"
+      template_name => "odie"
+      template_overwrite => true
+  }
+}
