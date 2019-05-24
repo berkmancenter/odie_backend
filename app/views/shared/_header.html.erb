@@ -1,0 +1,11 @@
+<div class="app-container header">
+  <header>
+    <%= image_tag('favicon.ico') %>
+    <h1>ODIE</h1>
+    <% if user_signed_in? %>
+      <%= link_to('Sign Out', destroy_user_session_path,
+                  method: :delete, class: 'button button-secondary',
+                  style: 'float: right;') %>
+    <% end %>
+  </header>
+</div>
