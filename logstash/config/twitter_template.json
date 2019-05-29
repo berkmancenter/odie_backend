@@ -7,68 +7,78 @@
       "total_fields": {
         "limit": "10000"
       }
+    },
+    "analysis": {
+        "analyzer": {
+          "domain_name_analyzer": {
+            "filter":"lowercase",
+            "tokenizer": "domain_name_tokenizer",
+            "type": "custom"
+          }
+        },
+        "tokenizer": {
+          "domain_name_tokenizer": {
+            "type": "PathHierarchy",
+            "delimiter": ".",
+            "reverse": true
+          }
+        }
+      }
     }
   },
   "mappings": {
     "tweets": {
+      "_all": {
+        "enabled": false
+      },
       "properties": {
-        "@timestamp": {
-          "type": "date",
-          "format": "dateOptionalTime"
-        },
-        "text": {
-          "type": "text"
-        },
-        "user": {
+        "retweeted_status": {
           "type": "object",
           "properties": {
-            "description": {
-              "type": "text"
-            }
-          }
-        },
-        "coordinates": {
-          "type": "object",
-          "properties": {
-            "coordinates": {
-              "type": "geo_point"
+            "extended_tweet": {
+              "type": "object",
+              "properties": {
+                "entities": {
+                  "type": "object",
+                  "properties": {
+                    "urls": {
+                      "properties": {
+                        "expanded_url": {
+                          "type": "text",
+                          "fields": {
+                            "please_work": {
+                              "analyzer":  "domain_name_analyzer",
+                              "type": "text"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         },
         "entities": {
           "type": "object",
           "properties": {
-            "hashtags": {
-              "type": "object",
+            "urls": {
               "properties": {
-                "text": {
+                "expanded_url": {
                   "type": "text",
-                  "fielddata": true
+                  "fields": {
+                    "please_work": {
+                      "analyzer":  "domain_name_analyzer",
+                      "type": "text"
+                    }
+                  }
                 }
               }
             }
           }
-        },
-        "retweeted_status": {
-          "type": "object",
-          "properties": {
-            "text": {
-              "type": "text"
-            }
-          }
         }
-      },
-      "dynamic_templates": [
-        {
-          "string_template": {
-            "match": "*",
-            "match_mapping_type": "string",
-            "mapping": {
-              "type": "keyword"
-            }
-          }
-        }
-      ]
+      }
     }
   }
 }
