@@ -13,6 +13,9 @@ input {
 }
 
 filter {
+  ruby {
+    path => "{FULL PATH GOES HERE}/lib/check_links_for_keywords.rb"
+  }
 }
 
 output {
@@ -21,8 +24,5 @@ output {
       hosts         => ["localhost:9200"]
       index         => "odie"
       document_type => "tweets"
-      template      => "/path/to/twitter_template.json"
-      template_name => "odie"
-      template_overwrite => true
   }
 }
