@@ -10,10 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_22_184824) do
+ActiveRecord::Schema.define(version: 2019_05_30_160811) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "data_sets", force: :cascade do |t|
+    t.bigint "media_source_id"
+    t.string "index_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["media_source_id"], name: "index_data_sets_on_media_source_id"
+  end
 
   create_table "media_sources", force: :cascade do |t|
     t.boolean "active"
