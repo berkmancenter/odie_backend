@@ -31,6 +31,10 @@ In production, or in dev if you want to write `twitter.conf` files, you will nee
 * `ELASTICSEARCH_HOST`
 * `ELASTICSEARCH_INDEX`
 
+For any environment:
+* `NUM_USERS` (optional; defaults to `5000`)
+* `TWEETS_PER_USER` (optional; defaults to `50`)
+
 ## Running tests
 `rails t`
 

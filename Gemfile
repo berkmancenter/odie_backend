@@ -17,6 +17,7 @@ gem 'pg'
 gem 'puma', '~> 3.11'
 gem 'sassc-rails'
 gem 'turbolinks', '~> 5'
+gem 'twitter'
 gem 'uglifier', '>= 1.3.0'
 
 group :development, :test do

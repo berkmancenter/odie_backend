@@ -23,7 +23,7 @@ module TwitterConf
         hosts         => <%= env['ELASTICSEARCH_HOST'] %>
         index         => "<%= env['ELASTICSEARCH_INDEX'] %>"
         document_type => "tweets"
-        template      => "#{Rails.root}/logstash/config/twitter_template.json"
+        template      => "#{Rails.application.config.twitter_template}"
         template_name => "odie"
         template_overwrite => true
     }
