@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   devise_for :users
   namespace :admin do
@@ -10,5 +12,5 @@ Rails.application.routes.draw do
     root to: 'devise/sessions#new'
   end
 
-  resource :twitter_conf, only: [:new]
+  get 'activate/:id', to: 'twitter_confs#new', as: 'activate'
 end

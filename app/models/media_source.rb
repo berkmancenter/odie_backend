@@ -14,6 +14,8 @@
 
 class MediaSource < ApplicationRecord
   has_many :data_sets
+  has_and_belongs_to_many :data_configs
+
   validates :description, presence: true
   validates :name, presence: true
   validates :url, presence: true

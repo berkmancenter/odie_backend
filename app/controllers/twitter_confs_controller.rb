@@ -1,15 +1,6 @@
 class TwitterConfsController < ActionController::Base
   def new
-    # Later we will do something like the following, to extract real data
-    # from a real config file. Right now we're using dummy variables to test
-    # that we can write a config file at all.
-    # config = params[:config]
-    # keywords = config.media_sources.pluck(:keyword).uniq
-    # get most recent config (or else config from params)
-    # write file to config
-    # handling in case there is some kind of interruption? active ~config~
-    # is not guaranteed to be the same as active ~file~
-    keywords
+    keywords = DataConfig.find(params[:id]).keywords
     context = binding
     context.local_variable_set(:env, ENV)
 
