@@ -12,5 +12,5 @@ Rails.application.routes.draw do
     root to: 'devise/sessions#new'
   end
 
-  get 'activate/:id', to: 'twitter_confs#new', as: 'activate'
+  get 'activate/:id', to: 'twitter_confs#new', as: :activate
 end

@@ -12,10 +12,10 @@
 #  updated_at  :datetime         not null
 #
 
-require 'test_helper'
+require 'rails_helper'
 
-class MediaSourceTest < ActiveSupport::TestCase
-  test 'accepts urls with protocol + host' do
+describe MediaSource do
+  it 'accepts urls with protocol + host' do
     foo = MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
@@ -24,7 +24,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.valid?
   end
 
-  test 'accepts urls with just host' do
+  it 'accepts urls with just host' do
     foo = MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
@@ -33,7 +33,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.valid?
   end
 
-  test 'accepts urls with protocol + host + more stuff' do
+  it 'accepts urls with protocol + host + more stuff' do
     foo = MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
@@ -42,7 +42,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.valid?
   end
 
-  test 'correctly sets keywords for urls with protocol + host' do
+  it 'correctly sets keywords for urls with protocol + host' do
     foo = MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
@@ -52,7 +52,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.keyword == 'washingtonpost'
   end
 
-  test 'correctly sets keywords for urls with just host' do
+  it 'correctly sets keywords for urls with just host' do
     foo = MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
@@ -62,7 +62,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.keyword == 'washingtonpost'
   end
 
-  test 'correctly sets keywords for urls with protocol + host + more stuff' do
+  it 'correctly sets keywords for urls with protocol + host + more stuff' do
     foo = MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
@@ -72,7 +72,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.keyword == 'washingtonpost'
   end
 
-  test 'correctly sets keywords for urls with two-part TLDs' do
+  it 'correctly sets keywords for urls with two-part TLDs' do
     foo = MediaSource.new(
       description: 'Google, but elsewhere',
       name: 'google',
@@ -82,7 +82,7 @@ class MediaSourceTest < ActiveSupport::TestCase
     assert foo.keyword == 'google'
   end
 
-  test 'correctly sets keywords for urls with weird TLDs' do
+  it 'correctly sets keywords for urls with weird TLDs' do
     foo = MediaSource.new(
       description: 'the good part of the internet',
       name: 'tilde',

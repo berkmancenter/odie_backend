@@ -13,7 +13,7 @@
 #  index_data_sets_on_media_source_id  (media_source_id)
 #
 
-require 'test_helper'
+require 'rails_helper'
 
 class DataSetTest < ActiveSupport::TestCase
   # test "the truth" do

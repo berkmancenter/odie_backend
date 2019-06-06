@@ -1,9 +1,9 @@
-class TwitterConfsController < ActionController::Base
-  def new
-    keywords = DataConfig.find(params[:id]).keywords
-    context = binding
-    context.local_variable_set(:env, ENV)
+# frozen_string_literal: true
 
+class TwitterConfsController < ActionController::Base
+  FILENAME = "#{Rails.root}/logstash/config/twitter.conf"
+
+  def new
     # It would be better to create a config file and then use logstash to
     # validate it. However, we can't run system logstash in a subprocess unless
     # it was built against the same version of ruby, and coupling those doesn't
@@ -15,7 +15,15 @@ class TwitterConfsController < ActionController::Base
       raise 'The context is missing needed variables.'
     end
     conf = TwitterConf.generate(context)
-    filename = "#{Rails.root}/logstash/config/twitter.conf"
-    File.write(filename, conf)
+    File.write(FILENAME, conf)
+  end
+
+  def context
+    @context ||= begin
+      keywords = DataConfig.find(params[:id]).keywords
+      context = binding
+      context.local_variable_set(:env, ENV)
+      context
+    end
   end
 end
