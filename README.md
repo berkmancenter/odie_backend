@@ -36,9 +36,10 @@ For any environment:
 * `TWEETS_PER_USER` (optional; defaults to `50`)
 
 ## Running tests
-`rails t`
+`rspec`
 
 ## General development instructions
 * Keep test coverage above 90%. (`open coverage/index.html` after a test run to see how you're doing.)
+* Adhere to http://www.betterspecs.org/.
 * Use a rubocop-based linter.
 * Travis, Coveralls, and CodeClimate checks must all be passing before code is merged; `master` should always be deployable.

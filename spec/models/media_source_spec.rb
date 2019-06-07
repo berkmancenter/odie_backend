@@ -15,61 +15,55 @@
 require 'rails_helper'
 
 describe MediaSource do
-  it 'accepts urls with protocol + host' do
-    foo = MediaSource.new(
+  let(:source_brief) {
+    MediaSource.new(
       description: 'Democracy Dies in Darkness',
       name: 'WaPo',
-      url: 'https://www.washingtonpost.com'
-    )
-    assert foo.valid?
+      url: 'www.washingtonpost.com')
+  }
+
+  let(:source) {
+    MediaSource.new(
+      description: 'Democracy Dies in Darkness',
+      name: 'WaPo',
+      url: 'https://www.washingtonpost.com')
+  }
+
+  let(:source_long) {
+    MediaSource.new(
+      description: 'Democracy Dies in Darkness',
+      name: 'WaPo',
+      url: 'https://www.washingtonpost.com/more_stuff?oh=yeah')
+  }
+
+  it 'accepts urls with protocol + host' do
+    expect(source.valid?).to be true
   end
 
   it 'accepts urls with just host' do
-    foo = MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'www.washingtonpost.com'
-    )
-    assert foo.valid?
+    expect(source_brief.valid?).to be true
   end
 
   it 'accepts urls with protocol + host + more stuff' do
-    foo = MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'https://www.washingtonpost.com/more_stuff?oh=yeah'
-    )
-    assert foo.valid?
+    expect(source_long.valid?).to be true
   end
 
   it 'correctly sets keywords for urls with protocol + host' do
-    foo = MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'https://www.washingtonpost.com'
-    )
-    foo.save
-    assert foo.keyword == 'washingtonpost'
+    saveable = source.dup
+    saveable.save
+    expect(saveable.keyword).to eq 'washingtonpost'
   end
 
   it 'correctly sets keywords for urls with just host' do
-    foo = MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'www.washingtonpost.com'
-    )
-    foo.save
-    assert foo.keyword == 'washingtonpost'
+    saveable = source_brief.dup
+    saveable.save
+    expect(saveable.keyword).to eq 'washingtonpost'
   end
 
   it 'correctly sets keywords for urls with protocol + host + more stuff' do
-    foo = MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'https://www.washingtonpost.com/more_stuff?oh=yeah'
-    )
-    foo.save
-    assert foo.keyword == 'washingtonpost'
+    saveable = source_long.dup
+    saveable.save
+    expect(saveable.keyword).to eq 'washingtonpost'
   end
 
   it 'correctly sets keywords for urls with two-part TLDs' do
@@ -79,7 +73,7 @@ describe MediaSource do
       url: 'https://www.google.co.uk'
     )
     foo.save
-    assert foo.keyword == 'google'
+    expect(foo.keyword).to eq 'google'
   end
 
   it 'correctly sets keywords for urls with weird TLDs' do
@@ -89,6 +83,6 @@ describe MediaSource do
       url: 'https://tilde.club'
     )
     foo.save
-    assert foo.keyword == 'tilde'
+    expect(foo.keyword).to eq 'tilde'
   end
 end
