@@ -1,2 +1,15 @@
-hey
-<%= link_to('Logout', destroy_user_session_path, method: :delete) %>
+<p>
+  The Online Discourse Insight Explorer (ODIE) is a public-facing dashboard of insights into the discourse of Twitter accounts that share hyperlinks to news articles from specified media sources.
+</p>
+
+<p>
+  Unless you're a site administrator, you were probably looking for the ODIE public site.
+</p>
+
+<a class="button">ODIE public site (not yet active)</a>
+
+<% if user_signed_in? && current_user.admin? %>
+  <p>
+    Were you looking for <%= link_to('the admin site', admin_root_path) %>?
+  </p>
+<% end %>
