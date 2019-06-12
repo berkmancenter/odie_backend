@@ -20,10 +20,16 @@ class TwitterConfsController < ActionController::Base
 
   def context
     @context ||= begin
-      keywords = DataConfig.find(params[:id]).keywords
+      keywords = sanitize(DataConfig.find(params[:id]).keywords)
       context = binding
       context.local_variable_set(:env, ENV)
       context
     end
+  end
+
+  private
+
+  def sanitize(keywords)
+    keywords.map { |kw| URI.encode(kw) }
   end
 end

@@ -35,11 +35,14 @@ For any environment:
 * `NUM_USERS` (optional; defaults to `5000`)
 * `TWEETS_PER_USER` (optional; defaults to `50`)
 
-## Running tests
-`rspec`
+## Tests
+Run tests with `rspec`.
+
+Aim to adhere to http://www.betterspecs.org/.
+
+Take inspiration from Sandi Metz's [Magic Tricks of Testing](https://www.youtube.com/watch?v=URSWYvyc42M): assert results and side effects of messages received from collaborators; assert that messages are sent to collaborators; don't test private methods or messages sent to self.
 
 ## General development instructions
 * Keep test coverage above 90%. (`open coverage/index.html` after a test run to see how you're doing.)
-* Adhere to http://www.betterspecs.org/.
 * Use a rubocop-based linter.
 * Travis, Coveralls, and CodeClimate checks must all be passing before code is merged; `master` should always be deployable.

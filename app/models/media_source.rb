@@ -25,7 +25,9 @@ class MediaSource < ApplicationRecord
   # url setter removes protocol if present, so PublicSuffix can assume it is
   # getting the format it expects.
   def url=(val)
-    parsed_url = URI.parse(val)
+    # URI.encode is important to handle non-ASCII URLs. Twitter requires that
+    # terms be urlencoded before search.
+    parsed_url = URI.parse(URI.encode(val))
     new_val = if [parsed_url.kind_of?(URI::HTTPS),
                   parsed_url.kind_of?(URI::HTTP)].any?
                 parsed_url.host

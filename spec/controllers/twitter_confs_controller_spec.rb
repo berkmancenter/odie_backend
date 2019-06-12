@@ -29,4 +29,17 @@ describe TwitterConfsController do
       )
       get :new, params: { id: cfg.id }, xhr: true
   end
+
+  it 'urlencodes with non-ascii characters' do
+    nonascii = DataConfig.create(
+      keywords: ['ümlauts', 'ácutes', '汉字', '훈민정음'],
+      media_sources: [ms])
+
+    get :new, params: { id: nonascii.id }, xhr: true
+
+    expect(@controller.context.local_variable_get :keywords)
+      .to contain_exactly("%C3%BCmlauts", "%C3%A1cutes",
+                          "%E6%B1%89%E5%AD%97",
+                          "%ED%9B%88%EB%AF%BC%EC%A0%95%EC%9D%8C")
+  end
 end

@@ -6,15 +6,25 @@
 #  index_name      :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  data_config_id  :bigint
 #  media_source_id :bigint
 #
 # Indexes
 #
+#  index_data_sets_on_data_config_id   (data_config_id)
 #  index_data_sets_on_media_source_id  (media_source_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (data_config_id => data_configs.id)
 #
 
 class DataSet < ApplicationRecord
   belongs_to :media_source
+  belongs_to :data_config
+
+  validates :media_source, presence: true
+  validates :data_config, presence: true
 
   attr_readonly :index_name
   before_create :add_index_name
@@ -22,35 +32,41 @@ class DataSet < ApplicationRecord
   def ingest_data
     verify_index
     sample_users.each do |user_id|
-      # logstash only uses the streaming api, not the user timeline api. oy.
-      # so we're going to need to create an elasticsearch index with the
-      # usual mapping and dump this in..?
-      tweets = twitter_client.user_timeline(
-        user_id,
-        count: Rails.application.config.tweets_per_user
-      )
-      tweets.each do |tweet|
-        es_client.create index: index_name, type: 'tweets', body: tweet.to_json
-      end
+      tweets = fetch_tweets(user_id)
+      store_data(tweets)
     end
   end
 
-  # TODO: does it take a from_index or does it also have a TwitterConf service object?
-  def sample_users(from_index)
-    verify_index
+  def sample_users
     # TODO: improve semantics
     # We've filtered our incoming data to only include tweets with the correct
     # keyword in the expanded_url field, but that doesn't mean this search
     # actually produces only tweets which link to the relevant source; they
     # might @mention the keyword and link to a different media source, e.g., as
     # in "hey @newspaper did you see this article? https://www.blog.com".
-    results = es_client.search index: from_index, q: media_source.keyword
+    results = es_client.search index: stream_index, q: media_source.keyword
     user_ids = extract_userids(results)
     user_ids.sample(Rails.application.config.num_users)
   end
 
   def index_exists?
     es_client.indices.exists? :index_name
+  end
+
+  def fetch_tweets(user_id)
+    # logstash only uses the streaming api, not the user timeline api. oy.
+    # so we're going to need to create an elasticsearch index with the
+    # usual mapping and dump this in..?
+    tweets = twitter_client.user_timeline(
+      user_id,
+      count: Rails.application.config.tweets_per_user
+    )
+  end
+
+  def store_data(tweets)
+    tweets.each do |tweet|
+      es_client.create index: index_name, type: 'tweets', body: tweet.to_json
+    end
   end
 
   private
@@ -77,13 +93,13 @@ class DataSet < ApplicationRecord
   end
 
   def add_index_name
-    index_name = "#{media_source.id}_#{sanitize(UUID.random_create)}"
+    self.index_name = "#{self.media_source.id}_#{sanitize(SecureRandom.uuid)}"
   end
 
   # Remove any elements not permitted in elasticsearch index names:
   # https://www.elastic.co/guide/en/elasticsearch/reference/6.6/indices-create-index.html
   def sanitize(str)
-    str.gsub(%r{[\\/*?"<>|\s,#]}, '').downcase
+    str.gsub(%r{[\\/*?"<>|\s,#]:}, '').downcase
   end
 
   def setup_index
@@ -98,5 +114,13 @@ class DataSet < ApplicationRecord
   def verify_index
     setup_index unless index_exists?
     raise Exceptions::ElasticsearchError('Index not found') unless index_exists?
+  end
+
+  # This is the index that stored the results of the streaming API call to
+  # search for references to media sources. It is distinct from self.index_name,
+  # which is where we store user timeline results (ie all the tweets of users
+  # whom we found in the earlier streaming api call.)
+  def stream_index
+    data_config.index_name
   end
 end

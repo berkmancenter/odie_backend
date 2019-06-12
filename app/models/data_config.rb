@@ -15,11 +15,11 @@
 class DataConfig < ApplicationRecord
   has_and_belongs_to_many :media_sources
   validates :media_sources, presence: true
-  before_create :initialize_keywords
+  after_create :initialize_keywords
 
   def manufacture_data_sets
     media_sources.each do |media_source|
-      DataSet.create(media_source: media_source)
+      DataSet.create(media_source: media_source, data_config: self)
     end
   end
 
@@ -29,7 +29,7 @@ class DataConfig < ApplicationRecord
   # to aid in debugging. It also allows for collaborators to query DataConfig
   # directly for keywords rather than reaching through it to MediaSource.
   def initialize_keywords
-    keywords = media_sources.pluck(:keywords)
+    self.keywords = media_sources.pluck(:keyword)
   end
 
   # functions
