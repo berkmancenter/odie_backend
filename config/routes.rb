@@ -19,5 +19,9 @@ Rails.application.routes.draw do
     root to: 'media_sources#index'
   end
 
+  defaults format: :json do
+    resources :media_sources, only: [:index, :show]
+  end
+
   get 'activate/:id', to: 'twitter_confs#new', as: :activate
 end
