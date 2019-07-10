@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: data_sets
 #
 #  id              :bigint           not null, primary key
+#  hashtags        :hstore
 #  index_name      :string
 #  num_retweets    :integer
 #  num_tweets      :integer
@@ -155,6 +158,12 @@ describe DataSet do
       expect(ds.num_retweets).to eq 10
     end
 
+    it 'sets hashtags' do
+      mock_all_aggregates
+      ds.update_aggregates
+      expect(ds.hashtags).to match( { 'yo'=>'1' } )
+    end
+
     # update_aggregates sets a lot of data, which call a lot of collaborators;
     # this lets us mock out all of them, so that tests will run. We can
     # selectively overwrite anything relevant to the system under test in the
@@ -164,6 +173,7 @@ describe DataSet do
         .to receive(:count)
       allow(ds).to receive(:sample_users).and_return [1]
       allow(ds).to receive(:count_retweets).and_return 10
+      allow(ds).to receive(:collate_hashtags).and_return( { 'yo': 1 } )
     end
   end
 end

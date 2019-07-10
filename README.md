@@ -4,7 +4,7 @@
 
 # README
 
-The ODIE API requires ruby 2.6 and postgres.
+The ODIE API requires ruby 2.6 and postgres 9.2+.
 
 ## Getting started
 * Copy `config/database.yml.example` to `config/database.yml` and change its values to match your postgres.

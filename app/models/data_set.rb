@@ -5,6 +5,7 @@
 # Table name: data_sets
 #
 #  id              :bigint           not null, primary key
+#  hashtags        :hstore
 #  index_name      :string
 #  num_retweets    :integer
 #  num_tweets      :integer
@@ -44,7 +45,8 @@ class DataSet < ApplicationRecord
     self.update_attributes(
       num_users: sample_users.length,
       num_tweets: es_client.count(index: index_name),
-      num_retweets: count_retweets
+      num_retweets: count_retweets,
+      hashtags: collate_hashtags
     )
   end
 
@@ -148,5 +150,38 @@ class DataSet < ApplicationRecord
   def count_retweets
     es_client.count index: index_name,
       body: { query: { exists: { field: 'retweeted_status' } } }
+  end
+
+  def collate_hashtags
+    raw_data = search_for_hashtags
+    hashtag_counts = Hash.new 0
+
+    raw_data.each do |hashtag|
+      hashtag_counts[hashtag] += 1
+    end
+    hashtag_counts
+  end
+
+  def search_for_hashtags
+    hashtags = []
+    r = es_client.search index: index_name, scroll: '5m',
+                         body: { sort: ['_doc'] }
+    hashtags += extract_hashtags(r)
+
+    while (r = client.scroll(body: { scroll_id: r['_scroll_id'] }, scroll: '5m') and not r['hits']['hits'].empty?) do
+      hashtags += extract_hashtags(r)
+    end
+
+    hashtags
+  end
+
+  def extract_hashtags(results)
+    # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
+    results['hits']['hits'].map {
+      |result| result['_source']['entities']['hashtags']
+    }.reject {
+      |hashtag_list| hashtag_list.empty?
+    }.flatten
+    .map { |hashtag_entity| hashtag_entity['text'] }
   end
 end
