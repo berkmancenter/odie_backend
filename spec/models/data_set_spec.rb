@@ -4,6 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  index_name      :string
+#  num_users       :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  data_config_id  :bigint
@@ -74,10 +75,41 @@ describe DataSet do
       ds.fetch_tweets(1)
     end
 
-    def store_data(tweets)
-      tweets.each do |tweet|
-        es_client.create index: index_name, type: 'tweets', body: tweet.to_json
-      end
+    it 'sets the number of users when there are many to sample from' do
+      # Mock out collaborators.
+      allow_any_instance_of(Elasticsearch::API::Actions)
+        .to receive(:search)
+      allow(ds).to receive(:extract_userids)
+        .and_return [*1..(Rails.application.config.num_users + 1)]
+      # Assert initial conditions.
+      expect(ds.num_users).to be_nil
+      # Test.
+      ds.sample_users
+      expect(ds.num_users).to eq Rails.application.config.num_users
+    end
+
+    it 'sets the number of users when there are few to sample from' do
+      # Mock out collaborators.
+      allow_any_instance_of(Elasticsearch::API::Actions)
+        .to receive(:search)
+      allow(ds).to receive(:extract_userids)
+        .and_return [*1..(Rails.application.config.num_users - 1)]
+      # Assert initial conditions.
+      expect(ds.num_users).to be_nil
+      # Test.
+      ds.sample_users
+      expect(ds.num_users).to eq Rails.application.config.num_users - 1
+    end
+
+    it 'samples distinct user ids' do
+      allow_any_instance_of(Elasticsearch::API::Actions)
+        .to receive(:search)
+      allow(ds).to receive(:extract_userids)
+        .and_return [1, 2, 2, 3, 3]
+      # Assert initial conditions.
+      expect(ds.num_users).to be_nil
+      # Test.
+      expect(ds.sample_users).to match_array [1, 2, 3]
     end
 
     it 'creates an elasticsearch document for each tweet' do

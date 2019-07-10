@@ -4,6 +4,7 @@
 #
 #  id              :bigint           not null, primary key
 #  index_name      :string
+#  num_users       :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  data_config_id  :bigint
@@ -46,7 +47,9 @@ class DataSet < ApplicationRecord
     # in "hey @newspaper did you see this article? https://www.blog.com".
     results = es_client.search index: stream_index, q: media_source.keyword
     user_ids = extract_userids(results)
-    user_ids.sample(Rails.application.config.num_users)
+    usable_ids = user_ids.uniq.sample(Rails.application.config.num_users)
+    self.update_attributes(num_users: usable_ids.length)
+    usable_ids
   end
 
   def index_exists?
