@@ -75,7 +75,7 @@ describe DataSet do
       ds.fetch_tweets(1)
     end
 
-    it 'sets the number of users when there are many to sample from' do
+    it 'gets the right number of users when there are many to sample from' do
       # Mock out collaborators.
       allow_any_instance_of(Elasticsearch::API::Actions)
         .to receive(:search)
@@ -85,10 +85,10 @@ describe DataSet do
       expect(ds.num_users).to be_nil
       # Test.
       ds.sample_users
-      expect(ds.num_users).to eq Rails.application.config.num_users
+      expect(ds.sample_users.length).to eq Rails.application.config.num_users
     end
 
-    it 'sets the number of users when there are few to sample from' do
+    it 'gets the right number of users when there are few to sample from' do
       # Mock out collaborators.
       allow_any_instance_of(Elasticsearch::API::Actions)
         .to receive(:search)
@@ -98,6 +98,13 @@ describe DataSet do
       expect(ds.num_users).to be_nil
       # Test.
       ds.sample_users
+      expect(ds.sample_users.length).to eq Rails.application.config.num_users - 1
+    end
+
+    it 'sets the right number of users' do
+      allow(ds).to receive(:sample_users)
+        .and_return [*1..(Rails.application.config.num_users - 1)]
+      ds.update_aggregates
       expect(ds.num_users).to eq Rails.application.config.num_users - 1
     end
 

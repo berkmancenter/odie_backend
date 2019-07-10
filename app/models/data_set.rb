@@ -30,8 +30,17 @@ class DataSet < ApplicationRecord
   attr_readonly :index_name
   before_create :add_index_name
 
-  def ingest_data
+  def run_pipeline
     verify_index
+    ingest_data
+    update_aggregates
+  end
+
+  def update_aggregates
+    self.update_attributes(num_users: sample_users.length)
+  end
+
+  def ingest_data
     sample_users.each do |user_id|
       tweets = fetch_tweets(user_id)
       store_data(tweets)
@@ -39,17 +48,18 @@ class DataSet < ApplicationRecord
   end
 
   def sample_users
-    # TODO: improve semantics
-    # We've filtered our incoming data to only include tweets with the correct
-    # keyword in the expanded_url field, but that doesn't mean this search
-    # actually produces only tweets which link to the relevant source; they
-    # might @mention the keyword and link to a different media source, e.g., as
-    # in "hey @newspaper did you see this article? https://www.blog.com".
-    results = es_client.search index: stream_index, q: media_source.keyword
-    user_ids = extract_userids(results)
-    usable_ids = user_ids.uniq.sample(Rails.application.config.num_users)
-    self.update_attributes(num_users: usable_ids.length)
-    usable_ids
+    @sample_users ||= begin
+      # TODO: improve semantics
+      # We've filtered our incoming data to only include tweets with the correct
+      # keyword in the expanded_url field, but that doesn't mean this search
+      # actually produces only tweets which link to the relevant source; they
+      # might @mention the keyword and link to a different media source, e.g., as
+      # in "hey @newspaper did you see this article? https://www.blog.com".
+      results = es_client.search index: stream_index, q: media_source.keyword
+      user_ids = extract_userids(results)
+      usable_ids = user_ids.uniq.sample(Rails.application.config.num_users)
+      usable_ids
+    end
   end
 
   def index_exists?
