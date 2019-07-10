@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 # == Schema Information
 #
 # Table name: data_sets
 #
 #  id              :bigint           not null, primary key
 #  index_name      :string
+#  num_retweets    :integer
+#  num_tweets      :integer
 #  num_users       :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
@@ -37,7 +41,11 @@ class DataSet < ApplicationRecord
   end
 
   def update_aggregates
-    self.update_attributes(num_users: sample_users.length)
+    self.update_attributes(
+      num_users: sample_users.length,
+      num_tweets: es_client.count(index: index_name),
+      num_retweets: count_retweets
+    )
   end
 
   def ingest_data
@@ -135,5 +143,10 @@ class DataSet < ApplicationRecord
   # whom we found in the earlier streaming api call.)
   def stream_index
     data_config.index_name
+  end
+
+  def count_retweets
+    es_client.count index: index_name,
+      body: { query: { exists: { field: 'retweeted_status' } } }
   end
 end
