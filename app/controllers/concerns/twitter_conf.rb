@@ -11,12 +11,6 @@ module TwitterConf
     }
   }
 
-  filter {
-    ruby {
-      path => "#{Rails.root}/lib/extract_user_ids.rb"
-    }
-  }
-
   output {
     stdout { }
     elasticsearch {

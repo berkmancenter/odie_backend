@@ -23,6 +23,5 @@ output {
   elasticsearch {
       hosts         => ["localhost:9200"]
       index         => "odie"
-      document_type => "tweets"
   }
 }

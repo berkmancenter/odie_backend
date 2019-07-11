@@ -55,12 +55,6 @@ describe TwitterConf do
     }
   }
 
-  filter {
-    ruby {
-      path => "#{Rails.root}/lib/extract_user_ids.rb"
-    }
-  }
-
   output {
     stdout { }
     elasticsearch {

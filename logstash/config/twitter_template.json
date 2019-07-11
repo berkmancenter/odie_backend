@@ -1,5 +1,5 @@
 {
-  "template": "odie",
+  "index_patterns": ["odi*"],
   "settings": {
     "number_of_shards": 1,
     "number_of_replicas": 0,
@@ -9,29 +9,28 @@
       }
     },
     "analysis": {
-        "analyzer": {
-          "domain_name_analyzer": {
-            "filter":"lowercase",
-            "tokenizer": "domain_name_tokenizer",
-            "type": "custom"
-          }
-        },
-        "tokenizer": {
-          "domain_name_tokenizer": {
-            "type": "PathHierarchy",
-            "delimiter": ".",
-            "reverse": true
-          }
+      "analyzer": {
+        "domain_name_analyzer": {
+          "filter":"lowercase",
+          "tokenizer": "domain_name_tokenizer",
+          "type": "custom"
+        }
+      },
+      "tokenizer": {
+        "domain_name_tokenizer": {
+          "type": "PathHierarchy",
+          "delimiter": ".",
+          "reverse": true
         }
       }
     }
   },
   "mappings": {
-    "tweets": {
-      "_all": {
-        "enabled": false
-      },
+    "_doc": {
       "properties": {
+        "text": {
+          "type": "keyword"
+        },
         "retweeted_status": {
           "type": "object",
           "properties": {
@@ -44,9 +43,9 @@
                     "urls": {
                       "properties": {
                         "expanded_url": {
-                          "type": "text",
+                          "type": "keyword",
                           "fields": {
-                            "please_work": {
+                            "domain_names": {
                               "analyzer":  "domain_name_analyzer",
                               "type": "text"
                             }
@@ -66,9 +65,9 @@
             "urls": {
               "properties": {
                 "expanded_url": {
-                  "type": "text",
+                  "type": "keyword",
                   "fields": {
-                    "please_work": {
+                    "domain_names": {
                       "analyzer":  "domain_name_analyzer",
                       "type": "text"
                     }
