@@ -24,5 +24,7 @@ module OdieBackend
 
     # How many tweets to collect from each user during a data collection run.
     config.tweets_per_user = ( ENV['TWEETS_PER_USER'] || 50 ).to_i
+
+    config.autoload_paths << Rails.root.join('lib')
   end
 end

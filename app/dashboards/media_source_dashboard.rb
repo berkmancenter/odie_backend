@@ -10,10 +10,18 @@ class MediaSourceDashboard < Administrate::BaseDashboard
   ATTRIBUTE_TYPES = {
     id: Field::Number,
     active: Field::Boolean,
-    description: Field::Text,
-    keyword: Field::String,
-    name: Field::String,
-    url: Field::String,
+    description: Field::Text.with_options(
+      placeholder: "Will be displayed to users."
+    ),
+    keyword: Field::String.with_options(
+      placeholder: "Don't override this without consulting the admin docs."
+    ),
+    name: Field::String.with_options(
+      placeholder: '"Washington Post"; will be displayed to users.'
+    ),
+    url: Field::String.with_options(
+      placeholder: 'www.washingtonpost.com'
+    ),
     created_at: Field::DateTime,
     updated_at: Field::DateTime,
   }.freeze
