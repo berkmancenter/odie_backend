@@ -4,6 +4,10 @@
 
 # README
 
+These instructions are for ODIE developers. You might instead want to read...
+* [the admin docs](doc/admin.md), if you're an administrator of an ODIE instance
+* [the api docs](doc/api.md), if you're writing code to consume the ODIE API.
+
 The ODIE API requires ruby 2.6 and postgres 9.2+.
 
 ## Getting started
