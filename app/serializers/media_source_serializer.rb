@@ -1,4 +1,4 @@
-class MediaSourcesSerializer
+class MediaSourceSerializer
   include FastJsonapi::ObjectSerializer
   attributes :description, :name, :url
 

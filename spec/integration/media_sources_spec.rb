@@ -25,7 +25,7 @@ feature 'Media Sources' do
     it 'returns a list of all active media sources' do
       visit media_sources_path
       expect(page.body).to eq(
-        MediaSourcesSerializer.new(MediaSource.all).serialized_json
+        MediaSourceSerializer.new(MediaSource.all).serialized_json
       )
     end
 
@@ -38,7 +38,7 @@ feature 'Media Sources' do
       )
       visit media_sources_path
       expect(page.body).to eq(
-        MediaSourcesSerializer.new(
+        MediaSourceSerializer.new(
           MediaSource.where(active: true)
         ).serialized_json
       )
