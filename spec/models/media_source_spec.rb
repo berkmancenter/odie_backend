@@ -85,4 +85,12 @@ describe MediaSource do
     foo.save
     expect(foo.keyword).to eq 'tilde'
   end
+
+  it 'provides the most recent data set' do
+    dc = DataConfig.new(media_sources: [source])
+    ds1 = DataSet.create(media_source: source, data_config: dc)
+    ds2 = DataSet.create(media_source: source, data_config: dc)
+
+    expect(source.latest_data).to eq ds2
+  end
 end

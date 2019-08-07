@@ -37,6 +37,10 @@ class MediaSource < ApplicationRecord
     super(new_val)
   end
 
+  def latest_data
+    data_sets.last
+  end
+
   private
 
   def guess_keyword

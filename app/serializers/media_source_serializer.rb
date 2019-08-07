@@ -2,7 +2,11 @@ class MediaSourceSerializer
   include FastJsonapi::ObjectSerializer
   attributes :description, :name, :url
 
-  attribute :latest_index do |obj|
-    obj.data_sets&.last&.index_name
+  attribute :latest_data do |obj|
+    if (data = obj.latest_data)
+      DataSetSerializer.new(data).serializable_hash
+    else
+      nil
+    end
   end
 end

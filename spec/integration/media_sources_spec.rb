@@ -68,7 +68,7 @@ feature 'Media Sources' do
       visit media_source_path(id: ms.id)
       expectation = {
         id: "#{ms.id}",
-        type: 'media_sources',
+        type: 'media_source',
         attributes: {
           description: 'The Boston Evening Traveler was a daily paper designed ' \
                        'to be read around the family fireplace and covering a ' \
@@ -76,20 +76,17 @@ feature 'Media Sources' do
                        'slavery. It was absorbed by the Herald in 1912.',
           name: 'Boston Evening Traveler',
           url: 'www.bostonherald.com',
-          latest_index: "#{ds.index_name}"
+          latest_data: DataSetSerializer.new(ds).serializable_hash
         }
       }
 
-      # We need to symbolize the keys, included in the nested hash, to prevent
-      # trivial comparison failures.
-      expect(symbolize(page.body)).to eq expectation
+      expect(JSON.parse(page.body)['data'].to_json).to eq expectation.to_json
     end
 
     it 'handles cases where there are no attached data sets' do
-
       ms.data_sets.delete_all
       visit media_source_path(id: ms.id)
-      expect(latest_index(page)).to eq nil
+      expect(latest_dataset(page)).to eq nil
     end
 
     it 'handles cases where there are multiple attached data sets' do
@@ -97,17 +94,109 @@ feature 'Media Sources' do
       ds1 = DataSet.create(media_source: ms, data_config: dc)
       ds2 = DataSet.create(media_source: ms, data_config: dc)
       visit media_source_path(id: ms.id)
-      expect(latest_index(page)).to eq ds2.index_name
+      expect(latest_dataset(page)[:data][:id]).to eq ds2.id.to_s
     end
   end
 
-  def symbolize(hsh)
-    result = JSON.parse(hsh)['data'].symbolize_keys
-    result[:attributes] = result[:attributes].symbolize_keys
-    result
+  context '/media_sources/data' do
+    let(:ms1) {
+      MediaSource.create(
+        description: 'The Boston Evening Traveler was a daily paper designed ' \
+                     'to be read around the family fireplace and covering a ' \
+                     'variety of topics. It opposed the expansion of ' \
+                     'slavery. It was absorbed by the Herald in 1912.',
+        name: 'Boston Evening Traveler',
+        url: 'https://www.bostonherald.com')
+    }
+
+    let(:ms2) {
+      MediaSource.create(
+        description: 'A heavily political weekly paper constantly on the ' \
+                     'verge of being suppressed by the Royalist government.',
+        name: 'Massachusetts Spy',
+        url: 'https://www.mass.spy')
+    }
+
+    let(:dc) do
+      DataConfig.new(
+        media_sources: [ms1, ms2]
+      )
+    end
+    let(:ds1) { DataSet.create(media_source: ms1, data_config: dc) }
+    let(:ds2) { DataSet.create(media_source: ms2, data_config: dc) }
+
+    it 'resolves' do
+      visit media_source_data_path(format: :json)
+      expect(page.status_code).to eq 200
+    end
+
+    it 'returns the expected data with one object' do
+      [ms1, ds1] # force these to exist in scope
+      visit media_source_data_path({ids: [ms1.id], format: :json})
+      results = JSON.parse(page.body)
+      expect(results['data'].length).to eq 1
+      puts results['data']
+      expect(json_dataset_from(results, ms1.id)).to eq(
+        dataset_serialization(ds1)
+      )
+    end
+
+    it 'returns the expected data with multiple objects' do
+      [ms1, ms2, ds1, ds2]
+      visit media_source_data_path({ids: [ms1.id, ms2.id], format: :json})
+      results = JSON.parse(page.body)
+      expect(results['data'].length).to eq 2
+      expect(json_dataset_from(results, ms1.id)).to include(
+        dataset_serialization(ds1)
+      )
+      expect(json_dataset_from(results, ms2.id)).to include(
+        dataset_serialization(ds2)
+      )
+    end
+
+    it 'handles nonexistent IDs' do
+      [ms1, ms2, ds1, ds2]
+      bad_id = ms2.id
+      ms2.delete
+      visit media_source_data_path({ids: [ms1.id, bad_id], format: :json})
+      results = JSON.parse(page.body)
+      expect(results['data'].length).to eq 1
+      expect(results['data'].to_json).to include(
+        dataset_serialization(ds1)
+      )
+    end
+
+    it 'handles media sources without data sets' do
+      ms3 = MediaSource.create(
+        description: 'A heavily political weekly paper constantly on the ' \
+                     'verge of being suppressed by the Royalist government.',
+        name: 'Massachusetts Spy',
+        url: 'https://www.mass.spy')
+      visit media_source_data_path({ids: [ms3.id], format: :json})
+      results = JSON.parse(page.body)
+      expect(json_dataset_from(results, ms3.id)).to eq nil
+    end
   end
 
-  def latest_index(result)
-    symbolize(result.body)[:attributes][:latest_index]
+  def json_dataset_from(results, id)
+    raw = results['data'].select { |item| item['id'] == id.to_s }
+          .first['attributes']['latest_data']
+
+    case raw
+    when nil
+      nil
+    else
+      raw['data'].to_json
+    end
+  end
+
+  def dataset_serialization(dataset)
+    DataSetSerializer.new(dataset).serializable_hash[:data].to_json
+  end
+
+  def latest_dataset(result)
+    JSON.parse(
+      result.body, symbolize_names: true
+    )[:data][:attributes][:latest_data]
   end
 end

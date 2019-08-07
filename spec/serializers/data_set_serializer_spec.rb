@@ -60,13 +60,6 @@ describe DataSetSerializer do
   it 'reports the top hashtags' do
     expect(hash_data[:attributes][:hashtags]).to eq ds.hashtags
   end
-
-  it 'reports the associated media source' do
-    actual_hash = hash_data[:attributes][:media_source]
-    expected_hash = MediaSourceSerializer.new(ds.media_source).serializable_hash
-    expect(actual_hash).to include expected_hash
-    expect(expected_hash).to include actual_hash
-  end
 end
 
 # not yet implemented: time period; top words; top URLs; top sources;
