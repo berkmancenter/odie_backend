@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   get 'media_sources/data', to: 'media_sources#data', as: :media_source_data
   get 'activate/:id', to: 'twitter_confs#new', as: :activate
+  resources :data_collections, only: [:new]
 
   defaults format: :json do
     resources :media_sources, only: [:index, :show, :data]

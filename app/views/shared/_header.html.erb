@@ -3,9 +3,12 @@
     <%= image_tag('favicon.ico') %>
     <h1>ODIE</h1>
     <% if user_signed_in? %>
-      <%= link_to('Sign Out', destroy_user_session_path,
-                  method: :delete, class: 'button button-secondary',
-                  style: 'float: right;') %>
+      <div style="float: right;">
+        <%= link_to('Collect Data', new_data_collection_path,
+                    class: 'button button-secondary') %>
+        <%= link_to('Sign Out', destroy_user_session_path,
+                    method: :delete, class: 'button button-secondary') %>        
+      </div>
     <% end %>
   </header>
 </div>
