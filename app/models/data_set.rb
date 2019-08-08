@@ -88,7 +88,7 @@ class DataSet < ApplicationRecord
 
   def store_data(tweets)
     tweets.each do |tweet|
-      es_client.create index: index_name, type: 'tweets', body: tweet.to_json
+      es_client.create index: index_name, type: '_doc', body: tweet.to_json
     end
   end
 

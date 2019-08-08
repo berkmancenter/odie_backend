@@ -8,7 +8,11 @@ These instructions are for ODIE developers. You might instead want to read...
 * [the admin docs](doc/admin.md), if you're an administrator of an ODIE instance
 * [the api docs](doc/api.md), if you're writing code to consume the ODIE API.
 
-The ODIE API requires ruby 2.6 and postgres 9.2+.
+The ODIE API requires:
+* ruby 2.6
+* postgres 9.2+.
+* Elasticsearch 6.6
+* Logstash 6.6
 
 ## Getting started
 * Copy `config/database.yml.example` to `config/database.yml` and change its values to match your postgres.
@@ -16,7 +20,7 @@ The ODIE API requires ruby 2.6 and postgres 9.2+.
 * `rails db:setup`
 
 ## Environment Variables
-For production, set:
+For production, set (in `.env`):
 * `DATABASE_USERNAME`
 * `DATABASE_PASSWORD`
 * `DATABASE_NAME`
@@ -38,6 +42,13 @@ In production, or in dev if you want to write `twitter.conf` files, you will nee
 For any environment:
 * `NUM_USERS` (optional; defaults to `5000`)
 * `TWEETS_PER_USER` (optional; defaults to `50`)
+
+## Collecting Twitter data
+To test that your data collection pipeline is running:
+* Copy `twitter.conf.example` to `twitter.conf` and edit in the appropriate variables.
+  * The keywords can be anything, but not all keywords will be found on Twitter within a short amount of time; "kittens" is a reliable choice.
+* Make sure elasticsearch is running.
+* `logstash -f logstash/config/twitter.conf`
 
 ## Tests
 Run tests with `rspec`.

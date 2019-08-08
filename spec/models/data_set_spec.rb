@@ -127,10 +127,10 @@ describe DataSet do
       # can't mock it.
       expect_any_instance_of(Elasticsearch::API::Actions)
         .to receive(:create)
-        .once.with(index: ds.index_name, type: 'tweets', body: tweets[0].to_json)
+        .once.with(index: ds.index_name, type: '_doc', body: tweets[0].to_json)
       expect_any_instance_of(Elasticsearch::API::Actions)
         .to receive(:create)
-        .once.with(index: ds.index_name, type: 'tweets', body: tweets[1].to_json)
+        .once.with(index: ds.index_name, type: '_doc', body: tweets[1].to_json)
       ds.store_data(tweets)
     end
   end

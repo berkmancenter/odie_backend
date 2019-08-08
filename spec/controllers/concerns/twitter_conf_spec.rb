@@ -60,7 +60,7 @@ describe TwitterConf do
     elasticsearch {
         hosts         => host
         index         => "index"
-        document_type => "tweets"
+        document_type => "_doc"
         template      => "#{Rails.application.config.twitter_template}"
         template_name => "odie"
         template_overwrite => true
