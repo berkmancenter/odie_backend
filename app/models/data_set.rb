@@ -68,12 +68,12 @@ class DataSet < ApplicationRecord
       results = es_client.search index: stream_index, q: media_source.keyword
       user_ids = extract_userids(results)
       usable_ids = user_ids.uniq.sample(Rails.application.config.num_users)
-      usable_ids
+      usable_ids.map(&:to_i)
     end
   end
 
   def index_exists?
-    es_client.indices.exists? :index_name
+    es_client.indices.exists? index: index_name
   end
 
   def fetch_tweets(user_id)
@@ -127,7 +127,7 @@ class DataSet < ApplicationRecord
 
   def setup_index
     es_client.indices.create index: index_name,
-      body: Rails.application.config.twitter_template
+      body: IO.read(Rails.application.config.twitter_template)
   end
 
   # We could do this on_create, but that wouldn't guarantee that it continued
@@ -168,7 +168,7 @@ class DataSet < ApplicationRecord
                          body: { sort: ['_doc'] }
     hashtags += extract_hashtags(r)
 
-    while (r = client.scroll(body: { scroll_id: r['_scroll_id'] }, scroll: '5m') and not r['hits']['hits'].empty?) do
+    while (r = es_client.scroll(body: { scroll_id: r['_scroll_id'] }, scroll: '5m') and not r['hits']['hits'].empty?) do
       hashtags += extract_hashtags(r)
     end
 
