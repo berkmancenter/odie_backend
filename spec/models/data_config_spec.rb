@@ -12,20 +12,8 @@
 require 'rails_helper'
 
 describe DataConfig do
-  let(:phoenix) {
-    MediaSource.create(
-      description: 'alternative weekly known for arts coverage',
-      name: 'Boston Phoenix',
-      url: 'www.phoenix.com'
-    )
-  }
-  let(:liberator) {
-    MediaSource.create(
-      description: 'abolitionist, feminist paper with influential readership',
-      name: 'The Liberator',
-      url: 'www.hellyeahgrimkésisters.org'
-    )
-  }
+  let(:phoenix) { build(:media_source, :phoenix) }
+  let(:liberator) { build(:media_source, :liberator) }
 
   it 'is created with the expected keywords' do
     dc = DataConfig.new(media_sources: [phoenix, liberator])

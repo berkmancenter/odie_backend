@@ -2,8 +2,8 @@ require 'rails_helper'
 
 feature 'Admin' do
   include Devise::Test::IntegrationHelpers
-  let(:admin_user) { User.new(email: 'admin@exmaple.com', admin: true) }
-  let(:api_user) { User.new(email: 'api@exmaple.com', admin: false) }
+  let(:admin_user) { build(:user, :admin) }
+  let(:api_user) { build(:user) }
 
   context 'unauthenticated users' do
     scenario 'are prompted to sign in if they visit the admin' do

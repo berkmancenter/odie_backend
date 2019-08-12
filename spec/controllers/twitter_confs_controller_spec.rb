@@ -1,11 +1,7 @@
 require 'rails_helper'
 
 describe TwitterConfsController do
-  let(:ms) { MediaSource.create(
-    description: 'needed to validate DataConfig',
-    name: 'test',
-    url: 'www.example.com'
-  ) }
+  let(:ms) { build(:media_source) }
   let(:cfg) { DataConfig.create(keywords: ['foo', 'bar'], media_sources: [ms]) }
 
   it 'generates a conf file with the expected context' do

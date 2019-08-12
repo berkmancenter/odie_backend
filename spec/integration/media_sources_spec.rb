@@ -2,18 +2,13 @@ require 'rails_helper'
 
 feature 'Media Sources' do
   include Devise::Test::IntegrationHelpers
-  let(:admin_user) { User.new(email: 'admin@exmaple.com', admin: true) }
-  let(:api_user) { User.new(email: 'api@exmaple.com', admin: false) }
+  let(:admin_user) { build(:user, :admin) }
+  let(:api_user) { build(:user) }
 
   context '/media_sources' do
     before do
       3.times do
-        MediaSource.create(
-          name: 'Editorial Humor',
-          description: 'Political cartoons galore',
-          url: 'edhumor.com',
-          active: true
-        )
+        create(:media_source, :active)
       end
     end
 
@@ -30,12 +25,8 @@ feature 'Media Sources' do
     end
 
     it 'does not return inactive media sources' do
-      MediaSource.create(
-        name: 'Bofton Weekly Poft-Boy',
-        description: 'Published by Authority (!)',
-        url: 'ellis.huske.com',
-        active: false
-      )
+      create(:media_source, :inactive)
+
       visit media_sources_path
       expect(page.body).to eq(
         MediaSourceSerializer.new(
@@ -46,15 +37,7 @@ feature 'Media Sources' do
   end
 
   context '/media_sources/:id' do
-    let(:ms) {
-      MediaSource.create(
-        description: 'The Boston Evening Traveler was a daily paper designed ' \
-                     'to be read around the family fireplace and covering a ' \
-                     'variety of topics. It opposed the expansion of ' \
-                     'slavery. It was absorbed by the Herald in 1912.',
-        name: 'Boston Evening Traveler',
-        url: 'https://www.bostonherald.com')
-    }
+    let(:ms) { create(:media_source, :evening_traveler) }
 
     it 'resolves' do
       visit media_source_path(id: ms.id)
@@ -99,23 +82,8 @@ feature 'Media Sources' do
   end
 
   context '/media_sources/data' do
-    let(:ms1) {
-      MediaSource.create(
-        description: 'The Boston Evening Traveler was a daily paper designed ' \
-                     'to be read around the family fireplace and covering a ' \
-                     'variety of topics. It opposed the expansion of ' \
-                     'slavery. It was absorbed by the Herald in 1912.',
-        name: 'Boston Evening Traveler',
-        url: 'https://www.bostonherald.com')
-    }
-
-    let(:ms2) {
-      MediaSource.create(
-        description: 'A heavily political weekly paper constantly on the ' \
-                     'verge of being suppressed by the Royalist government.',
-        name: 'Massachusetts Spy',
-        url: 'https://www.mass.spy')
-    }
+    let(:ms1) { create(:media_source, :evening_traveler) }
+    let(:ms2) { create(:media_source, :spy) }
 
     let(:dc) do
       DataConfig.new(
@@ -135,7 +103,6 @@ feature 'Media Sources' do
       visit media_source_data_path({ids: [ms1.id], format: :json})
       results = JSON.parse(page.body)
       expect(results['data'].length).to eq 1
-      puts results['data']
       expect(json_dataset_from(results, ms1.id)).to eq(
         dataset_serialization(ds1)
       )

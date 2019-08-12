@@ -1,24 +1,8 @@
 require 'rails_helper'
 
 describe DataSetSerializer do
-  let(:ms) do
-    MediaSource.new(
-      description: 'The first multi-page newspaper published in the Americas',
-      name: 'Publick Occurrences Both Forreign and Domestick',
-      url: 'https://www.publick-occurrences.com'
-    )
-  end
-  let(:dc) do
-    DataConfig.new(
-      media_sources: [ms]
-    )
-  end
-  let(:num_users) { 10 }
-  let(:num_tweets) { 15 }
-  let(:num_retweets) { 5 }
-  let(:ds) { DataSet.create(
-    media_source: ms, data_config: dc, num_users: num_users,
-    num_tweets: num_tweets
+  let(:ds) { create(
+    :data_set, num_users: 10, num_tweets: 50, num_retweets: 5
   ) }
 
   let(:serializer) { DataSetSerializer.new(ds) }

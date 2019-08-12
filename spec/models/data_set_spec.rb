@@ -28,19 +28,7 @@
 require 'rails_helper'
 
 describe DataSet do
-  let(:ms) do
-    MediaSource.new(
-      description: 'The first multi-page newspaper published in the Americas',
-      name: 'Publick Occurrences Both Forreign and Domestick',
-      url: 'https://www.publick-occurrences.com'
-    )
-  end
-  let(:dc) do
-    DataConfig.new(
-      media_sources: [ms]
-    )
-  end
-  let(:ds) { DataSet.create(media_source: ms, data_config: dc) }
+  let(:ds) { create(:data_set) }
 
   context 'index names' do
     it 'sets them on creation' do

@@ -15,25 +15,10 @@
 require 'rails_helper'
 
 describe MediaSource do
-  let(:source_brief) {
-    MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'www.washingtonpost.com')
-  }
-
-  let(:source) {
-    MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'https://www.washingtonpost.com')
-  }
-
+  let(:source_brief) { build(:media_source, url: 'www.washingtonpost.com') }
+  let(:source) { build(:media_source, url: 'https://www.washingtonpost.com') }
   let(:source_long) {
-    MediaSource.new(
-      description: 'Democracy Dies in Darkness',
-      name: 'WaPo',
-      url: 'https://www.washingtonpost.com/more_stuff?oh=yeah')
+    build(:media_source, url: 'https://www.washingtonpost.com/more_stuff?oh=yeah')
   }
 
   it 'accepts urls with protocol + host' do
