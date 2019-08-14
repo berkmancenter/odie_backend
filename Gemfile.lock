@@ -64,6 +64,7 @@ GEM
     annotate (2.7.5)
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 13.0)
+    ansi (1.5.0)
     arel (9.0.0)
     autoprefixer-rails (9.5.1.1)
       execjs
@@ -122,6 +123,9 @@ GEM
       elasticsearch-transport (= 6.8.0)
     elasticsearch-api (6.8.0)
       multi_json
+    elasticsearch-extensions (0.0.31)
+      ansi
+      elasticsearch
     elasticsearch-transport (6.8.0)
       faraday
       multi_json
@@ -348,6 +352,7 @@ DEPENDENCIES
   devise
   dotenv-rails
   elasticsearch (~> 6.0)
+  elasticsearch-extensions
   factory_bot_rails
   fast_jsonapi
   listen (>= 3.0.5, < 3.2)

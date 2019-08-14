@@ -36,6 +36,7 @@ end
 group :test do
   gem 'coveralls', require: false
   gem 'capybara', '>= 2.15'
+  gem 'elasticsearch-extensions'
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'simplecov', require: false

@@ -122,46 +122,4 @@ describe DataSet do
       ds.store_data(tweets)
     end
   end
-
-  context 'recording aggregate data' do
-    it 'sets the right number of users' do
-      mock_all_aggregates
-      allow(ds).to receive(:sample_users)
-        .and_return [*1..(Rails.application.config.num_users - 1)]
-      ds.update_aggregates
-      expect(ds.num_users).to eq Rails.application.config.num_users - 1
-    end
-
-    it 'sets the right number of tweets' do
-      mock_all_aggregates
-      allow_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:count).and_return 500
-      ds.update_aggregates
-      expect(ds.num_tweets).to eq 500
-    end
-
-    it 'sets the right number of retweets' do
-      mock_all_aggregates
-      ds.update_aggregates
-      expect(ds.num_retweets).to eq 10
-    end
-
-    it 'sets hashtags' do
-      mock_all_aggregates
-      ds.update_aggregates
-      expect(ds.hashtags).to match( { 'yo'=>'1' } )
-    end
-
-    # update_aggregates sets a lot of data, which call a lot of collaborators;
-    # this lets us mock out all of them, so that tests will run. We can
-    # selectively overwrite anything relevant to the system under test in the
-    # spec.
-    def mock_all_aggregates
-      allow_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:count)
-      allow(ds).to receive(:sample_users).and_return [1]
-      allow(ds).to receive(:count_retweets).and_return 10
-      allow(ds).to receive(:collate_hashtags).and_return( { 'yo': 1 } )
-    end
-  end
 end

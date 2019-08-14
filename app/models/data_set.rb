@@ -42,9 +42,10 @@ class DataSet < ApplicationRecord
   end
 
   def update_aggregates
+    es_client.indices.refresh index: index_name
     self.update_attributes(
       num_users: sample_users.length,
-      num_tweets: es_client.count(index: index_name),
+      num_tweets: es_client.count(index: index_name)['count'],
       num_retweets: count_retweets,
       hashtags: collate_hashtags
     )
@@ -80,7 +81,7 @@ class DataSet < ApplicationRecord
     # logstash only uses the streaming api, not the user timeline api. oy.
     # so we're going to need to create an elasticsearch index with the
     # usual mapping and dump this in..?
-    tweets = twitter_client.user_timeline(
+    twitter_client.user_timeline(
       user_id,
       count: Rails.application.config.tweets_per_user
     )
@@ -148,8 +149,9 @@ class DataSet < ApplicationRecord
   end
 
   def count_retweets
-    es_client.count index: index_name,
-      body: { query: { exists: { field: 'retweeted_status' } } }
+    results = es_client.count index: index_name,
+                body: { query: { exists: { field: 'retweeted_status' } } }
+    results['count']
   end
 
   def collate_hashtags

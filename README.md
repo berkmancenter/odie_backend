@@ -43,6 +43,9 @@ For any environment:
 * `NUM_USERS` (optional; defaults to `5000`)
 * `TWEETS_PER_USER` (optional; defaults to `50`)
 
+For test:
+* `TEST_CLUSTER_COMMAND` (the command for running Elasticsearch on your machine)
+
 ## Collecting Twitter data
 To test that your data collection pipeline is running:
 * Copy `twitter.conf.example` to `twitter.conf` and edit in the appropriate variables.
