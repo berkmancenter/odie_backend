@@ -8,11 +8,11 @@ These instructions are for ODIE developers. You might instead want to read...
 * [the admin docs](doc/admin.md), if you're an administrator of an ODIE instance
 * [the api docs](doc/api.md), if you're writing code to consume the ODIE API.
 
-The ODIE API requires:
+# System requirements
 * ruby 2.6
 * postgres 9.2+.
-* Elasticsearch 6.6
-* Logstash 6.6
+* Elasticsearch 6.5
+* Logstash 6.5
 
 ## Getting started
 * Copy `config/database.yml.example` to `config/database.yml` and change its values to match your postgres.
@@ -20,7 +20,9 @@ The ODIE API requires:
 * `rails db:setup`
 
 ## Environment Variables
-For production, set (in `.env`):
+Set all environment variables in `.env`.
+
+In production:
 * `DATABASE_USERNAME`
 * `DATABASE_PASSWORD`
 * `DATABASE_NAME`
@@ -39,19 +41,31 @@ In production, or in dev if you want to write `twitter.conf` files, you will nee
 * `ELASTICSEARCH_HOST`
 * `ELASTICSEARCH_INDEX`
 
-For any environment:
+In any environment:
 * `NUM_USERS` (optional; defaults to `5000`)
 * `TWEETS_PER_USER` (optional; defaults to `50`)
 
-For test:
-* `TEST_CLUSTER_COMMAND` (the command for running Elasticsearch on your machine)
+In test:
+* `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
 
 ## Collecting Twitter data
-To test that your data collection pipeline is running:
-* Copy `twitter.conf.example` to `twitter.conf` and edit in the appropriate variables.
-  * The keywords can be anything, but not all keywords will be found on Twitter within a short amount of time; "kittens" is a reliable choice.
+To test that your streaming data collection pipeline is running:
+* Copy `twitter.conf.example` to `test.conf` and edit in the appropriate variables.
+  * The keywords can be anything, but not all keywords will be found on Twitter within a short amount of time; "washingtonpost" is a reliable choice.
 * Make sure elasticsearch is running.
-* `logstash -f logstash/config/twitter.conf`
+* `logstash -f logstash/config/test.conf`
+
+To collect user data:
+* Make sure you have collected some streaming data.
+* Make sure elasticsearch is running.
+* Create a MediaSource, a DataConfig and a DataSet.
+  - Good defaults:
+    - `ms = MediaSource.create(url: 'https://www.washingtonpost.com', name: 'Washington Post', description: 'Democracy dies in darkness')`
+    - `dc = DataConfig.create(media_sources: [ms])`
+    - `ds = DataSet.create(media_source: ms, data_config: dc)`
+* `ds.run_pipeline`
+
+This will all be wrapped into an admin-friendly workflow at some point, but it hasn't been yet.
 
 ## Tests
 Run tests with `rspec`.

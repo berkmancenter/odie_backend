@@ -47,29 +47,40 @@ GET /media_sources
 GET /media_sources/:id
 ```
 
-`GET /media_sources` returns a list of all `media_sources` which were monitored in the last data collection run.
-
-**Attributes**
-`:id`: integer
-`:description`: text
-`:name`: string
-`:url`: string
-`:latest_index`: string; the name of the elasticsearch index which contains the most recently collected set of user tweets.
-
-Note that the tweets in the latest index do not necessarily refer to the media source itself; they are recent tweets, about anything, by a sample of users who at some point during the data collection run referred to this media source.
+`GET /media_sources` returns a serialization of all `media_sources` which were monitored in the last data collection run.
 
 **Example**
 ```
 {
-  "data": {
-    "id": "3",
-    "type": "media_sources",
-    "attributes": {
-      "description": "The free encyclopedia that anyone can edit",
-      "name": "Wikipedia",
-      "url": "https://en.wikipedia.org/",
-      "latest_index": "y578-vnkj-1uh"
-    },
-  }
+	"data": {
+		"id": "3",
+		"type": "media_source",
+		"attributes": {
+			"description": "Democracy dies in darkness",
+			"name": "Washington Post",
+			"url": "www.washingtonpost.com",
+			"latest_data": {
+				"data": {
+					"id": "3",
+					"type": "data_set",
+					"attributes": {
+						"num_users": 7,
+						"num_tweets": 350,
+						"num_retweets": 273,
+						"index_name": "3_54572fe1-8ed2-490b-87b3-2ff6dcd4d2c8",
+						"hashtags": {
+							"GIF": "1",
+							"WW2": "1",
+							"LOVE": "1",
+							"MAGA": "1",
+							"QAnon": "1",
+						}
+					}
+				}
+			}
+		}
+	}
 }
 ```
+
+`latest_data` serializes the DataSet from the most recent data collection run for a given media source. Its `attributes` are calculated from the data stored in Elasticsearch. `index_name` is the name of an Elasticsearch index specific to this DataSet. `hashtags` is a hash whose keys are hashtags, and whose values are the number of times that hashtag appeared in the data set.
