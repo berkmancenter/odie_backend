@@ -4,7 +4,7 @@ describe TwitterConf do
   it 'validates presence of its REQUIRED_VARS' do
     context = binding
     TwitterConf::REQUIRED_VARS.each do |var|
-      context.local_variable_set(var, 'foo')
+      context.local_variable_set(var, ['foo'])
     end
     expect(TwitterConf.valid? context).to be true
 
@@ -15,7 +15,7 @@ describe TwitterConf do
   it 'generates a template result' do
     cache_env
     context = binding
-    context.local_variable_set(:keywords, 'foo')
+    context.local_variable_set(:keywords, ['foo'])
     context.local_variable_set(:env, ENV)
     assert_equal EXPECTED_CONF, TwitterConf.generate(context)
   end
@@ -50,8 +50,15 @@ describe TwitterConf do
         consumer_secret => "secret"
         oauth_token => "token"
         oauth_token_secret => "secret2"
-        keywords => foo
+        keywords => ["foo"]
         full_tweet => true
+    }
+  }
+
+  filter {
+    ruby {
+      path => "#{Rails.root}/lib/check_links_for_keywords.rb"
+      script_params => { keywords => ["foo"] }
     }
   }
 

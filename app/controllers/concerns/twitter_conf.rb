@@ -11,6 +11,13 @@ module TwitterConf
     }
   }
 
+  filter {
+    ruby {
+      path => "#{Rails.root}/lib/check_links_for_keywords.rb"
+      script_params => { keywords => <%= keywords %> }
+    }
+  }
+
   output {
     stdout { }
     elasticsearch {

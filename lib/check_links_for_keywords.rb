@@ -1,6 +1,8 @@
 # See https://www.elastic.co/guide/en/logstash/6.6/plugins-filters-ruby.html
 # for documentation about these functions.
-def register(params); end
+def register(params)
+  @keywords = params[:keywords]
+end
 
 def filter(event)
   if includes_any_target? event
@@ -12,6 +14,6 @@ end
 
 def includes_any_target?(event)
   event.get('entities')['urls'].each do |u|
-    ['washingtonpost', 'nytimes'].any? { |word| u['expanded_url'].include?(word) }
+    @keywords.any? { |word| u['expanded_url'].include?(word) }
   end.any?
 end

@@ -21,7 +21,11 @@ filter {
 output {
   stdout { }
   elasticsearch {
-      hosts         => ["localhost:9200"]
-      index         => "odie"
+    hosts         => ["localhost:9200"]
+    index         => "odie"
+    document_type => "_doc"
+    template      => "/Users/ayelton/Code/odie_backend/logstash/config/twitter_template.json"
+    template_name => "odie"
+    template_overwrite => true
   }
 }
