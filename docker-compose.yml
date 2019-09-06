@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+  postgres:
+    image: 'postgres:10.3-alpine'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    env_file:
+      - '.env'
+
+  website:
+    depends_on:
+      - 'postgres'
+    build: .
+    ports:
+      - '3000:3000'
+      - '1080:1080'
+    volumes:
+      - '.:/app'
+    env_file:
+      - '.env'
+
+  elasticsearch:
+    image: elasticsearch:6.5.4
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    mem_limit: 4g
+
+  logstash:
+    image: logstash:6.5.4
+    volumes:
+      - ./:/logstash_dir
+    command: logstash -f /logstash_dir/logstash/config/twitter.conf
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5959:5959"
+
+volumes:
+  postgres:
+  esdata:
