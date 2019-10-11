@@ -69,6 +69,16 @@ To collect user data:
 
 This will all be wrapped into an admin-friendly workflow at some point, but it hasn't been yet.
 
+## Docker
+
+You can use Docker for development to make things easier. You will need to install `Docker` and `Docker Compose`.
+
+Then:
+- copy `config/database.yml.example` to `config/database.yml` and change update the development section to `postgres` for the host, username, password and database
+- `docker-compose exec website sh`
+- `rails db:setup`
+- `docker-compose up` and the application will run on http://localhost:3000
+
 ## Tests
 Run tests with `rspec`.
 
