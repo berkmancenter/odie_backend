@@ -10,6 +10,8 @@
 #  num_retweets    :integer
 #  num_tweets      :integer
 #  num_users       :integer
+#  top_urls        :hstore
+#  top_words       :hstore
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  data_config_id  :bigint
@@ -41,13 +43,22 @@ class DataSet < ApplicationRecord
     update_aggregates
   end
 
+  # Known bugs:
+  # we automatically take the top 5 from the collation -- might want that to be
+  # configurable
+  # we discard ties in that last position
+  # might prefer TF-IDF to simple word count
+  # generic stopword filter (plus 'RT') -- might not be what we prefer
+  # default to English when language is unknown
   def update_aggregates
     es_client.indices.refresh index: index_name
     self.update_attributes(
       num_users: sample_users.length,
       num_tweets: es_client.count(index: index_name)['count'],
       num_retweets: count_retweets,
-      hashtags: collate_hashtags
+      hashtags: collate(all_hashtags),
+      top_urls: collate(all_urls),
+      top_words: collate(all_words)
     )
   end
 
@@ -55,6 +66,7 @@ class DataSet < ApplicationRecord
     sample_users.each do |user_id|
       tweets = fetch_tweets(user_id)
       store_data(tweets)
+      harvest_metadata(tweets)
     end
   end
 
@@ -83,7 +95,8 @@ class DataSet < ApplicationRecord
     # usual mapping and dump this in..?
     twitter_client.user_timeline(
       user_id,
-      count: Rails.application.config.tweets_per_user
+      count: Rails.application.config.tweets_per_user,
+      tweet_mode: 'extended'
     )
   end
 
@@ -94,6 +107,14 @@ class DataSet < ApplicationRecord
   end
 
   private
+
+  def update_url_counts(tweet)
+    return unless tweet.urls?
+
+    tweet.urls.each do |url|
+      @all_urls[url.expanded_url] += 1
+    end
+  end
 
   def es_client
     @es_client ||= Elasticsearch::Client.new
@@ -127,6 +148,7 @@ class DataSet < ApplicationRecord
   end
 
   def setup_index
+    return if index_exists?
     es_client.indices.create index: index_name,
       body: IO.read(Rails.application.config.twitter_template)
   end
@@ -136,7 +158,7 @@ class DataSet < ApplicationRecord
   # availability of an Elasticsearch service, which would make development and
   # testing challenging.
   def verify_index
-    setup_index unless index_exists?
+    setup_index
     raise Exceptions::ElasticsearchError('Index not found') unless index_exists?
   end
 
@@ -154,36 +176,72 @@ class DataSet < ApplicationRecord
     results['count']
   end
 
-  def collate_hashtags
-    raw_data = search_for_hashtags
-    hashtag_counts = Hash.new 0
-
-    raw_data.each do |hashtag|
-      hashtag_counts[hashtag] += 1
-    end
-    hashtag_counts
-  end
-
-  def search_for_hashtags
-    hashtags = []
-    r = es_client.search index: index_name, scroll: '5m',
-                         body: { sort: ['_doc'] }
-    hashtags += extract_hashtags(r)
-
-    while (r = es_client.scroll(body: { scroll_id: r['_scroll_id'] }, scroll: '5m') and not r['hits']['hits'].empty?) do
-      hashtags += extract_hashtags(r)
-    end
-
-    hashtags
-  end
-
-  def extract_hashtags(results)
+  def extract_hashtags(tweets)
     # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
-    results['hits']['hits'].map {
-      |result| result['_source']['entities']['hashtags']
-    }.reject {
-      |hashtag_list| hashtag_list.empty?
-    }.flatten
-    .map { |hashtag_entity| hashtag_entity['text'] }
+    tweets.map { |tweet| tweet.hashtags }             # extract hashtag objects
+          .flatten
+          .map { |hashtag| hashtag.text }             # extract hashtag text
+          .each do |hashtag|                          # update hashtag counter
+            all_hashtags[hashtag] += 1
+          end
+  end
+
+  def all_words
+    @all_words ||= Hash.new 0
+  end
+
+  def all_hashtags
+    @all_hashtags ||= Hash.new 0
+  end
+
+  def all_urls
+    @all_urls ||= Hash.new 0
+  end
+
+  def extract_words(tweets)
+    tweets.each do |tweet|
+      sw_filter(tweet.lang)
+        .filter(tweet.attrs[:full_text].split)
+        .each do |token|
+          next unless is_word? token
+          all_words[token] += 1
+        end
+    end
+  end
+
+  def is_word?(token)
+    [token.starts_with?('#'),
+     token.starts_with?('http')].none?
+  end
+
+  def sw_filter(lang)
+    begin
+      Stopwords::Snowball::Filter.new(lang, ['RT'])
+    rescue ArgumentError # if language was invalid, default to English
+      Stopwords::Snowball::Filter.new('en', ['RT'])
+    end
+  end
+
+  def extract_urls(tweets)
+
+  end
+
+  def harvest_metadata(tweets)
+    extract_hashtags(tweets)
+    extract_words(tweets)
+    extract_urls(tweets)
+  end
+
+  # Return every key/value pair that is at least tied for 5th in popularity
+  # (the hash is presumed to be of keys & integers representing the frequency
+  # of that key in the dataset).
+  # If there isn't a fifth place, just return everything.
+  def collate(hsh)
+    threshhold = hsh.values.sort[-5]
+    if threshhold
+      hsh.reject { |k, v| v < threshhold }
+    else
+      hsh
+    end
   end
 end

@@ -10,6 +10,8 @@
 #  num_retweets    :integer
 #  num_tweets      :integer
 #  num_users       :integer
+#  top_urls        :hstore
+#  top_words       :hstore
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  data_config_id  :bigint

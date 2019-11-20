@@ -74,6 +74,14 @@ GET /media_sources/:id
 							"LOVE": "1",
 							"MAGA": "1",
 							"QAnon": "1",
+						},
+            "top_words": {
+							"Sondland": "8",
+							"This": "7",
+              "one": "7",
+							"people": "8",
+							"I": "7",
+							"trans": "10",
 						}
 					}
 				}
@@ -83,4 +91,9 @@ GET /media_sources/:id
 }
 ```
 
-`latest_data` serializes the DataSet from the most recent data collection run for a given media source. Its `attributes` are calculated from the data stored in Elasticsearch. `index_name` is the name of an Elasticsearch index specific to this DataSet. `hashtags` is a hash whose keys are hashtags, and whose values are the number of times that hashtag appeared in the data set.
+`latest_data` serializes the DataSet from the most recent data collection run for a given media source. Its `attributes` are calculated from the data stored in Elasticsearch or retrieved during tweet collection.
+* `index_name` is the name of an Elasticsearch index specific to this DataSet.
+* `hashtags`, `top_words`, and `top_urls` are hashes whose keys are the indicated data, and whose values are the number of times that item appeared in the data set.
+  * The first through fifth place items will be returned (including ties, so there may be more than 5 items).
+  * They will not be sorted.
+  * `top_words` is a naive count which filters out stopwords using a language-specific filter (and also the term `RT`), but which does not perform stemmatization or lemmatization.

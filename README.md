@@ -55,7 +55,7 @@ To test that your streaming data collection pipeline is running:
   * The keywords can be anything, but not all keywords will be found on Twitter within a short amount of time; "washingtonpost" is a reliable choice.
 * Make sure elasticsearch is running.
 * `logstash -f logstash/config/test.conf`
-  - On the server, this is `/usr/share/logstash/bin/logstash -f test.conf`.
+  - On the server, this is `/usr/share/logstash/bin/logstash -f logstash/config/test.conf`.
 
 To collect user data:
 * Make sure you have collected some streaming data.
