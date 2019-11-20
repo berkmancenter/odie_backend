@@ -96,4 +96,6 @@ GET /media_sources/:id
 * `hashtags`, `top_words`, and `top_urls` are hashes whose keys are the indicated data, and whose values are the number of times that item appeared in the data set.
   * The first through fifth place items will be returned (including ties, so there may be more than 5 items).
   * They will not be sorted.
+  * `hashtags` do not include the `#` character.
   * `top_words` is a naive count which filters out stopwords using a language-specific filter (and also the term `RT`), but which does not perform stemmatization or lemmatization.
+  * `top_urls` omits the querystring component of the URL before counting. This should enable it to collate URLs which represent the same destination with different social media tracking garbage at the end (`fbclid`, `utm_source`, etc.). Sometimes this may have discarded meaningful data, though.
