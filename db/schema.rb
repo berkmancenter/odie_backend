@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_22_200443) do
+ActiveRecord::Schema.define(version: 2019_11_22_210209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(version: 2019_11_22_200443) do
     t.hstore "top_urls", default: {}
     t.hstore "top_mentions", default: {}
     t.hstore "top_sources", default: {}
+    t.hstore "top_retweets", default: {}
     t.index ["data_config_id"], name: "index_data_sets_on_data_config_id"
     t.index ["media_source_id"], name: "index_data_sets_on_media_source_id"
   end
