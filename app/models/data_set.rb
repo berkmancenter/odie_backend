@@ -37,6 +37,8 @@ class DataSet < ApplicationRecord
   attr_readonly :index_name
   before_create :add_index_name
 
+  EXTRA_STOPWORDS = ['rt', '&amp;']
+
   def run_pipeline
     verify_index
     ingest_data
@@ -108,14 +110,6 @@ class DataSet < ApplicationRecord
 
   private
 
-  def update_url_counts(tweet)
-    return unless tweet.urls?
-
-    tweet.urls.each do |url|
-      @all_urls[url.expanded_url] += 1
-    end
-  end
-
   def es_client
     @es_client ||= Elasticsearch::Client.new
   end
@@ -178,12 +172,36 @@ class DataSet < ApplicationRecord
 
   def extract_hashtags(tweets)
     # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
-    tweets.map { |tweet| tweet.hashtags }             # extract hashtag objects
+    # Sadly, a lot going on here:
+    # - extract hashtags from tweet object and its retweeted or quoted tweets
+    # - when there isn't a RT/quote tweet, we end up with a Twitter::NullObject
+    #   rather than nil, so we need to reject those rather than using .compact;
+    #   further, hashtag objects don't respond to is_instance?
+    # - once our list contains only hashtag objects, get their text
+    # - then count how many times we've seen each text
+    tweets.map { |tweet| all_nested_hashtags(tweet) }
           .flatten
-          .map { |hashtag| hashtag.text }             # extract hashtag text
-          .each do |hashtag|                          # update hashtag counter
+          .reject { |tweet| tweet.class == Twitter::NullObject }
+          .map { |hashtag| hashtag.text }
+          .each do |hashtag|
             all_hashtags[hashtag] += 1
           end
+  end
+
+  # Hashtag objects may be contained in the tweet, its retweeted tweet, or its
+  # quoted tweet.
+  def all_nested_hashtags(tweet)
+    [tweet.hashtags,
+     tweet.retweeted_status&.hashtags,
+     tweet.retweeted_status&.quoted_status&.hashtags,
+     tweet.quoted_status&.hashtags]
+  end
+
+  def all_nested_urls(tweet)
+    [tweet.urls,
+     tweet.retweeted_status&.urls,
+     tweet.retweeted_status&.quoted_status&.urls,
+     tweet.quoted_status&.urls]
   end
 
   def all_words
@@ -198,10 +216,12 @@ class DataSet < ApplicationRecord
     @all_urls ||= Hash.new 0
   end
 
+  # This is made case-insensitive by downcasing everything. That's a bummer;
+  # it would be better for the stopword filter to be case-insensitive.
   def extract_words(tweets)
     tweets.each do |tweet|
       sw_filter(tweet.lang)
-        .filter(tweet.attrs[:full_text].split)
+        .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
         .each do |token|
           next unless is_word? token
           all_words[token] += 1
@@ -216,9 +236,9 @@ class DataSet < ApplicationRecord
 
   def sw_filter(lang)
     begin
-      Stopwords::Snowball::Filter.new(lang, ['RT'])
+      Stopwords::Snowball::Filter.new(lang, EXTRA_STOPWORDS)
     rescue ArgumentError # if language was invalid, default to English
-      Stopwords::Snowball::Filter.new('en', ['RT'])
+      Stopwords::Snowball::Filter.new('en', EXTRA_STOPWORDS)
     end
   end
 
@@ -232,7 +252,7 @@ class DataSet < ApplicationRecord
 
   def extract_urls(tweets)
     # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
-    tweets.map { |tweet| tweet.urls }                 # extract url objects
+    tweets.map { |tweet| all_nested_urls(tweet) }     # extract url objects
           .flatten
           .map { |url_obj| normalized_url(url_obj) }  # extract url text
           .each do |url|                              # update url counter
