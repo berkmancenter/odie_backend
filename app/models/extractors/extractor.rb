@@ -1,4 +1,16 @@
+# Shared logic for extracting aggregated metadata from tweets. This performs
+# bookkeeping functions and is not intended to be invoked directly.
+# The `harvest` method returns a hash of the top THRESHHOLD most common
+# elements of the given data type within the given set of tweets.
+# Subclasses should define an `extract` method which has the type-specific logic
+# for finding their metadata type (user mentions, hashtags, etc.)
+# This class provides `all_nested` as a utility for its subclasses -- it pulls
+# out all objects of the given type from the tweet and its retweeted or
+# quoted tweets (since the top-level tweet object does not contain everything
+# visible to users who are reading an actual timeline).
 class Extractor
+  THRESHHOLD = -5
+
   def initialize(tweets)
     @tweets = tweets.flatten
   end
@@ -16,9 +28,9 @@ class Extractor
   # of that key in the dataset).
   # If there isn't a fifth place, just return everything.
   def collate
-    threshhold = all_things.values.sort[-5]
-    if threshhold
-      all_things.reject { |k, v| v < threshhold }
+    candidates = all_things.values.sort[THRESHHOLD]
+    if candidates
+      all_things.reject { |k, v| v < candidates }
     else
       all_things
     end

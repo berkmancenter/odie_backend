@@ -11,6 +11,7 @@
 #  num_tweets      :integer
 #  num_users       :integer
 #  top_mentions    :hstore
+#  top_sources     :hstore
 #  top_urls        :hstore
 #  top_words       :hstore
 #  created_at      :datetime         not null
@@ -60,7 +61,8 @@ class DataSet < ApplicationRecord
       hashtags: MetadataHarvester.new(:hashtags, all_tweets).harvest,
       top_urls: MetadataHarvester.new(:urls, all_tweets).harvest,
       top_words: MetadataHarvester.new(:words, all_tweets).harvest,
-      top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest
+      top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest,
+      top_sources: MetadataHarvester.new(:sources, all_tweets).harvest
     )
   end
 

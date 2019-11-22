@@ -87,6 +87,13 @@ GET /media_sources/:id
               "JessicaFjeld": "6",
               "cyberlawclinic": "6",
               "zittrain": "8"
+            },
+            "top_sources": {
+              "ArcadiaFund": 6",
+              "BKCHarvard": "20",
+              "JessicaFjeld": "6",
+              "cyberlawclinic": "6",
+              "zittrain": "8"
             }
 					}
 				}

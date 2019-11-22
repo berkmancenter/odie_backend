@@ -42,6 +42,11 @@ feature 'Data Ingestion' do
     expect(ds.top_mentions).to eq (
       {"ArcadiaFund"=>"6", "BKCHarvard"=>"20", "JessicaFjeld"=>"6",
       "cyberlawclinic"=>"6", "zittrain"=>"8"}
+    )
+    expect(ds.top_sources).to eq (
+      {"twitter.com"=>"13", "cyber.harvard.edu"=>"26", "hvrdlaw.me"=>"3",
+      "datasociety.net"=>"2", "brk.mn"=>"2", "www.theatlantic.com"=>"2"}
+    )
   end
 
   # Rehydrate JSON into Twitter::Tweet objects, since that's what DataSets

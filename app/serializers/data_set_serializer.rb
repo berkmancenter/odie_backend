@@ -9,6 +9,7 @@
 #  num_tweets      :integer
 #  num_users       :integer
 #  top_mentions    :hstore
+#  top_sources     :hstore
 #  top_urls        :hstore
 #  top_words       :hstore
 #  created_at      :datetime         not null
