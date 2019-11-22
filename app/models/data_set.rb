@@ -59,7 +59,8 @@ class DataSet < ApplicationRecord
       num_retweets: count_retweets,
       hashtags: MetadataHarvester.new(:hashtags, all_tweets).harvest,
       top_urls: MetadataHarvester.new(:urls, all_tweets).harvest,
-      top_words: MetadataHarvester.new(:words, all_tweets).harvest
+      top_words: MetadataHarvester.new(:words, all_tweets).harvest,
+      top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest
     )
   end
 

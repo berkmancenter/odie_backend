@@ -39,6 +39,9 @@ feature 'Data Ingestion' do
     expect(ds.top_words).to eq (
       {"ai"=>"6", "⬇️⬇️⬇️"=>"7", "@bkcharvard"=>"6", "facebook"=>"6", "today"=>"5"}
     )
+    expect(ds.top_mentions).to eq (
+      {"ArcadiaFund"=>"6", "BKCHarvard"=>"20", "JessicaFjeld"=>"6",
+      "cyberlawclinic"=>"6", "zittrain"=>"8"}
   end
 
   # Rehydrate JSON into Twitter::Tweet objects, since that's what DataSets
