@@ -6,7 +6,7 @@ class MetadataHarvester
     urls: UrlExtractor,
     words: WordExtractor,
     mentions: MentionExtractor,
-    sources: SourceHarvester
+    sources: SourceExtractor
   }
 
   def self.new(harvester_type, tweets)

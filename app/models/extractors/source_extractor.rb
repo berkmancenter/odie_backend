@@ -1,4 +1,4 @@
-class SourceHarvester < Extractor
+class SourceExtractor < Extractor
   private
 
   def extract
