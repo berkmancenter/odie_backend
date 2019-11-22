@@ -10,6 +10,7 @@
 #  num_retweets    :integer
 #  num_tweets      :integer
 #  num_users       :integer
+#  top_mentions    :hstore
 #  top_urls        :hstore
 #  top_words       :hstore
 #  created_at      :datetime         not null
@@ -37,8 +38,6 @@ class DataSet < ApplicationRecord
   attr_readonly :index_name
   before_create :add_index_name
 
-  EXTRA_STOPWORDS = ['rt', '&amp;']
-
   def run_pipeline
     verify_index
     ingest_data
@@ -58,9 +57,9 @@ class DataSet < ApplicationRecord
       num_users: sample_users.length,
       num_tweets: es_client.count(index: index_name)['count'],
       num_retweets: count_retweets,
-      hashtags: collate(all_hashtags),
-      top_urls: collate(all_urls),
-      top_words: collate(all_words)
+      hashtags: MetadataHarvester.new(:hashtags, all_tweets).harvest,
+      top_urls: MetadataHarvester.new(:urls, all_tweets).harvest,
+      top_words: MetadataHarvester.new(:words, all_tweets).harvest
     )
   end
 
@@ -68,7 +67,7 @@ class DataSet < ApplicationRecord
     sample_users.each do |user_id|
       tweets = fetch_tweets(user_id)
       store_data(tweets)
-      harvest_metadata(tweets)
+      all_tweets << tweets
     end
   end
 
@@ -110,8 +109,8 @@ class DataSet < ApplicationRecord
 
   private
 
-  def es_client
-    @es_client ||= Elasticsearch::Client.new
+  def all_tweets
+    @all_tweets ||= []
   end
 
   def twitter_client
@@ -121,6 +120,10 @@ class DataSet < ApplicationRecord
       config.access_token        = ENV['TWITTER_OAUTH_TOKEN']
       config.access_token_secret = ENV['TWITTER_OAUTH_SECRET']
     end
+  end
+
+  def es_client
+    @es_client ||= Elasticsearch::Client.new
   end
 
   def extract_userids(results)
@@ -168,115 +171,5 @@ class DataSet < ApplicationRecord
     results = es_client.count index: index_name,
                 body: { query: { exists: { field: 'retweeted_status' } } }
     results['count']
-  end
-
-  def extract_hashtags(tweets)
-    # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
-    # Sadly, a lot going on here:
-    # - extract hashtags from tweet object and its retweeted or quoted tweets
-    # - when there isn't a RT/quote tweet, we end up with a Twitter::NullObject
-    #   rather than nil, so we need to reject those rather than using .compact;
-    #   further, hashtag objects don't respond to is_instance?
-    # - once our list contains only hashtag objects, get their text
-    # - then count how many times we've seen each text
-    tweets.map { |tweet| all_nested_hashtags(tweet) }
-          .flatten
-          .reject { |tweet| tweet.class == Twitter::NullObject }
-          .map { |hashtag| hashtag.text }
-          .each do |hashtag|
-            all_hashtags[hashtag] += 1
-          end
-  end
-
-  # Hashtag objects may be contained in the tweet, its retweeted tweet, or its
-  # quoted tweet.
-  def all_nested_hashtags(tweet)
-    [tweet.hashtags,
-     tweet.retweeted_status&.hashtags,
-     tweet.retweeted_status&.quoted_status&.hashtags,
-     tweet.quoted_status&.hashtags]
-  end
-
-  def all_nested_urls(tweet)
-    [tweet.urls,
-     tweet.retweeted_status&.urls,
-     tweet.retweeted_status&.quoted_status&.urls,
-     tweet.quoted_status&.urls]
-  end
-
-  def all_words
-    @all_words ||= Hash.new 0
-  end
-
-  def all_hashtags
-    @all_hashtags ||= Hash.new 0
-  end
-
-  def all_urls
-    @all_urls ||= Hash.new 0
-  end
-
-  # This is made case-insensitive by downcasing everything. That's a bummer;
-  # it would be better for the stopword filter to be case-insensitive.
-  def extract_words(tweets)
-    tweets.each do |tweet|
-      sw_filter(tweet.lang)
-        .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
-        .each do |token|
-          next unless is_word? token
-          all_words[token] += 1
-        end
-    end
-  end
-
-  def is_word?(token)
-    [token.starts_with?('#'),
-     token.starts_with?('http')].none?
-  end
-
-  def sw_filter(lang)
-    begin
-      Stopwords::Snowball::Filter.new(lang, EXTRA_STOPWORDS)
-    rescue ArgumentError # if language was invalid, default to English
-      Stopwords::Snowball::Filter.new('en', EXTRA_STOPWORDS)
-    end
-  end
-
-  # The expanded_url is the most informative field, per Twitter developer docs.
-  # We omit the querystring because these are generally tracking data for social
-  # media campaigns, and will lead to spurious differences between URLs that
-  # should probably be treated as identical.
-  def normalized_url(url_obj)
-    Addressable::URI.parse(url_obj.expanded_url).omit(:query)
-  end
-
-  def extract_urls(tweets)
-    # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
-    tweets.map { |tweet| all_nested_urls(tweet) }     # extract url objects
-          .flatten
-          .map { |url_obj| normalized_url(url_obj) }  # extract url text
-          .each do |url|                              # update url counter
-            all_urls[url] += 1
-          end
-
-  end
-
-  def harvest_metadata(tweets)
-    extract_hashtags(tweets)
-    extract_words(tweets)
-    extract_urls(tweets)
-  end
-
-  # Return every key/value pair that is at least tied for 5th in popularity
-  # (the hash is presumed to be of keys & integers representing the frequency
-  # of that key in the dataset).
-  # If there isn't a fifth place, just return everything.
-  def collate(hsh)
-    threshhold = hsh.values.sort[-5]
-    if threshhold
-      hsh.reject { |k, v| v < threshhold }
-    else
-      hsh
-    end
   end
 end

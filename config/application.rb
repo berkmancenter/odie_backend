@@ -26,5 +26,6 @@ module OdieBackend
     config.tweets_per_user = ( ENV['TWEETS_PER_USER'] || 50 ).to_i
 
     config.autoload_paths << Rails.root.join('lib')
+    config.autoload_paths << Rails.root.join('app', 'models', 'extractors')
   end
 end
