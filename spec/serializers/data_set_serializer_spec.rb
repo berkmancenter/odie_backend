@@ -75,6 +75,26 @@ describe DataSetSerializer do
   it 'reports the top hashtags' do
     expect(hash_data[:attributes][:hashtags]).to eq ds.hashtags
   end
+
+  it 'reports the top words' do
+    expect(hash_data[:attributes][:top_words]).to eq ds.top_words
+  end
+
+  it 'reports the top urls' do
+    expect(hash_data[:attributes][:top_urls]).to eq ds.top_urls
+  end
+
+  it 'reports the top sources' do
+    expect(hash_data[:attributes][:top_sources]).to eq ds.top_sources
+  end
+
+  it 'reports the top mentions' do
+    expect(hash_data[:attributes][:top_mentions]).to eq ds.top_mentions
+  end
+
+  it 'reports the top retweets' do
+    expect(hash_data[:attributes][:top_retweets]).to eq ds.top_retweets
+  end
 end
 
 # not yet implemented: time period; top words; top URLs; top sources;
