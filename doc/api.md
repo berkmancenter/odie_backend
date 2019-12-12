@@ -30,7 +30,7 @@ Use cookie to fetch data:
 ```
 curl -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -X GET http://localhost:3000/data_sets/1.json \
+  -X GET http://localhost:3000/media_sources/1.json \
   -b cookie
 ```
 
@@ -45,9 +45,13 @@ This is an object representing a media source of interest.
 ```
 GET /media_sources
 GET /media_sources/:id
+GET /media_sources/?ids[]=1&ids[]=2
 ```
 
-`GET /media_sources` returns a serialization of all `media_sources` which were monitored in the last data collection run.
+Respectively, these are:
+* all `media_sources` which were monitored in the last data collection run.
+* a given media source
+* a list of media sources with given IDs
 
 **Example**
 ```
