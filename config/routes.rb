@@ -19,7 +19,8 @@ Rails.application.routes.draw do
     root to: 'media_sources#index'
   end
 
-  get 'media_sources/data', to: 'media_sources#data', as: :media_source_data
+  get 'media_sources/aggregate', to: 'media_sources#aggregate',
+                                 as: :media_source_aggregate
   get 'activate/:id', to: 'twitter_confs#new', as: :activate
   resources :data_collections, only: [:new]
 

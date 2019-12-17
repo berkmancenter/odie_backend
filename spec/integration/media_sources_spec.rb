@@ -81,7 +81,7 @@ feature 'Media Sources' do
     end
   end
 
-  context '/media_sources/data' do
+  context '/media_sources/aggregate' do
     let(:ms1) { create(:media_source, :evening_traveler) }
     let(:ms2) { create(:media_source, :spy) }
 
@@ -94,23 +94,24 @@ feature 'Media Sources' do
     let(:ds2) { DataSet.create(media_source: ms2, data_config: dc) }
 
     it 'resolves' do
-      visit media_source_data_path(format: :json)
+      visit media_source_aggregate_path(format: :json)
       expect(page.status_code).to eq 200
     end
 
     it 'returns the expected data with one object' do
       [ms1, ds1] # force these to exist in scope
-      visit media_source_data_path({ids: [ms1.id], format: :json})
+      visit media_source_aggregate_path({ids: [ms1.id], format: :json})
       results = JSON.parse(page.body)
       expect(results['data'].length).to eq 1
       expect(json_dataset_from(results, ms1.id)).to eq(
         dataset_serialization(ds1)
       )
+      expect(results['errors']).to be nil
     end
 
     it 'returns the expected data with multiple objects' do
       [ms1, ms2, ds1, ds2]
-      visit media_source_data_path({ids: [ms1.id, ms2.id], format: :json})
+      visit media_source_aggregate_path({ids: [ms1.id, ms2.id], format: :json})
       results = JSON.parse(page.body)
       expect(results['data'].length).to eq 2
       expect(json_dataset_from(results, ms1.id)).to include(
@@ -125,12 +126,24 @@ feature 'Media Sources' do
       [ms1, ms2, ds1, ds2]
       bad_id = ms2.id
       ms2.delete
-      visit media_source_data_path({ids: [ms1.id, bad_id], format: :json})
+      visit media_source_aggregate_path({ids: [ms1.id, bad_id], format: :json})
       results = JSON.parse(page.body)
       expect(results['data'].length).to eq 1
       expect(results['data'].to_json).to include(
         dataset_serialization(ds1)
       )
+      expect(results['errors']).to eq 'One or more specified MediaSources do not exist'
+    end
+
+    it 'handles bogus IDs' do
+      [ms1, ds1]
+      visit media_source_aggregate_path({ids: [ms1.id, 'cows'], format: :json})
+      results = JSON.parse(page.body)
+      expect(results['data'].length).to eq 1
+      expect(results['data'].to_json).to include(
+        dataset_serialization(ds1)
+      )
+      expect(results['errors']).to eq 'One or more specified MediaSources do not exist'
     end
 
     it 'handles media sources without data sets' do
@@ -139,7 +152,7 @@ feature 'Media Sources' do
                      'verge of being suppressed by the Royalist government.',
         name: 'Massachusetts Spy',
         url: 'https://www.mass.spy')
-      visit media_source_data_path({ids: [ms3.id], format: :json})
+      visit media_source_aggregate_path({ids: [ms3.id], format: :json})
       results = JSON.parse(page.body)
       expect(json_dataset_from(results, ms3.id)).to eq nil
     end

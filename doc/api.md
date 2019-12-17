@@ -45,7 +45,7 @@ This is an object representing a media source of interest.
 ```
 GET /media_sources
 GET /media_sources/:id
-GET /media_sources/?ids[]=1&ids[]=2
+GET /media_sources/aggregate?ids[]=1&ids[]=2
 ```
 
 Respectively, these are:
