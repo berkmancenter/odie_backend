@@ -120,6 +120,7 @@ feature 'Media Sources' do
       expect(json_dataset_from(results, ms2.id)).to include(
         dataset_serialization(ds2)
       )
+      expect(results['errors']).to be nil
     end
 
     it 'handles nonexistent IDs' do

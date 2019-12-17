@@ -32,7 +32,13 @@ require 'rails_helper'
 
 describe DataSetSerializer do
   let(:ds) { create(
-    :data_set, num_users: 10, num_tweets: 50, num_retweets: 5
+    :data_set, num_users: 10, num_tweets: 50, num_retweets: 5,
+    hashtags: { 'hello'=>'5', 'goodbye'=>'6'},
+    top_words: { 'foo'=>'5', 'bar'=>'6'},
+    top_urls: { 'https://www.foo.com'=>'1', 'https://www.bar.com'=>'2'},
+    top_sources: { 'twitter.com'=>'91', 'www.cnn.com'=>'8' },
+    top_mentions: { 'BKCHarvard'=>'5' },
+    top_retweets: { 'tweet the first'=>'2', 'tweet the second'=>'3' }
   ) }
 
   let(:serializer) { DataSetSerializer.new(ds) }

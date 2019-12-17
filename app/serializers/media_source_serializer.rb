@@ -55,6 +55,8 @@ class MediaSourceSerializer
   end
 
   def all_values_for_key(key)
+    puts key
+    puts data_hash
     data_hash.map { |item| item_data(item) }.map { |d| d[key] }
   end
 
@@ -80,7 +82,7 @@ class MediaSourceSerializer
   def aggregate_hashes(values)
     all_things = values.reduce {
       |first, second| first.merge(second) {
-        |key, first_val, second_val| first_val + second_val
+        |key, first_val, second_val| first_val.to_i + second_val.to_i
       }
     }.transform_values { |v| v.to_i }
 
