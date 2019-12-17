@@ -17,7 +17,7 @@ class MediaSourcesController < ApplicationController
   def aggregate
     data_hash = MediaSourceSerializer.new(
       available_sources, is_collection: true
-    ).serializable_hash
+    ).aggregated_hash
 
     unless params_valid?
       data_hash[:errors] = 'One or more specified MediaSources do not exist'
