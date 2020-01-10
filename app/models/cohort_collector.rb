@@ -25,8 +25,9 @@ class CohortCollector < ApplicationRecord
   # This will need something very different to run for a week, but at the moment
   # let's just get it running at all.
   def start_monitoring
-    # make a twitterconf, using that index name
-    # initiate the logstash with timeout
+    datarun = StreamingDataCollector.new(self)
+    datarun.write_conf
+    datarun.kickoff
   end
 
   def sample_users

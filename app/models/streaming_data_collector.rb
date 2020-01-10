@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ConfigFactory
+class StreamingDataCollector
   def initialize(cohort_collector)
     @cohort_collector = cohort_collector
   end
@@ -9,7 +9,7 @@ class ConfigFactory
     "#{Rails.root}/logstash/config/#{cohort_collector.index_name}.conf"
   end
 
-  def write
+  def write_conf
     # It would be better to create a config file and then use logstash to
     # validate it. However, we can't run system logstash in a subprocess unless
     # it was built against the same version of ruby, and coupling those doesn't
@@ -31,6 +31,11 @@ class ConfigFactory
       context.local_variable_set(:env, ENV)
       context
     end
+  end
+
+  def kickoff
+    cmd = "timeout #{Rails.application.config.logstash_run_time} #{Rails.application.config.logstash_command} -f #{filename}"
+    system(cmd)
   end
 
   private
