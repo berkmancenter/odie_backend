@@ -76,21 +76,6 @@ class DataSet < ApplicationRecord
     end
   end
 
-  def sample_users
-    @sample_users ||= begin
-      # TODO: improve semantics
-      # We've filtered our incoming data to only include tweets with the correct
-      # keyword in the expanded_url field, but that doesn't mean this search
-      # actually produces only tweets which link to the relevant source; they
-      # might @mention the keyword and link to a different media source, e.g., as
-      # in "hey @newspaper did you see this article? https://www.blog.com".
-      results = es_client.search index: stream_index, q: media_source.keyword
-      user_ids = extract_userids(results)
-      usable_ids = user_ids.uniq.sample(Rails.application.config.num_users)
-      usable_ids.map(&:to_i)
-    end
-  end
-
   def index_exists?
     es_client.indices.exists? index: index_name
   end
@@ -131,14 +116,6 @@ class DataSet < ApplicationRecord
     @es_client ||= Elasticsearch::Client.new
   end
 
-  def extract_userids(results)
-    # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object
-    # for the inside of the block. The ['hits']['hits'] comes from the structure
-    # of elasticsearch objects; the tweet objects returned from the API are
-    # wrapped in metadata, and we need to extract them.
-    results['hits']['hits'].map { |r| r['_source']['user']['id_str'] }.uniq
-  end
-
   def add_index_name
     self.index_name = "#{self.cohort.id}_#{sanitize(SecureRandom.uuid)}"
   end
@@ -162,14 +139,6 @@ class DataSet < ApplicationRecord
   def verify_index
     setup_index
     raise Exceptions::ElasticsearchError('Index not found') unless index_exists?
-  end
-
-  # This is the index that stored the results of the streaming API call to
-  # search for references to media sources. It is distinct from self.index_name,
-  # which is where we store user timeline results (ie all the tweets of users
-  # whom we found in the earlier streaming api call.)
-  def stream_index
-    data_config.index_name
   end
 
   def count_retweets
