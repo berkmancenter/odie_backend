@@ -140,7 +140,7 @@ class DataSet < ApplicationRecord
   end
 
   def add_index_name
-    self.index_name = "#{self.media_source.id}_#{sanitize(SecureRandom.uuid)}"
+    self.index_name = "#{self.cohort.id}_#{sanitize(SecureRandom.uuid)}"
   end
 
   # Remove any elements not permitted in elasticsearch index names:
