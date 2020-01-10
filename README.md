@@ -45,6 +45,8 @@ In production, or in dev if you want to write `twitter.conf` files, you will nee
 In any environment:
 * `NUM_USERS` (optional; defaults to `5000`)
 * `TWEETS_PER_USER` (optional; defaults to `50`)
+* `LOGSTASH_COMMAND` (optional; whatever invokes logstash on your system; defaults to `logstash`)
+* `LOGSTASH_RUN_TIME` (optional; how long to run the streaming data collection run; can be any duration accepted by `timeout`; defaults to `1h`)
 
 In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
