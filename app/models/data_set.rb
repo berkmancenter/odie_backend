@@ -56,7 +56,7 @@ class DataSet < ApplicationRecord
   def update_aggregates
     es_client.indices.refresh index: index_name
     self.update_attributes(
-      num_users: sample_users.length,
+      num_users: cohort.twitter_ids.length,
       num_tweets: es_client.count(index: index_name)['count'],
       num_retweets: count_retweets,
       hashtags: MetadataHarvester.new(:hashtags, all_tweets).harvest,
@@ -69,7 +69,7 @@ class DataSet < ApplicationRecord
   end
 
   def ingest_data
-    sample_users.each do |user_id|
+    cohort.twitter_ids.each do |user_id|
       tweets = fetch_tweets(user_id)
       store_data(tweets)
       all_tweets << tweets
