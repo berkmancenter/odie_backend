@@ -10,22 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_10_171211) do
+ActiveRecord::Schema.define(version: 2020_01_10_184831) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
 
-  create_table "cohorts", force: :cascade do |t|
-    t.text "twitter_ids", default: [], array: true
-    t.text "description"
+  create_table "cohort_collectors", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "data_configs", force: :cascade do |t|
-    t.string "index_name"
-    t.string "keywords", array: true
+  create_table "cohort_collectors_search_queries", id: false, force: :cascade do |t|
+    t.bigint "cohort_collector_id", null: false
+    t.bigint "search_query_id", null: false
+    t.index ["cohort_collector_id"], name: "index_cohort_collectors_search_queries_on_cohort_collector_id"
+    t.index ["search_query_id"], name: "index_cohort_collectors_search_queries_on_search_query_id"
+  end
+
+  create_table "cohorts", force: :cascade do |t|
+    t.text "twitter_ids", default: [], array: true
+    t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -64,6 +69,11 @@ ActiveRecord::Schema.define(version: 2020_01_10_171211) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "search_queries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -78,5 +88,4 @@ ActiveRecord::Schema.define(version: 2020_01_10_171211) do
   end
 
   add_foreign_key "data_sets", "cohorts"
-  add_foreign_key "data_sets", "data_configs"
 end
