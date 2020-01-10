@@ -3,6 +3,8 @@
 # Table name: cohort_collectors
 #
 #  id         :bigint           not null, primary key
+#  index_name :string
+#  keywords   :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -11,14 +13,21 @@ class CohortCollector < ApplicationRecord
   has_and_belongs_to_many :search_queries
   validates :search_queries, presence: true
   after_create :initialize_keywords
+  after_create :add_index_name
 
-  # - m2m with SearchQuery
   # - collects data for a given set of queries
   #   - knows how to initialize the data run, stop, start
   #   - this means that CohortCollector.new.run_pipeline is a thing that a cron job can call
   # - for each query, builds a Cohort
   #   - therefore it knows how to sample
   #   - and how to create a description from a SearchQuery
+
+  # This will need something very different to run for a week, but at the moment
+  # let's just get it running at all.
+  def start_monitoring
+    # make a twitterconf, using that index name
+    # initiate the logstash with timeout
+  end
 
   def sample_users
     # TODO: improve semantics
@@ -54,17 +63,15 @@ class CohortCollector < ApplicationRecord
     results['hits']['hits'].map { |r| r['_source']['user']['id_str'] }.uniq
   end
 
-  # This is the index that stores the results of the streaming API call to
-  # search for references to media sources.
-  def stream_index
-    data_config.index_name
-  end
-
   # This freezes the keywords as they existed at the time of the configuration,
   # to aid in debugging. It also allows for collaborators to query
   # CohortCollector directly for keywords rather than reaching through it to
   # SearchQuery.
   def initialize_keywords
     self.keywords = search_queries.pluck(:keyword)
+  end
+
+  def add_index_name
+    self.index_name = "user_run_#{self.id}_#{sanitize(SecureRandom.uuid)}"
   end
 end

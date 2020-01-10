@@ -2,14 +2,9 @@
 #
 # Table name: search_queries
 #
-#  id          :bigint           not null, primary key
-#  active      :boolean
-#  description :text
-#  keyword     :string
-#  name        :string
-#  url         :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :bigint           not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 
 class SearchQuery < ApplicationRecord
