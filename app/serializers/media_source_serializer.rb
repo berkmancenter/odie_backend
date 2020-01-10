@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: media_sources
+# Table name: search_queries
 #
 #  id          :bigint           not null, primary key
 #  active      :boolean

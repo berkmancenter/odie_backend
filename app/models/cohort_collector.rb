@@ -36,12 +36,8 @@ class CohortCollector < ApplicationRecord
   def create_cohort
     Cohort.create(
       twitter_ids: sample_users,
-      description: "Twitter users talking about #{query_description} in the week before #{Date.today}"
+      description: "Twitter users talking about #{keywords} in the week before #{Date.today}"
     )
-  end
-
-  def query_description
-    search_queries.map(&:keywords)
   end
 
   private
@@ -65,9 +61,10 @@ class CohortCollector < ApplicationRecord
   end
 
   # This freezes the keywords as they existed at the time of the configuration,
-  # to aid in debugging. It also allows for collaborators to query DataConfig
-  # directly for keywords rather than reaching through it to MediaSource.
+  # to aid in debugging. It also allows for collaborators to query
+  # CohortCollector directly for keywords rather than reaching through it to
+  # SearchQuery.
   def initialize_keywords
-    self.keywords = media_sources.pluck(:keyword)
+    self.keywords = search_queries.pluck(:keyword)
   end
 end
