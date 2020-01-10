@@ -33,9 +33,6 @@
 
 class DataSet < ApplicationRecord
   belongs_to :cohort
-  belongs_to :data_config
-
-  validates :data_config, presence: true
 
   attr_readonly :index_name
   before_create :add_index_name
