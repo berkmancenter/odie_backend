@@ -17,4 +17,12 @@ class Cohort < ApplicationRecord
       self.where(id: ids).map(&:latest_data_run)
     )
   end
+
+  def collect_data
+    DataSet.create(cohort: self).run_pipeline
+  end
+
+  def latest_data_run
+    data_sets.latest
+  end
 end
