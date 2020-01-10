@@ -1,0 +1,20 @@
+# == Schema Information
+#
+# Table name: cohorts
+#
+#  id          :bigint           not null, primary key
+#  description :text
+#  twitter_ids :text             default([]), is an Array
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#
+
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  twitter_ids: 
+  description: MyText
+
+two:
+  twitter_ids: 
+  description: MyText
