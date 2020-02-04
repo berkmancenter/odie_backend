@@ -8,6 +8,7 @@ class CohortsController < ApplicationController
 
     respond_to do |format|
       format.json { index_json }
+      format.csv { index_csv }
       format.html
     end
   end
@@ -19,6 +20,7 @@ class CohortsController < ApplicationController
 
     respond_to do |format|
       format.json { show_json }
+      format.csv { show_csv }
       format.html
     end
   end
@@ -64,6 +66,20 @@ class CohortsController < ApplicationController
     render json: CohortSerializer.new(
       Cohort.find(params[:id])
     ).serialized_json
+  end
+
+  def index_csv
+    render csv: active_media_sources
+  end
+
+  def show_csv
+    if params.include? :id
+      render csv: Cohort.find(params[:id])
+    elsif params.include? :ids
+      show_multiple
+    else
+      raise ActionController::ParameterMissing('/:id or ?ids[]=1&ids[]=2 must be supplied')
+    end
   end
 
   def show_one

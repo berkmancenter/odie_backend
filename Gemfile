@@ -5,6 +5,7 @@ ruby '2.6.3'
 
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'coffee-rails', '~> 4.2'
+gem 'csverizer'
 gem 'devise'
 gem 'devise-jwt', '~> 0.6.0'
 gem 'dotenv-rails'
