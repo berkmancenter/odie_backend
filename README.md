@@ -19,6 +19,33 @@ These instructions are for ODIE developers. You might instead want to read...
 * `bundle install`
 * `rails db:setup`
 
+## Architecture
+This describes the architecture that this system will have AFTER a significant
+refactor-in-progress. Only a portion of this is currently written.
+
+The data collection pipeline is:
+
+![alt text](docs/charts/architecture.png "Odie architecture diagram")
+
+`SearchQuery` defines terms to look for in the Twitter firehose (for example,
+terms representing a particular media source).
+
+`CohortCollector` monitors a `SearchQuery` and selects a particular cohort of
+users who are tweeting about it.
+
+`Cohort` is a list of twitter IDs representing a particular user cohort, plus a
+description.
+
+`DataSet` collects and stores user timeline data from a given `Cohort`. The raw
+data is stored in Elasticsearch, but metadata is stored on the `DataSet`
+instance for ease of API querying.
+
+As the first two models govern Twitter firehose data and the second two govern
+user timeline data, there's a clean separation boundary between `CohortCollector`
+and `Cohort`. This means that `Cohorts` can be defined either wihin ODIE, by
+`CohortCollector`, or manually, using ids from Twitter firehose data analyzed
+elsewhere.
+
 ## Environment Variables
 Set all environment variables in `.env`.
 
