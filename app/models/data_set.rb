@@ -82,7 +82,7 @@ class DataSet < ApplicationRecord
     # so we're going to need to create an elasticsearch index with the
     # usual mapping and dump this in..?
     twitter_client.user_timeline(
-      user_id,
+      user_id.to_i,
       count: Rails.application.config.tweets_per_user,
       tweet_mode: 'extended'
     )
@@ -92,6 +92,24 @@ class DataSet < ApplicationRecord
     tweets.each do |tweet|
       es_client.create index: index_name, type: '_doc', body: tweet.to_json
     end
+  end
+
+  # This aggregates data from multiple DataSet instances. It does NOT aggregate
+  # the num_whatevers as there is no way to deduplicate those.
+  def self.aggregate(ids)
+    keys = %i[hashtags top_urls top_words top_mentions top_sources top_retweets]
+    data_sets = self.where(id: ids)
+    retval = {}
+
+    keys.each do |key|
+      retval[key] = data_sets.pluck(key)
+                             .map { |h| h.transform_values!(&:to_i) }
+                             .reduce ({}) do |first, second|
+                               first.merge(second) { |_, a, b| a + b }
+                             end
+    end
+
+    retval
   end
 
   private

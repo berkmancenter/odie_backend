@@ -10,11 +10,13 @@
 #
 
 class Cohort < ApplicationRecord
+  has_many :data_sets
+
   # Given a list of cohort IDs, returns aggregated metadata from their most
-  # recent DataRuns.
+  # recent DataSets.
   def self.aggregate(ids)
     DataSet.aggregate(
-      self.where(id: ids).map(&:latest_data_run)
+      self.where(id: ids).map(&:latest_data_set)
     )
   end
 
@@ -22,7 +24,7 @@ class Cohort < ApplicationRecord
     DataSet.create(cohort: self).run_pipeline
   end
 
-  def latest_data_run
-    data_sets.latest
+  def latest_data_set
+    data_sets.last
   end
 end

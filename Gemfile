@@ -11,6 +11,8 @@ gem 'coffee-rails', '~> 4.2'
 gem 'devise'
 gem 'dotenv-rails'
 gem 'elasticsearch', '~>6.0'
+# Required for Elasticsearch compat even though not specified in their gemspec.
+gem 'faraday', '~>0.15.0'
 gem 'fast_jsonapi'
 gem 'rails', '~> 5.2.3'
 gem 'pg'
@@ -42,6 +44,7 @@ group :test do
   gem 'factory_bot_rails'
   gem 'rspec-rails'
   gem 'simplecov', require: false
+  gem 'vcr'
   gem 'webdrivers'
   gem 'webmock'
 end

@@ -88,6 +88,12 @@ Aim to adhere to http://www.betterspecs.org/.
 
 Take inspiration from Sandi Metz's [Magic Tricks of Testing](https://www.youtube.com/watch?v=URSWYvyc42M): assert results and side effects of messages received from collaborators; assert that messages are sent to collaborators; don't test private methods or messages sent to self.
 
+### Troubleshooting
+If elasticsearch is timing out in tests, your elasticsearch process may be
+failing to get a node lock. Kill any other Elasticsearch processes. (This is
+especially likely if you have ended another test run early, without shutting
+down the test cluster.)
+
 ## General development instructions
 * Keep test coverage above 90%. (`open coverage/index.html` after a test run to see how you're doing.)
 * Use a rubocop-based linter.

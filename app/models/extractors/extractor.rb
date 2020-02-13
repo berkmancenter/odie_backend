@@ -9,7 +9,7 @@
 # quoted tweets (since the top-level tweet object does not contain everything
 # visible to users who are reading an actual timeline).
 class Extractor
-  THRESHHOLD = -5
+  THRESHHOLD = 2
 
   def initialize(tweets)
     @tweets = tweets.flatten
@@ -23,14 +23,14 @@ class Extractor
     @all_things ||= Hash.new 0
   end
 
-  # Return every key/value pair that is at least tied for 5th in popularity
+  # Return every key/value pair that occurs above THRESHHOLD number of times.
   # (the hash is presumed to be of keys & integers representing the frequency
   # of that key in the dataset).
-  # If there isn't a fifth place, just return everything.
+  # If there isn't anything above the THRESHHOLD, just return everything.
   def collate
     candidates = all_things.values.sort[THRESHHOLD]
     if candidates
-      all_things.reject { |k, v| v < candidates }
+      all_things.reject { |k, v| v < THRESHHOLD }
     else
       all_things
     end
