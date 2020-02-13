@@ -63,52 +63,17 @@ describe DataSet do
     end
   end
 
-  context 'data ingestion' do
-    before { stub_request(:any, /twitter/) }
-
+  context 'during data ingestion' do
     it 'asks twitter for data on a user' do
-      expect_any_instance_of(Twitter::REST::Client)
-        .to receive(:user_timeline)
-        .once.with(1, count: Rails.application.config.tweets_per_user)
-      allow(ds).to receive(:index_exists?).and_return(true)
-      ds.fetch_tweets(1)
-    end
-
-    it 'gets the right number of users when there are many to sample from' do
-      # Mock out collaborators.
-      allow_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:search)
-      allow(ds).to receive(:extract_userids)
-        .and_return [*1..(Rails.application.config.num_users + 1)]
-      # Assert initial conditions.
-      expect(ds.num_users).to be_nil
-      # Test.
-      ds.sample_users
-      expect(ds.sample_users.length).to eq Rails.application.config.num_users
-    end
-
-    it 'gets the right number of users when there are few to sample from' do
-      # Mock out collaborators.
-      allow_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:search)
-      allow(ds).to receive(:extract_userids)
-        .and_return [*1..(Rails.application.config.num_users - 1)]
-      # Assert initial conditions.
-      expect(ds.num_users).to be_nil
-      # Test.
-      ds.sample_users
-      expect(ds.sample_users.length).to eq Rails.application.config.num_users - 1
-    end
-
-    it 'samples distinct user ids' do
-      allow_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:search)
-      allow(ds).to receive(:extract_userids)
-        .and_return [1, 2, 2, 3, 3]
-      # Assert initial conditions.
-      expect(ds.num_users).to be_nil
-      # Test.
-      expect(ds.sample_users).to match_array [1, 2, 3]
+      VCR.use_cassette('data set spec') do
+        expect_any_instance_of(Twitter::REST::Client)
+          .to receive(:user_timeline)
+          .once
+          .with(1, count: Rails.application.config.tweets_per_user,
+                tweet_mode: 'extended')
+        allow(ds).to receive(:index_exists?).and_return(true)
+        ds.fetch_tweets(1)
+      end
     end
 
     it 'creates an elasticsearch document for each tweet' do
@@ -126,6 +91,52 @@ describe DataSet do
         .to receive(:create)
         .once.with(index: ds.index_name, type: '_doc', body: tweets[1].to_json)
       ds.store_data(tweets)
+    end
+
+    it 'fetches data on all cohort users' do
+      VCR.use_cassette('data ingestion') do
+        ds.cohort.twitter_ids.each do |id|
+          expect(ds).to receive(:fetch_tweets).with(id)
+        end
+        expect(ds).to receive(:store_data)
+                  .exactly(ds.cohort.twitter_ids.length)
+                  .times
+        ds.ingest_data
+      end
+    end
+  end
+
+  context 'data aggregation' do
+    it 'sets aggregates appropriately' do
+      VCR.use_cassette('data aggregation') do
+        cohort = create(:cohort)
+        ds_pipelined = DataSet.create(cohort: cohort)
+        # Keep the data to a readable level so we can check the test suite
+        # assertions.
+        allow(Rails.application.config).to receive(:tweets_per_user)
+                                       .and_return(10)
+
+        ds_pipelined.run_pipeline
+
+        expect(ds_pipelined.num_retweets).to eq 5
+        expect(ds_pipelined.num_tweets).to eq 10
+        expect(ds_pipelined.num_users).to eq 1
+        expect(ds_pipelined.top_mentions).to eq ({
+          "BKCHarvard"=>"5", "JessicaFjeld"=>"2", "evelyndouek"=>"2"
+        })
+        expect(ds_pipelined.top_retweets).to eq({})
+        expect(ds_pipelined.top_sources).to eq({
+          "bit.ly"=>"2", "medium.com"=>"2", "news.bloomberglaw.com"=>"2",
+          "twitter.com"=>"2"
+        })
+        expect(ds_pipelined.top_words).to eq({
+          "-"=>"2", "bkc"=>"2", "check"=>"2", "interns"=>"2", "looking"=>"2",
+          "must"=>"2", "new"=>"2", "q&amp;a"=>"2", "👇"=>"2"
+        })
+        expect(ds_pipelined.top_urls).to eq({
+          "news.bloomberglaw.com/ip-law/amazons-judging-of-ip-disputes-questioned-in-sellers-lawsuits"=>"2"
+        })
+      end
     end
   end
 end
