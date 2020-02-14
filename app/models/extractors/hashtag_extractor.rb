@@ -15,7 +15,7 @@ class HashtagExtractor < Extractor
            .reject { |tweet| tweet.class == Twitter::NullObject }
            .map { |hashtag| hashtag.text }
            .each do |hashtag|
-             all_things[hashtag] += 1
+             @all_things[hashtag] += 1
            end
     end
 end

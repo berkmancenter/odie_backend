@@ -7,7 +7,7 @@ describe CohortSerializer do
     @ds1 = create(:data_set,
                   top_mentions: { 'squid'=>'3' },
                   top_retweets: { 'first tweet text'=>'2' },
-                  top_sources:  { 'twitter.com'=>'9', 'http://hasthelargehadroncolliderdestroyedtheworldyet.com/'=>'1'},
+                  top_sources:  { 'twitter.com'=>'9', 'http://hasthelargehadroncolliderdestroyedtheworldyet.com/'=>'5'},
                   top_urls:     { 'www.cnn.com/a_story'=>'10' },
                   cohort: @cohort1
                  )
@@ -61,7 +61,7 @@ describe CohortSerializer do
     )
     expect(hsh[:aggregates][:top_sources]).to eq (
       { 'godeysladysbook.com'=>7, 'twitter.com'=>13,
-        'http://hasthelargehadroncolliderdestroyedtheworldyet.com/'=>1 }
+        'http://hasthelargehadroncolliderdestroyedtheworldyet.com/'=>5 }
     )
     expect(hsh[:aggregates][:top_words]).to eq(
       { 'stopword'=>10, 'moose'=>148 }

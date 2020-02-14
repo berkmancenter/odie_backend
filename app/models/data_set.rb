@@ -102,11 +102,18 @@ class DataSet < ApplicationRecord
     retval = {}
 
     keys.each do |key|
-      retval[key] = data_sets.pluck(key)
-                             .map { |h| h.transform_values!(&:to_i) }
-                             .reduce ({}) do |first, second|
-                               first.merge(second) { |_, a, b| a + b }
-                             end
+      # Accumulate data from all datasets in scope.
+      data = data_sets.pluck(key)
+                      .map { |h| h.transform_values!(&:to_i) }
+                      .reduce ({}) do |first, second|
+                        first.merge(second) { |_, a, b| a + b }
+                      end
+
+      # Keep only the data above our thresholds.
+      min_count = data.values.sort.last(Extractor::TOP_N)[0]
+      data.reject! { |k, v| v < [min_count, Extractor::THRESHOLD].max }
+
+      retval[key] = data
     end
 
     retval

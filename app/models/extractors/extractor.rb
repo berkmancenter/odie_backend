@@ -9,32 +9,31 @@
 # quoted tweets (since the top-level tweet object does not contain everything
 # visible to users who are reading an actual timeline).
 class Extractor
-  THRESHOLD = ENV['EXTRACTOR_THRESHOLD'].to_i || 5
+  THRESHOLD = ENV['EXTRACTOR_THRESHOLD'] ? ENV['EXTRACTOR_THRESHOLD'].to_i : 5
+  TOP_N  = ENV['EXTRACTOR_TOP_N'] ? ENV['EXTRACTOR_TOP_N'].to_i : 5
 
   def initialize(tweets)
     @tweets = tweets.flatten
+    @all_things = Hash.new 0
   end
 
   # Subclasses should define as the logic of extracting an object may be
   # type-specific.
   def extract; end
 
-  def all_things
-    @all_things ||= Hash.new 0
+  def collate
+    # Only report the top N ranks (including ties), and don't report anything
+    # below the threshold.
+    min_count = @all_things.values.sort.last(TOP_N)[0]
+    @all_things.reject { |k, v| v < [min_count, THRESHOLD].max }
   end
 
-  # Return every key/value pair that occurs above THRESHOLD number of times.
-  # (the hash is presumed to be of keys & integers representing the frequency
-  # of that key in the dataset).
-  # If there isn't anything above the THRESHOLD, just return everything.
-  def collate
-    candidates = all_things.values.sort[THRESHOLD]
-    if candidates
-      all_things.reject { |k, v| v < THRESHOLD }
-    else
-      all_things
-    end
+  def harvest
+    extract
+    collate
   end
+
+  private
 
   # Entity objects may be contained in the tweet, its retweeted tweet, or its
   # quoted tweet.
@@ -43,10 +42,5 @@ class Extractor
      tweet.retweeted_status&.send(obj_type),
      tweet.retweeted_status&.quoted_status&.send(obj_type),
      tweet.quoted_status&.send(obj_type)]
-  end
-
-  def harvest
-    extract
-    collate
   end
 end

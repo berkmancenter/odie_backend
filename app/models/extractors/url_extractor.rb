@@ -3,11 +3,11 @@ class UrlExtractor < Extractor
 
   def extract
     # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags .
-    @tweets.map { |tweet| all_nested(:urls, tweet) }     # extract url objects
+    @tweets.map { |tweet| all_nested(:urls, tweet) }   # extract url objects
            .flatten
            .map { |url_obj| normalized_url(url_obj) }  # extract url text
            .each do |url|                              # update url counter
-             all_things[url] += 1
+             @all_things[url] += 1
            end
 
   end

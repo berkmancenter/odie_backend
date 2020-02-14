@@ -6,7 +6,7 @@ class RetweetExtractor < Extractor
            .flatten
            .map { |tweet| tweet.attrs[:full_text] }
            .each do |tweet|
-             all_things[tweet] += 1
+             @all_things[tweet] += 1
            end
   end
 end
