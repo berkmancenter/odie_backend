@@ -115,6 +115,12 @@ Aim to adhere to http://www.betterspecs.org/.
 
 Take inspiration from Sandi Metz's [Magic Tricks of Testing](https://www.youtube.com/watch?v=URSWYvyc42M): assert results and side effects of messages received from collaborators; assert that messages are sent to collaborators; don't test private methods or messages sent to self.
 
+The tests are fairly brittle around the state of Elasticsearch; if you get
+failures you don't expect, make sure the test Elasticsearch instance has been
+stopped properly. (This is especially a problem if you abruptly exited the
+previous testing run, e.g. by quitting out of byebug.) Simply rerunning the
+test suite after a clean exit will often also fix this problem.
+
 ### Troubleshooting
 If elasticsearch is timing out in tests, your elasticsearch process may be
 failing to get a node lock. Kill any other Elasticsearch processes. (This is

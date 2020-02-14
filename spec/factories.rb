@@ -14,6 +14,7 @@ FactoryBot.define do
 
   factory :cohort do
     twitter_ids { [14706139] }  # @BKCHarvard's twitter id
+    description { 'Berkman Klein Center for Internet & Society' }
   end
 
   factory :data_set do

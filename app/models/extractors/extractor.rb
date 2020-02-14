@@ -1,6 +1,6 @@
 # Shared logic for extracting aggregated metadata from tweets. This performs
 # bookkeeping functions and is not intended to be invoked directly.
-# The `harvest` method returns a hash of the top THRESHHOLD most common
+# The `harvest` method returns a hash of the top THRESHOLD most common
 # elements of the given data type within the given set of tweets.
 # Subclasses should define an `extract` method which has the type-specific logic
 # for finding their metadata type (user mentions, hashtags, etc.)
@@ -9,7 +9,7 @@
 # quoted tweets (since the top-level tweet object does not contain everything
 # visible to users who are reading an actual timeline).
 class Extractor
-  THRESHHOLD = 2
+  THRESHOLD = ENV['EXTRACTOR_THRESHOLD'].to_i || 5
 
   def initialize(tweets)
     @tweets = tweets.flatten
@@ -23,14 +23,14 @@ class Extractor
     @all_things ||= Hash.new 0
   end
 
-  # Return every key/value pair that occurs above THRESHHOLD number of times.
+  # Return every key/value pair that occurs above THRESHOLD number of times.
   # (the hash is presumed to be of keys & integers representing the frequency
   # of that key in the dataset).
-  # If there isn't anything above the THRESHHOLD, just return everything.
+  # If there isn't anything above the THRESHOLD, just return everything.
   def collate
-    candidates = all_things.values.sort[THRESHHOLD]
+    candidates = all_things.values.sort[THRESHOLD]
     if candidates
-      all_things.reject { |k, v| v < THRESHHOLD }
+      all_things.reject { |k, v| v < THRESHOLD }
     else
       all_things
     end
