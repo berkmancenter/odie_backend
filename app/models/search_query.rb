@@ -2,18 +2,24 @@
 #
 # Table name: search_queries
 #
-#  id         :bigint           not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id          :bigint           not null, primary key
+#  active      :boolean
+#  description :text
+#  keyword     :string
+#  name        :string
+#  url         :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 
+require 'uri'
+
 class SearchQuery < ApplicationRecord
-  has_many :data_sets
-  has_and_belongs_to_many :data_configs
+  has_and_belongs_to_many :cohort_collectors
 
   validates :description, presence: true
   validates :name, presence: true
-  validates :url, presence: true
+  validates :url_is_url
 
   after_save :guess_keyword
 
@@ -37,6 +43,12 @@ class SearchQuery < ApplicationRecord
   end
 
   private
+
+  def url_is_url
+    URI.parse(url)
+  rescue URI::InvalidURIError
+    errors.add(:url, 'Must be a valid URL')
+  end
 
   def guess_keyword
     return if keyword.present? # don't override user choices
