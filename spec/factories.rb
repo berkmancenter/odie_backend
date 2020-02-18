@@ -30,4 +30,10 @@ FactoryBot.define do
     top_words { { 'stopword'=>'5', 'moose'=>'74' } }
     hashtags { { 'llamas'=>'7', 'octopodes'=>'24' } }
   end
+
+  factory :search_query do
+    description { 'Democracy dies in darkness' }
+    name { 'WaPo' }
+    url { 'https://www.washingtonpost.com' }
+  end
 end
