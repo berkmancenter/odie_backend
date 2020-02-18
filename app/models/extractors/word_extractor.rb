@@ -1,4 +1,4 @@
-class WordExtractor < Extractor  
+class WordExtractor < Extractor
   EXTRA_STOPWORDS = ['rt', '&amp;']
 
   private

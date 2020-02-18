@@ -5,12 +5,18 @@ RSpec.configure do |config|
   config.before :all, elasticsearch: true do
     start_cluster
     wipe_elasticsearch_data
+    # When the elasticsearch clients in the model look for elasticsearch, they
+    # should find the test cluster, not the normal cluster.
+    ENV['CACHED_ELASTICSEARCH_URL'] = ENV['ELASTICSEARCH_URL']
+    ENV['ELASTICSEARCH_URL'] = "http://#{es_host}:#{es_port}"
   end
 
   # Stop elasticsearch cluster after test run
   config.after :suite do
-    Elasticsearch::Extensions::Test::Cluster.stop(**es_options) if \
+    Elasticsearch::Extensions::Test::Cluster.stop(es_options) if \
       Elasticsearch::Extensions::Test::Cluster.running?(on: es_port)
+    ENV['ELASTICSEARCH_URL'] = ENV['CACHED_ELASTICSEARCH_URL']
+    ENV.delete('CACHED_ELASTICSEARCH_URL')
   end
 
   # Start an in-memory Elasticsearch cluster for integration tests. Runs on
@@ -19,9 +25,9 @@ RSpec.configure do |config|
   # ignore that.
   def start_cluster
     if Elasticsearch::Extensions::Test::Cluster.running?(on: es_port)
-      Elasticsearch::Extensions::Test::Cluster.stop(**es_options)
+      Elasticsearch::Extensions::Test::Cluster.stop(es_options)
     end
-    Elasticsearch::Extensions::Test::Cluster.start(**es_options)
+    Elasticsearch::Extensions::Test::Cluster.start(es_options)
   end
 
   def wipe_elasticsearch_data
@@ -32,16 +38,21 @@ RSpec.configure do |config|
     end
   end
 
+  def es_host
+    'localhost'
+  end
+
   def es_port
     9250
   end
 
   def es_options
     {
-      network_host: 'localhost',
+      network_host: es_host,
       port: es_port,
       number_of_nodes: 1,
-      timeout: 120
+      path_data: '/tmp/odie_elasticsearch_test',
+      path_logs: '/tmp/log/odie_elasticsearch',
     }
   end
 end
