@@ -19,7 +19,6 @@ ActiveRecord::Schema.define(version: 2020_01_10_203058) do
   create_table "cohort_collectors", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "keywords"
     t.string "index_name"
   end
 
@@ -37,31 +36,24 @@ ActiveRecord::Schema.define(version: 2020_01_10_203058) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "data_configs_media_sources", id: false, force: :cascade do |t|
-    t.bigint "data_config_id", null: false
-    t.bigint "media_source_id", null: false
-  end
-
   create_table "data_sets", force: :cascade do |t|
     t.string "index_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "data_config_id"
     t.integer "num_users"
     t.integer "num_tweets"
     t.integer "num_retweets"
     t.hstore "hashtags", default: {}
-    t.hstore "top_words", default: {}
-    t.hstore "top_urls", default: {}
-    t.hstore "top_mentions", default: {}
-    t.hstore "top_sources", default: {}
-    t.hstore "top_retweets", default: {}
     t.bigint "cohort_id"
     t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
-    t.index ["data_config_id"], name: "index_data_sets_on_data_config_id"
   end
 
   create_table "search_queries", force: :cascade do |t|
+    t.boolean "active"
+    t.text "description"
+    t.string "keyword"
+    t.string "name"
+    t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

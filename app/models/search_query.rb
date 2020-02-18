@@ -5,7 +5,7 @@
 #  id          :bigint           not null, primary key
 #  active      :boolean
 #  description :text
-#  keyword     :string
+#  keywords    :string
 #  name        :string
 #  url         :string
 #  created_at  :datetime         not null

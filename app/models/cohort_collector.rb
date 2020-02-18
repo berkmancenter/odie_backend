@@ -4,7 +4,6 @@
 #
 #  id         :bigint           not null, primary key
 #  index_name :string
-#  keywords   :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #

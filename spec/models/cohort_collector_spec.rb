@@ -1,3 +1,13 @@
+# == Schema Information
+#
+# Table name: cohort_collectors
+#
+#  id         :bigint           not null, primary key
+#  index_name :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
 describe CohortCollector do
   it 'gets the right number of users when there are many to sample from' do
     pending 'This was moved from the old DataSet and needs to be updated'

@@ -1,13 +1,10 @@
 # == Schema Information
 #
-# Table name: search_queries
+# Table name: cohorts
 #
 #  id          :bigint           not null, primary key
-#  active      :boolean
 #  description :text
-#  keyword     :string
-#  name        :string
-#  url         :string
+#  twitter_ids :text             default([]), is an Array
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
