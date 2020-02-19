@@ -136,13 +136,7 @@ class DataSet < ApplicationRecord
   end
 
   def add_index_name
-    self.index_name = "#{self.cohort.id}_#{sanitize(SecureRandom.uuid)}"
-  end
-
-  # Remove any elements not permitted in elasticsearch index names:
-  # https://www.elastic.co/guide/en/elasticsearch/reference/6.6/indices-create-index.html
-  def sanitize(str)
-    str.gsub(%r{[\\/*?"<>|\s,#]:}, '').downcase
+    self.index_name = IndexName.new("dataset_#{self.id}").generate
   end
 
   def setup_index

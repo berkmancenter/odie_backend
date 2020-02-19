@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_10_203058) do
+ActiveRecord::Schema.define(version: 2020_02_19_154047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -20,6 +20,9 @@ ActiveRecord::Schema.define(version: 2020_01_10_203058) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "index_name"
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.text "keywords", default: [], array: true
   end
 
   create_table "cohort_collectors_search_queries", id: false, force: :cascade do |t|
@@ -44,6 +47,11 @@ ActiveRecord::Schema.define(version: 2020_01_10_203058) do
     t.integer "num_tweets"
     t.integer "num_retweets"
     t.hstore "hashtags", default: {}
+    t.hstore "top_words", default: {}
+    t.hstore "top_urls", default: {}
+    t.hstore "top_mentions", default: {}
+    t.hstore "top_sources", default: {}
+    t.hstore "top_retweets", default: {}
     t.bigint "cohort_id"
     t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
   end

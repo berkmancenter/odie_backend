@@ -6,7 +6,7 @@ class StreamingDataCollector
   end
 
   def filename
-    "#{Rails.root}/logstash/config/#{cohort_collector.index_name}.conf"
+    "#{Rails.root}/logstash/config/#{@cohort_collector.index_name}.conf"
   end
 
   def write_conf
@@ -21,7 +21,7 @@ class StreamingDataCollector
       raise 'The context is missing needed variables.'
     end
     conf = TwitterConf.generate(context)
-    File.write(FILENAME, conf)
+    File.write(filename, conf)
   end
 
   def context
