@@ -6,7 +6,7 @@ class StreamingDataCollector
   end
 
   def filename
-    "#{Rails.root}/logstash/config/#{@cohort_collector.index_name}.conf"
+    "#{Rails.application.config.logstash_conf_dir}/#{@cohort_collector.index_name}.conf"
   end
 
   def write_conf
@@ -24,6 +24,13 @@ class StreamingDataCollector
     File.write(filename, conf)
   end
 
+  def kickoff
+    cmd = "timeout #{Rails.application.config.logstash_run_time} #{Rails.application.config.logstash_command} -f #{filename} &"
+    system(cmd)
+  end
+
+  private
+
   def context
     @context ||= begin
       keywords = sanitize(@cohort_collector.keywords)
@@ -32,13 +39,6 @@ class StreamingDataCollector
       context
     end
   end
-
-  def kickoff
-    cmd = "timeout #{Rails.application.config.logstash_run_time} #{Rails.application.config.logstash_command} -f #{filename}"
-    system(cmd)
-  end
-
-  private
 
   def sanitize(keywords)
     keywords.map { |kw| URI.encode(kw) }

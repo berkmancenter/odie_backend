@@ -14,8 +14,8 @@
 class CohortCollector < ApplicationRecord
   has_and_belongs_to_many :search_queries
   validates :search_queries, presence: true
-  before_create :initialize_keywords
-  before_create :add_index_name
+  after_create :initialize_keywords
+  after_create :add_index_name
 
   def monitor_twitter
     datarun = StreamingDataCollector.new(self)
@@ -70,7 +70,7 @@ class CohortCollector < ApplicationRecord
   private
 
   def add_index_name
-    index_name = IndexName.new("cc_#{self.id}").generate
+    update_column(:index_name, IndexName.new("cc_#{self.id}").generate)
   end
 
   def creation_permissible?
@@ -98,6 +98,6 @@ class CohortCollector < ApplicationRecord
   # CohortCollector directly for keywords rather than reaching through it to
   # SearchQuery.
   def initialize_keywords
-    self.keywords = search_queries.pluck(:keyword)
+    update_column(:keywords, search_queries.pluck(:keyword))
   end
 end

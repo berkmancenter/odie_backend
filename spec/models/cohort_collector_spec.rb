@@ -124,6 +124,37 @@ describe CohortCollector do
     end
   end
 
+  context 'upon initialization' do
+    it 'sets an index name' do
+      sq = build(:search_query)
+      cc = CohortCollector.create(search_queries: [sq])
+      expect(cc.index_name).to be
+    end
+
+    it 'sets its keywords' do
+      sq = build(:search_query)
+      cc = CohortCollector.create(search_queries: [sq])
+      expect(cc.keywords).to eq([sq.keyword])
+    end
+
+    it 'can set multiple keywords' do
+      sq = build(:search_query, keyword: 'red')
+      sq2 = build(:search_query, keyword: 'blue')
+      cc = CohortCollector.create(search_queries: [sq, sq2])
+      expect(cc.keywords).to eq(['red', 'blue'])
+    end
+
+    it 'persists keywords even when underlying queries change' do
+      sq = build(:search_query, keyword: 'cows')
+      cc = CohortCollector.create(search_queries: [sq])
+
+      sq.keyword = 'bubbles'
+      sq.save
+
+      expect(cc.keywords).to eq(['cows'])
+    end
+  end
+
   # This was generated from briefly running a logstash pipeline and then
   # performing a query of the form in CohortCollector.sample_users. That is to
   # say, it's realistic data.
