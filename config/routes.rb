@@ -13,15 +13,7 @@ Rails.application.routes.draw do
     end
   end
 
-  namespace :admin do
-    resources :media_sources
-
-    root to: 'media_sources#index'
-  end
-
   get 'cohorts(/:id)', to: 'cohort#show', as: :cohort_show
-  get 'activate/:id', to: 'twitter_confs#new', as: :activate
-  resources :data_collections, only: [:new]
 
   defaults format: :json do
     resources :cohorts, only: [:index, :show]

@@ -7,9 +7,3 @@
 </p>
 
 <a class="button">ODIE public site (not yet active)</a>
-
-<% if user_signed_in? && current_user.admin? %>
-  <p>
-    Were you looking for <%= link_to('the admin site', admin_root_path) %>?
-  </p>
-<% end %>
