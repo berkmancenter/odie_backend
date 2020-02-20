@@ -13,7 +13,8 @@ Rails.application.routes.draw do
     end
   end
 
-  get 'cohorts(/:id)', to: 'cohort#show', as: :cohort_show
+  resources :cohorts, only: [:show]
+  resources :search_queries, only: [:index, :new, :create, :show]
 
   defaults format: :json do
     resources :cohorts, only: [:index, :show]

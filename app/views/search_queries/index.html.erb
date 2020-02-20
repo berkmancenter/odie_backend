@@ -1,0 +1,11 @@
+<h1>Search Queries</h1>
+
+<%= link_to "Create new", new_search_query_path %>
+
+<ul>
+  <% @search_queries.each do |sq| %>
+    <li>
+      <%= link_to sq.name, sq %>
+    </li>
+  <% end %>
+</ul>
