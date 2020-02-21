@@ -1,4 +1,6 @@
 class CohortCollectorsController < ApplicationController
+  respond_to :html, :js
+
   def index
     @cohort_collectors = CohortCollector.all.order(created_at: :desc)
   end
@@ -17,6 +19,30 @@ class CohortCollectorsController < ApplicationController
 
   def show
     @cohort_collector = CohortCollector.find(params[:id])
+  end
+
+  def monitor
+    cc = CohortCollector.find(params[:cohort_collector_id])
+    @running = cc.monitor_twitter
+
+    if @running
+      flash[:notice] = "Data collection in process until approximately #{cc.end_time}."
+    else
+      flash[:warn] = "Something went wrong."
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def create_cohort
+    cc = CohortCollector.find(params[:cohort_collector_id])
+    cc.create_cohort
+
+    respond_to do |format|
+      format.js { flash[:notice] = 'Cohort created.' }
+    end
   end
 
   private

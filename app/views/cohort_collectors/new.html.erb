@@ -18,6 +18,7 @@
   <%= f.select(:search_query_ids,
                SearchQuery.all.collect { |sq| [ sq.name, sq.id ] },
                {},
+               include_hidden: false,
                multiple: true) %>
   <%= f.submit 'Create' %>
 <% end %>

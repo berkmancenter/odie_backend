@@ -1,9 +1,16 @@
 <p>
-  The Online Discourse Insight Explorer (ODIE) is a public-facing dashboard of insights into the discourse of Twitter accounts that share hyperlinks to news articles from specified media sources.
+  Hi, <%= current_user.email %>!
 </p>
 
 <p>
-  Unless you're a site administrator, you were probably looking for the ODIE public site.
+  Manage:
 </p>
 
-<a class="button">ODIE public site (not yet active)</a>
+<ul>
+  <li>
+    <%= link_to 'Search Queries', search_queries_path %>
+  </li>
+  <li>
+    <%= link_to 'Cohort Collectors', cohort_collectors_path %>
+  </li>
+</ul>

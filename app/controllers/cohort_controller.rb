@@ -1,4 +1,6 @@
 class CohortController < ApplicationController
+  skip_before_filter :authenticate_user!
+
   def index
     render json: CohortSerializer.new(
       CohortSerializer.where(active: true)

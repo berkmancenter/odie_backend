@@ -67,26 +67,29 @@ class CohortCollector < ApplicationRecord
     date.strftime('%e %B %Y')
   end
 
-  private
-
-  def add_index_name
-    update_column(:index_name, IndexName.new("cc_#{self.id}").generate)
+  def running?
+    [start_time.present? && start_time < Time.now,
+     end_time.present? && end_time > Time.now].all?
   end
 
   def creation_permissible?
-    retval = true
-
     unless [keywords, start_time, end_time].map(&:present?).all?
       Rails.logger.info('Cannot create cohort unless metadata is present')
-      retval = false
+      return false
     end
 
     unless Time.now > end_time
       Rails.logger.info('Cannot create cohort until data collection is done')
-      retval = false
+      return false
     end
 
-    retval
+    true
+  end
+
+  private
+
+  def add_index_name
+    update_column(:index_name, IndexName.new("cc_#{self.id}").generate)
   end
 
   def es_client

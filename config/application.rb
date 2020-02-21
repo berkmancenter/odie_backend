@@ -37,5 +37,7 @@ module OdieBackend
 
     config.autoload_paths << Rails.root.join('lib')
     config.autoload_paths << Rails.root.join('app', 'models', 'extractors')
+
+    config.log_level = :debug
   end
 end

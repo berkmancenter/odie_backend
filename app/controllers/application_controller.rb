@@ -3,5 +3,7 @@ class ApplicationController < ActionController::Base
     if: Proc.new { |c| c.request.format == 'application/json' }
   respond_to :html, :json
 
+  before_action :authenticate_user!
+
   layout 'application'
 end

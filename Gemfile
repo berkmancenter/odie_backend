@@ -11,6 +11,7 @@ gem 'elasticsearch', '~>6.0'
 # Required for Elasticsearch compat even though not specified in their gemspec.
 gem 'faraday', '~>0.15.0'
 gem 'fast_jsonapi'
+gem 'jquery-rails'
 gem 'rails', '~> 5.2.3'
 gem 'pg'
 gem 'puma', '~> 3.12'
@@ -40,6 +41,7 @@ group :test do
   gem 'elasticsearch-extensions'
   gem 'factory_bot_rails'
   gem 'rspec-rails'
+  gem 'selenium-webdriver'
   gem 'simplecov', require: false
   gem 'vcr'
   gem 'webdrivers'
