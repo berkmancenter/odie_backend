@@ -1,6 +1,6 @@
 require "administrate/base_dashboard"
 
-class MediaSourceDashboard < Administrate::BaseDashboard
+class SearchQueryDashboard < Administrate::BaseDashboard
   # ATTRIBUTE_TYPES
   # a hash that describes the type of each of the model's fields.
   #
@@ -65,7 +65,7 @@ class MediaSourceDashboard < Administrate::BaseDashboard
   # Overwrite this method to customize how media sources are displayed
   # across all pages of the admin dashboard.
   #
-  # def display_resource(media_source)
-  #   "MediaSource ##{media_source.id}"
+  # def display_resource(search_query)
+  #   "SearchQuery ##{search_query.id}"
   # end
 end

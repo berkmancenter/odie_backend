@@ -1,18 +1,13 @@
 # == Schema Information
 #
-# Table name: media_sources
+# Table name: search_queries
 #
-#  id          :bigint           not null, primary key
-#  active      :boolean
-#  description :text
-#  keyword     :string
-#  name        :string
-#  url         :string
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id         :bigint           not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 
-class MediaSource < ApplicationRecord
+class SearchQuery < ApplicationRecord
   has_many :data_sets
   has_and_belongs_to_many :data_configs
 

@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
-class TwitterConfsController < ActionController::Base
-  FILENAME = "#{Rails.root}/logstash/config/twitter.conf"
+class StreamingDataCollector
+  def initialize(cohort_collector)
+    @cohort_collector = cohort_collector
+  end
 
-  def new
+  def filename
+    "#{Rails.root}/logstash/config/#{cohort_collector.index_name}.conf"
+  end
+
+  def write_conf
     # It would be better to create a config file and then use logstash to
     # validate it. However, we can't run system logstash in a subprocess unless
     # it was built against the same version of ruby, and coupling those doesn't
@@ -20,11 +26,16 @@ class TwitterConfsController < ActionController::Base
 
   def context
     @context ||= begin
-      keywords = sanitize(DataConfig.find(params[:id]).keywords)
+      keywords = sanitize(@cohort_collector.keywords)
       context = binding
       context.local_variable_set(:env, ENV)
       context
     end
+  end
+
+  def kickoff
+    cmd = "timeout #{Rails.application.config.logstash_run_time} #{Rails.application.config.logstash_command} -f #{filename}"
+    system(cmd)
   end
 
   private

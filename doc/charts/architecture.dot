@@ -1,0 +1,18 @@
+// dot doc/charts/architecture.dot -Tpng > doc/charts/architecture.png
+// requires installation of GraphViz (brew install graphviz, or
+// http://www.graphviz.org/Download.php if that doesn't work)
+
+digraph G {
+  concentrate=true
+  rankdir=LR
+  {
+    "SearchQuery" [shape=box]
+    "CohortCollector" [shape=box]
+    "Cohort" [shape=box]
+    "DataSet" [shape=box]
+  }
+  "SearchQuery" -> "CohortCollector" [arrowhead=crow]
+  "CohortCollector" -> "SearchQuery" [arrowhead=crow]
+  "CohortCollector" -> "Cohort" [arrowhead=crow]
+  "Cohort" -> "DataSet" [arrowhead=crow]
+}

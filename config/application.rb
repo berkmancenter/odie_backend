@@ -25,6 +25,13 @@ module OdieBackend
     # How many tweets to collect from each user during a data collection run.
     config.tweets_per_user = ( ENV['TWEETS_PER_USER'] || 50 ).to_i
 
+    # Whatever invokes logstash in this environment.
+    config.logstash_command = ENV['LOGSTASH_COMMAND'] || 'logstash'
+
+    # How long to run logstash for. Can be any format accepted by `timeout`
+    # (X, Xs, Xh, Xd for numerical values of X).
+    config.logstash_run_time = ENV['LOGSTASH_RUN_TIME'] || '1h'
+
     config.autoload_paths << Rails.root.join('lib')
     config.autoload_paths << Rails.root.join('app', 'models', 'extractors')
   end

@@ -10,15 +10,29 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_22_210209) do
+ActiveRecord::Schema.define(version: 2020_01_10_203058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
   enable_extension "plpgsql"
 
-  create_table "data_configs", force: :cascade do |t|
+  create_table "cohort_collectors", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "keywords"
     t.string "index_name"
-    t.string "keywords", array: true
+  end
+
+  create_table "cohort_collectors_search_queries", id: false, force: :cascade do |t|
+    t.bigint "cohort_collector_id", null: false
+    t.bigint "search_query_id", null: false
+    t.index ["cohort_collector_id"], name: "index_cohort_collectors_search_queries_on_cohort_collector_id"
+    t.index ["search_query_id"], name: "index_cohort_collectors_search_queries_on_search_query_id"
+  end
+
+  create_table "cohorts", force: :cascade do |t|
+    t.text "twitter_ids", default: [], array: true
+    t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -29,7 +43,6 @@ ActiveRecord::Schema.define(version: 2019_11_22_210209) do
   end
 
   create_table "data_sets", force: :cascade do |t|
-    t.bigint "media_source_id"
     t.string "index_name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -43,16 +56,12 @@ ActiveRecord::Schema.define(version: 2019_11_22_210209) do
     t.hstore "top_mentions", default: {}
     t.hstore "top_sources", default: {}
     t.hstore "top_retweets", default: {}
+    t.bigint "cohort_id"
+    t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
     t.index ["data_config_id"], name: "index_data_sets_on_data_config_id"
-    t.index ["media_source_id"], name: "index_data_sets_on_media_source_id"
   end
 
-  create_table "media_sources", force: :cascade do |t|
-    t.boolean "active"
-    t.text "description"
-    t.string "keyword"
-    t.string "name"
-    t.string "url"
+  create_table "search_queries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -70,5 +79,5 @@ ActiveRecord::Schema.define(version: 2019_11_22_210209) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "data_sets", "data_configs"
+  add_foreign_key "data_sets", "cohorts"
 end

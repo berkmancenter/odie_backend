@@ -6,7 +6,7 @@ class MentionExtractor < Extractor
            .flatten
            .map { |mention_obj| mention_obj.screen_name }
            .each do |mention|
-             all_things[mention] += 1
+             @all_things[mention] += 1
            end
-    end
+  end
 end

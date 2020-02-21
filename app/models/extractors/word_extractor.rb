@@ -1,4 +1,4 @@
-class WordExtractor < Extractor  
+class WordExtractor < Extractor
   EXTRA_STOPWORDS = ['rt', '&amp;']
 
   private
@@ -11,7 +11,7 @@ class WordExtractor < Extractor
         .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
         .each do |token|
           next unless is_word? token
-          all_things[token] += 1
+          @all_things[token] += 1
         end
     end
   end
