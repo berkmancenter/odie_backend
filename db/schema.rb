@@ -47,6 +47,11 @@ ActiveRecord::Schema.define(version: 2020_02_19_154047) do
     t.integer "num_tweets"
     t.integer "num_retweets"
     t.hstore "hashtags", default: {}
+    t.hstore "top_words", default: {}
+    t.hstore "top_urls", default: {}
+    t.hstore "top_mentions", default: {}
+    t.hstore "top_sources", default: {}
+    t.hstore "top_retweets", default: {}
     t.bigint "cohort_id"
     t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
   end
