@@ -25,7 +25,7 @@ refactor-in-progress. Only a portion of this is currently written.
 
 The data collection pipeline is:
 
-![alt text](docs/charts/architecture.png "Odie architecture diagram")
+![Odie architecture diagram](doc/charts/architecture.png)
 
 `SearchQuery` defines terms to look for in the Twitter firehose (for example,
 terms representing a particular media source).
