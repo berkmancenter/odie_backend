@@ -12,6 +12,8 @@
 #  updated_at  :datetime         not null
 #
 
+require 'uri'
+
 class SearchQuery < ApplicationRecord
   has_and_belongs_to_many :cohort_collectors
 
