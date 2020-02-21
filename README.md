@@ -34,7 +34,8 @@ terms representing a particular media source).
 users who are tweeting about it.
 
 `Cohort` is a list of twitter IDs representing a particular user cohort, plus a
-description.
+description. It is also the model which feeds the API, since a "cohort" is the
+conceptually significant model for the front end. See `doc/api.md` for details.
 
 `DataSet` collects and stores user timeline data from a given `Cohort`. The raw
 data is stored in Elasticsearch, but metadata is stored on the `DataSet`
