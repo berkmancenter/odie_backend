@@ -15,6 +15,7 @@ Rails.application.routes.draw do
 
   resources :cohorts, only: [:show]
   resources :search_queries, only: [:index, :new, :create, :show]
+  resources :cohort_collectors, only: [:index, :new, :create, :show]
 
   defaults format: :json do
     resources :cohorts, only: [:index, :show]
