@@ -5,14 +5,12 @@
 #  id          :bigint           not null, primary key
 #  active      :boolean
 #  description :text
-#  keywords    :string
+#  keyword     :string
 #  name        :string
 #  url         :string
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
 #
-
-require 'uri'
 
 class SearchQuery < ApplicationRecord
   has_and_belongs_to_many :cohort_collectors
