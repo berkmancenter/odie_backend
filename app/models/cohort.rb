@@ -16,7 +16,7 @@ class Cohort < ApplicationRecord
   # recent DataSets.
   def self.aggregate(ids)
     DataSet.aggregate(
-      self.where(id: ids).map(&:latest_data_set)
+      self.where(id: ids).map(&:latest_data_set).compact.pluck(:id)
     )
   end
 

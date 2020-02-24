@@ -33,7 +33,7 @@ Use cookie to fetch data:
 ```
 curl -H 'Content-Type: application/json' \
   -H 'Accept: application/json' \
-  -X GET http://localhost:3000/media_sources/1.json \
+  -X GET http://localhost:3000/cohorts/1.json \
   -b cookie
 ```
 
