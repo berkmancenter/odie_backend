@@ -7,7 +7,6 @@ class CohortCollectorsController < ApplicationController
 
   def create
     @cohort_collector = CohortCollector.new(cohort_collector_params)
-    puts params
 
     if @cohort_collector.save
       flash.notice = 'Cohort collector created'

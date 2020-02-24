@@ -29,7 +29,6 @@ class CohortController < ApplicationController
   # the aggregated data across all.
   # Expects a querystring of the form ids[]=1&ids[]=2&ids[]=3.
   def show_multiple
-    puts "TIME TO SHOW MULTIPLE"
     data = CohortSerializer.new(
       Cohort.where(id: params[:ids]), is_collection: true
     ).serializable_hash
