@@ -3,27 +3,16 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  devise_scope :user do
-    unauthenticated do
-      root to: 'devise/sessions#new'
-    end
-
-    authenticated do
-      root to: 'home#index'
-    end
+  resources :cohorts, only: [:show]
+  resources :search_queries, only: [:index, :new, :create, :show]
+  resources :cohort_collectors, only: [:index, :new, :create, :show] do
+    post :monitor, to: 'cohort_collectors#monitor'
+    post :create_cohort, to: 'cohort_collectors#create_cohort'
   end
-
-  namespace :admin do
-    resources :media_sources
-
-    root to: 'media_sources#index'
-  end
-
-  get 'cohorts(/:id)', to: 'cohort#show', as: :cohort_show
-  get 'activate/:id', to: 'twitter_confs#new', as: :activate
-  resources :data_collections, only: [:new]
 
   defaults format: :json do
     resources :cohorts, only: [:index, :show]
   end
+
+  root to: 'home#index', as: 'home'
 end

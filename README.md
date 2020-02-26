@@ -80,12 +80,21 @@ In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
 
 ## Collecting Twitter data
-To test that your streaming data collection pipeline is running:
+To test that your streaming data collection pipeline is running, by hand:
 * Copy `twitter.conf.example` to `test.conf` and edit in the appropriate variables.
   * The keywords can be anything, but not all keywords will be found on Twitter within a short amount of time; "washingtonpost" is a reliable choice.
 * Make sure elasticsearch is running.
 * `logstash -f logstash/config/test.conf`
   - On the server, this is `/usr/share/logstash/bin/logstash -f logstash/config/test.conf`.
+
+To run it via the pipeline:
+* Create a SearchQuery
+* Create a CohortCollector using that SearchQuery
+* Create a StreamingDataCollector initialized with that CohortCollector
+* With that StreamingDataCollector instance, `write_conf` and then `kickoff`
+
+Note that the logstash process collecting data is owned by your rails process;
+if the rails process terminates, so will your data collection run.
 
 To collect user data:
 * Make sure you have collected some streaming data.

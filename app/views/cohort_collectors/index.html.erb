@@ -1,0 +1,11 @@
+<h1>Cohort Collectors</h1>
+
+<%= link_to "Create new", new_cohort_collector_path %>
+
+<ul>
+  <% @cohort_collectors.each do |cc| %>
+    <li>
+      <%= link_to cc.keywords, cc %>
+    </li>
+  <% end %>
+</ul>

@@ -1,0 +1,21 @@
+<h1>Create new Search Query</h1>
+
+<p>
+  A Search Query represents the source that ODIE will monitor for on Twitter.
+  Users tweeting about this source will be sampled in order to define cohorts
+  to follow.
+</p>
+
+<p>
+  All fields in this form <i>will be publicly displayed</i>.
+</p>
+
+<%= form_with model: SearchQuery.new, url: search_queries_path do |f| %>
+  <%= label_tag(:name, 'Name') %>
+  <%= text_field(@search_query, :name) %>
+  <%= label_tag(:description, 'Description') %>
+  <%= text_area(@search_query, :description) %>
+  <%= label_tag(:url, 'URL') %>
+  <%= url_field(@search_query, :url) %>
+  <%= f.submit 'Create' %>
+<% end %>

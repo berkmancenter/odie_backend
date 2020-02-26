@@ -34,6 +34,12 @@ FactoryBot.define do
     trait :with_keywords do
       keywords { ['cats'] }
     end
+
+    trait :creation_permissible do
+      start_time { Time.now - 20.minutes }
+      end_time { Time.now - 10.minutes }
+      keywords { ['exist'] }
+    end
   end
 
   factory :data_set do

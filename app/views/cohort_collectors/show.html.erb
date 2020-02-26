@@ -1,0 +1,17 @@
+<h1>Cohort Collector #<%= @cohort_collector.id %><h1>
+
+<h2><%= @cohort_collector.keywords %></h2>
+
+<div id='monitoring_flash'></div>
+<%= button_to 'Start collecting data',
+              cohort_collector_monitor_path(@cohort_collector),
+              remote: true %>
+
+<% if @cohort_collector.creation_permissible? %>
+  <div id='cohort_flash'></div>
+  <%= button_to 'Create cohort',
+                cohort_collector_create_cohort_path(@cohort_collector),
+                remote: true %>
+<% end %>
+
+Run in progress? <span id='running'><%= @cohort_collector.running? %></span>

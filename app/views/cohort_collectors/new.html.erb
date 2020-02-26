@@ -1,0 +1,24 @@
+<h1>Create new Cohort Collector</h1>
+
+<p>
+  A Cohort Collector:
+</p>
+
+<ol>
+  <li>Monitors Twitter for people tweeting about its Search Queries.</li>
+  <li>Can sample user IDs from that set of monitored tweets to build a cohort.</li>
+</ol>
+
+<p>
+  The description will be publicly displayed to end users.
+</p>
+
+<%= form_with model: CohortCollector.new, url: cohort_collectors_path do |f| %>
+  <%= label_tag(:search_query_id, 'Search Queries') %>
+  <%= f.select(:search_query_ids,
+               SearchQuery.all.collect { |sq| [ sq.name, sq.id ] },
+               {},
+               include_hidden: false,
+               multiple: true) %>
+  <%= f.submit 'Create' %>
+<% end %>

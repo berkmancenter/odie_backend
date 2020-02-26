@@ -3,9 +3,6 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.6.3'
 
-# Use bleeding-edge administrate because the rubygems version still uses
-# ruby-sass (which is deprecated) and we're on sassc-rails.
-gem 'administrate', git: 'https://github.com/thoughtbot/administrate'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'coffee-rails', '~> 4.2'
 gem 'devise'
@@ -14,6 +11,7 @@ gem 'elasticsearch', '~>6.0'
 # Required for Elasticsearch compat even though not specified in their gemspec.
 gem 'faraday', '~>0.15.0'
 gem 'fast_jsonapi'
+gem 'jquery-rails'
 gem 'rails', '~> 5.2.3'
 gem 'pg'
 gem 'puma', '~> 3.12'
@@ -43,6 +41,7 @@ group :test do
   gem 'elasticsearch-extensions'
   gem 'factory_bot_rails'
   gem 'rspec-rails'
+  gem 'selenium-webdriver'
   gem 'simplecov', require: false
   gem 'vcr'
   gem 'webdrivers'
