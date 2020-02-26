@@ -3,8 +3,10 @@
 # Table name: cohort_collectors
 #
 #  id         :bigint           not null, primary key
+#  end_time   :datetime
 #  index_name :string
-#  keywords   :string
+#  keywords   :text             default([]), is an Array
+#  start_time :datetime
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -15,53 +17,80 @@ class CohortCollector < ApplicationRecord
   after_create :initialize_keywords
   after_create :add_index_name
 
-  # - collects data for a given set of queries
-  #   - knows how to initialize the data run, stop, start
-  #   - this means that CohortCollector.new.run_pipeline is a thing that a cron job can call
-  # - for each query, builds a Cohort
-  #   - therefore it knows how to sample
-  #   - and how to create a description from a SearchQuery
-
-  # This will need something very different to run for a week, but at the moment
-  # let's just get it running at all.
-  def start_monitoring
+  def monitor_twitter
     datarun = StreamingDataCollector.new(self)
     datarun.write_conf
     datarun.kickoff
-  end
-
-  def sample_users
-    # TODO: improve semantics
-    # We've filtered our incoming data to only include tweets with the correct
-    # keyword in the expanded_url field, but that doesn't mean this search
-    # actually produces only tweets which link to the relevant source; they
-    # might @mention the keyword and link to a different media source, e.g., as
-    # in "hey @newspaper did you see this article? https://www.blog.com".
-    results = es_client.search index: stream_index, q: media_source.keyword
-    user_ids = extract_userids(results)
-    usable_ids = user_ids.uniq.sample(Rails.application.config.num_users)
-    usable_ids.map(&:to_i)
+    self.update_attributes({
+      end_time: Time.now + CohortCollector.logstash_run_time.seconds,
+      start_time: Time.now})
   end
 
   def create_cohort
+    return unless creation_permissible?
+
     Cohort.create(
       twitter_ids: sample_users,
-      description: "Twitter users talking about #{keywords} in the week before #{Date.today}"
+      description: "Twitter users talking about #{keywords} between #{readable_date(start_time)} and #{readable_date(end_time)}"
     )
+  end
+
+  def sample_users
+    results = es_client.search index: index_name, _source: ['id_str']
+    ids = results['hits']['hits'].map { |hit| hit['_source']['id_str'] }
+    ids.uniq.sample(Rails.application.config.num_users)
+  end
+
+  # In the config, logstash_run_time is specified in a format suitable for the
+  # linux timeout command, but we need it in a ruby-friendly format. This
+  # converts logstash_run_time into an integer (number of seconds).
+  def self.logstash_run_time
+    match = Rails.application.config.logstash_run_time.match(/^([0-9]+)([s|m|d|h])$/)
+    raise 'logstash_run_time incorrectly formatted' unless match.present?
+
+    amount = match.captures.first.to_i
+    unit = match.captures.second
+
+    case unit
+    when 's'
+      amount
+    when 'm'
+      amount * 60
+    when 'h'
+      amount * 3600
+    when 'd'
+      amount * 86400
+    end
+  end
+
+  def readable_date(date)
+    date.strftime('%e %B %Y')
   end
 
   private
 
-  def es_client
-    @es_client ||= Elasticsearch::Client.new
+  def add_index_name
+    update_column(:index_name, IndexName.new("cc_#{self.id}").generate)
   end
 
-  def extract_userids(results)
-    # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object
-    # for the inside of the block. The ['hits']['hits'] comes from the structure
-    # of elasticsearch objects; the tweet objects returned from the API are
-    # wrapped in metadata, and we need to extract them.
-    results['hits']['hits'].map { |r| r['_source']['user']['id_str'] }.uniq
+  def creation_permissible?
+    retval = true
+
+    unless [keywords, start_time, end_time].map(&:present?).all?
+      Rails.logger.info('Cannot create cohort unless metadata is present')
+      retval = false
+    end
+
+    unless Time.now > end_time
+      Rails.logger.info('Cannot create cohort until data collection is done')
+      retval = false
+    end
+
+    retval
+  end
+
+  def es_client
+    @es_client ||= Elasticsearch::Client.new
   end
 
   # This freezes the keywords as they existed at the time of the configuration,
@@ -69,10 +98,6 @@ class CohortCollector < ApplicationRecord
   # CohortCollector directly for keywords rather than reaching through it to
   # SearchQuery.
   def initialize_keywords
-    self.keywords = search_queries.pluck(:keyword)
-  end
-
-  def add_index_name
-    self.index_name = "user_run_#{self.id}_#{sanitize(SecureRandom.uuid)}"
+    update_column(:keywords, search_queries.pluck(:keyword))
   end
 end

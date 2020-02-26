@@ -32,6 +32,9 @@ module OdieBackend
     # (X, Xs, Xh, Xd for numerical values of X).
     config.logstash_run_time = ENV['LOGSTASH_RUN_TIME'] || '1h'
 
+    # Where logstash config files live
+    config.logstash_conf_dir = Rails.root.join('logstash', 'config')
+
     config.autoload_paths << Rails.root.join('lib')
     config.autoload_paths << Rails.root.join('app', 'models', 'extractors')
   end

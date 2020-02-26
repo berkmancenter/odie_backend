@@ -17,6 +17,25 @@ FactoryBot.define do
     description { 'Berkman Klein Center for Internet & Society' }
   end
 
+  factory :cohort_collector do
+    transient do
+      queries_count { 1 }
+    end
+
+    after :build do |cc, evaluator|
+      cc.search_queries = build_list(:search_query, evaluator.queries_count)
+    end
+
+    trait :with_times do
+      start_time { Time.utc(1970, 01, 01) }
+      end_time { Time.utc(1970, 01, 01) + 1.hour }
+    end
+
+    trait :with_keywords do
+      keywords { ['cats'] }
+    end
+  end
+
   factory :data_set do
     cohort
 
@@ -29,5 +48,11 @@ FactoryBot.define do
     top_urls { { 'www.cnn.com/a_story'=>'4', 'http://bitly.com/98K8eH'=>'8'} }
     top_words { { 'stopword'=>'5', 'moose'=>'74' } }
     hashtags { { 'llamas'=>'7', 'octopodes'=>'24' } }
+  end
+
+  factory :search_query do
+    description { 'Democracy dies in darkness' }
+    name { 'WaPo' }
+    url { 'https://www.washingtonpost.com' }
   end
 end
