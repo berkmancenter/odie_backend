@@ -1,9 +1,9 @@
-class CohortController < ApplicationController
-  skip_before_filter :authenticate_user!
+class CohortsController < ApplicationController
+  skip_before_action :authenticate_user!
 
   def index
     render json: CohortSerializer.new(
-      CohortSerializer.where(active: true)
+      Cohort.all
     ).serialized_json
   end
 
@@ -29,7 +29,6 @@ class CohortController < ApplicationController
   # the aggregated data across all.
   # Expects a querystring of the form ids[]=1&ids[]=2&ids[]=3.
   def show_multiple
-    puts "TIME TO SHOW MULTIPLE"
     data = CohortSerializer.new(
       Cohort.where(id: params[:ids]), is_collection: true
     ).serializable_hash
