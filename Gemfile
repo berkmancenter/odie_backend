@@ -11,6 +11,7 @@ gem 'elasticsearch', '~>6.0'
 # Required for Elasticsearch compat even though not specified in their gemspec.
 gem 'faraday', '~>0.15.0'
 gem 'fast_jsonapi'
+gem 'bulma-rails'
 gem 'jquery-rails'
 gem 'rails', '~> 5.2.3'
 gem 'pg'

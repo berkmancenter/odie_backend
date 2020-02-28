@@ -9,7 +9,7 @@ class CohortCollectorsController < ApplicationController
     @cohort_collector = CohortCollector.new(cohort_collector_params)
 
     if @cohort_collector.save
-      flash.notice = 'Cohort collector created'
+      flash[:info] = 'Cohort collector created'
       redirect_to cohort_collectors_path(@cohort_collector)
     else
       render 'new'
@@ -25,9 +25,9 @@ class CohortCollectorsController < ApplicationController
     @running = cc.monitor_twitter
 
     if @running
-      flash[:notice] = "Data collection in process until approximately #{cc.end_time}."
+      flash[:info] = "Data collection in process until approximately #{cc.end_time}."
     else
-      flash[:warn] = "Something went wrong."
+      flash[:warning] = "Something went wrong."
     end
 
     respond_to do |format|

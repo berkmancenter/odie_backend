@@ -7,8 +7,8 @@ class SearchQueriesController < ApplicationController
     @search_query = SearchQuery.new(search_query_params)
 
     if @search_query.save
-      flash.notice = 'Search query created'
-      redirect_to search_queries_path(@search_query)
+      flash[:info] = 'Search query created'
+      redirect_to search_query_path(@search_query)
     else
       render 'new'
     end

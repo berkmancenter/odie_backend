@@ -1,0 +1,60 @@
+.navbar-menu {
+  .navbar-start {
+    a.navbar-item {
+      outline: none;
+
+      &:hover,
+      &:focus,
+      &.is-active {
+        background-color: $primary;
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      &:before,
+      &:after {
+        height: 14px;
+        width: 14px;
+        position: absolute;
+        content: '';
+        -webkit-transition: all 0.35s ease;
+        transition: all 0.35s ease;
+        opacity: 0;
+      }
+
+      &:before {
+        left: 0;
+        top: 0;
+        border-left: 3px solid #ffffff;
+        border-top: 3px solid #ffffff;
+        border-radius: 2px;
+        -webkit-transform: translate(100%, 50%);
+        transform: translate(100%, 50%);
+      }
+
+      &:after {
+        right: 0;
+        bottom: 0;
+        border-right: 3px solid #ffffff;
+        border-bottom: 3px solid #ffffff;
+        border-radius: 2px;
+        -webkit-transform: translate(-100%, -50%);
+        transform: translate(-100%, -50%);
+      }
+
+      &:hover:before,
+      &.is-active:before {
+        -webkit-transform: translate(2px, 2px);
+        transform: translate(2px, 2px);
+        opacity: 1;
+      }
+
+      &:hover:after,
+      &.is-active:after {
+        -webkit-transform: translate(-2px, -2px);
+        transform: translate(-2px, -2px);
+        opacity: 1;
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+.home-view {
+  .card {
+    margin-top: 15px;
+
+    .card-content {
+      padding: 1rem;
+      text-align: center;
+
+      .tag {
+        margin-left: 5px;
+      }
+
+      .tags {
+        margin-top: 10px;
+        justify-content:center;
+      }
+    }
+
+    .card-footer {
+      a {
+        display: block;
+        width: 100%;
+      }
+    }
+  }
+
+  .home-view-card-show-all {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .hero {
+    margin-bottom: 40px;
+
+    h2 {
+      margin-bottom: 0;
+    }
+  }
+}
