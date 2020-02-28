@@ -1,0 +1,9 @@
+<h1 class="title is-3">Cohorts</h1>
+
+<ul class="list is-marginless">
+  <% Cohort.all.each do |cohort| %>
+    <li class="list-item">
+      <%= cohort.id %>. <%= link_to cohort.description, cohort %>
+    </li>
+  <% end %>
+</ul>

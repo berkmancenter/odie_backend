@@ -10,9 +10,5 @@ Rails.application.routes.draw do
     post :create_cohort, to: 'cohort_collectors#create_cohort'
   end
 
-  defaults format: :json do
-    resources :cohorts, only: [:index, :show]
-  end
-
   root to: 'home#index', as: 'home'
 end

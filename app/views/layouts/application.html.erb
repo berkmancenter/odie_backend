@@ -10,8 +10,53 @@
     <%= favicon_link_tag asset_path('favicon.ico') %>
   </head>
 
-  <body>
+  <body id="app">
+    <div class="header">
+      <div class="header-logo">
+        <div>
+          <a href='/' class="header-logo-link noselect">
+            <span>OD</span>
+            <%= image_tag('logo_being.svg') %>
+            <span>IE</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <nav role="navigation" aria-label="main navigation" class="navbar main-navbar noselect">
+      <div class="container">
+        <div class="navbar-menu">
+          <div class="navbar-start">
+            <a href="/" class="navbar-item">
+              Home
+            </a>
+            <%= link_to 'Search Queries', search_queries_path, class: 'navbar-item' %>
+            <%= link_to 'Cohort Collectors', cohort_collectors_path, class: 'navbar-item' %>
+            <%= link_to 'Cohorts', cohorts_path, class: 'navbar-item' %>
+          </div>
+          <div class="navbar-end">
+            <div class="buttons">
+              <% if user_signed_in? %>
+                <%= link_to('Sign Out', destroy_user_session_path,
+                            class: 'navbar-item button is-light has-text-dark') %>
+              <% else %>
+                <%= link_to('Sign In', new_user_session_path,
+                            class: 'navbar-item button is-light has-text-dark') %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
     <%= render 'shared/flashes' %>
-    <%= yield %>
+
+    <section class="section">
+      <div class="content">
+        <div class="container">
+          <%= yield %>
+        </div>
+      </div>
+    </section>
   </body>
 </html>

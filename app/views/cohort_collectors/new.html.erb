@@ -1,24 +1,48 @@
-<h1>Create new Cohort Collector</h1>
+<h1 class="title is-3">Create new Cohort Collector <span class="is-size-7"><a href="#about">what's this?</a></span></h1>
 
-<p>
-  A Cohort Collector:
-</p>
+<div class="box">
+  <%= form_with model: CohortCollector.new, url: cohort_collectors_path do |f| %>
+    <div class="field">
+      <label class="label">Search Queries</label>
+      <div class="control">
+        <div class="select is-multiple">
+          <%= f.select(:search_query_ids,
+                     SearchQuery.all.collect { |sq| [ sq.url, sq.id ] },
+                     {},
+                     include_hidden: false,
+                     multiple: 'multiple',
+                     size: SearchQuery.count) %>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <div class="control">
+        <%= f.submit 'Create' , class: 'button is-primary'%>
+      </div>
+    </div>
+  <% end %>
+</div>
 
-<ol>
-  <li>Monitors Twitter for people tweeting about its Search Queries.</li>
-  <li>Can sample user IDs from that set of monitored tweets to build a cohort.</li>
-</ol>
+<div class="card" id="about">
+  <header class="card-header">
+    <p class="card-header-title">
+      About Cohort Collectors
+    </p>
+  </header>
+  <div class="card-content">
+    <div class="content">
+      <p>
+        A Cohort Collector:
+      </p>
 
-<p>
-  The description will be publicly displayed to end users.
-</p>
+      <ol>
+        <li>Monitors Twitter for people tweeting about its Search Queries.</li>
+        <li>Can sample user IDs from that set of monitored tweets to build a cohort.</li>
+      </ol>
 
-<%= form_with model: CohortCollector.new, url: cohort_collectors_path do |f| %>
-  <%= label_tag(:search_query_id, 'Search Queries') %>
-  <%= f.select(:search_query_ids,
-               SearchQuery.all.collect { |sq| [ sq.name, sq.id ] },
-               {},
-               include_hidden: false,
-               multiple: true) %>
-  <%= f.submit 'Create' %>
-<% end %>
+      <p>
+        The description will be publicly displayed to end users.
+      </p>
+    </div>
+  </div>
+</div>

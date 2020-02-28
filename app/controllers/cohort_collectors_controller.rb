@@ -10,7 +10,7 @@ class CohortCollectorsController < ApplicationController
 
     if @cohort_collector.save
       flash[:info] = 'Cohort collector created'
-      redirect_to cohort_collectors_path(@cohort_collector)
+      redirect_to cohort_collector_path(@cohort_collector)
     else
       render 'new'
     end

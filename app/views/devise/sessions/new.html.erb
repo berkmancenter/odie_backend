@@ -1,0 +1,39 @@
+<%# override devise default %>
+<h2>Log in</h2>
+
+<div class="box">
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'is-narrow' }) do |f| %>
+    <div class="field">
+      <label class="label for="email">Email</label>
+      <div class="control">
+        <input class="input" type="email" placeholder="you@are.awesome" id="email" name="user[email]">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label for="password">Password</label>
+      <div class="control">
+        <input class="input" type="password" placeholder="********" id="password" name="user[password]">
+      </div>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div class="field">
+        <label class="checkbox">
+          <input type="checkbox" name="user[remember_me]">
+          Remember me
+        </label>
+      </div>
+    <% end %>
+
+    <div class="field">
+      <div class="control">
+        <%= f.submit 'Log in' , class: 'button is-primary'%>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= render "devise/shared/links" %>
+  </div>
+</div>

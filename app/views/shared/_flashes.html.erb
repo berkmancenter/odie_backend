@@ -1,7 +1,9 @@
 <% if flash.any? %>
-  <% flash.each do |key, value| -%>
-    <div class="notification is-<%= key %>"> <%# Supported: info, success, warning, danger %>
-      <%= value.html_safe %>
-    </div>
-  <% end -%>
+  <section class="section flash">
+    <% flash.each do |key, value| -%>
+      <div class="notification is-<%= key %>"> <%# Supported: info, success, warning, danger %>
+        <%= value.html_safe %>
+      </div>
+    <% end -%>
+  </section>
 <% end %>

@@ -2,12 +2,34 @@ class CohortsController < ApplicationController
   skip_before_action :authenticate_user!
 
   def index
+    index_js unless current_user&.admin?
+
+    respond_to do |format|
+      format.js { index_js }
+      format.html
+    end
+  end
+
+  def show
+    show_js unless current_user&.admin?
+
+    @cohort = Cohort.find(params[:id])
+
+    respond_to do |format|
+      format.js { show_js }
+      format.html
+    end
+  end
+
+  private
+
+  def index_js
     render json: CohortSerializer.new(
       Cohort.all
     ).serialized_json
   end
 
-  def show
+  def show_js
     if params.include? :id
       show_one
     elsif params.include? :ids
@@ -16,8 +38,6 @@ class CohortsController < ApplicationController
       raise ActionController::ParameterMissing('/:id or ?ids[]=1&ids[]=2 must be supplied')
     end
   end
-
-  private
 
   def show_one
     render json: CohortSerializer.new(
