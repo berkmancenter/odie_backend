@@ -21,6 +21,17 @@ class CohortsController < ApplicationController
     end
   end
 
+  def create
+    @cohort = Cohort.new(cohort_params)
+
+    if @cohort.save
+      flash[:info] = 'Cohort created'
+      redirect_to cohort_path(@cohort)
+    else
+      render 'new'
+    end
+  end
+
   private
 
   def index_js
@@ -68,5 +79,10 @@ class CohortsController < ApplicationController
     # no error to handle.
     integer_ids = params[:ids].map(&:to_i).reject { |i| i == 0 }
     integer_ids.length == Cohort.where(id: params[:ids]).count
+  end
+
+  def cohort_params
+    params.permit(:description)
+          .merge({ twitter_ids: params[:twitter_ids].split(',') })
   end
 end
