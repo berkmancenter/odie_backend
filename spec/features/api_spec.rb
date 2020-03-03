@@ -2,8 +2,10 @@ require 'rails_helper'
 
 feature 'API' do
   include Devise::Test::IntegrationHelpers
-  let(:admin_user) { build(:user, :admin) }
-  let(:api_user) { build(:user) }
+
+  before :each do
+    login_as(create(:user))
+  end
 
   context '/cohorts' do
     before :all do
@@ -15,7 +17,7 @@ feature 'API' do
     end
 
     it 'returns a list of all cohorts' do
-      visit cohorts_path(format: :json)
+      visit cohorts_path
       expect(page.body).to eq(
         CohortSerializer.new(Cohort.all).serialized_json
       )

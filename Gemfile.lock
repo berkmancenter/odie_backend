@@ -55,6 +55,8 @@ GEM
       msgpack (~> 1.0)
     buftok (0.2.0)
     builder (3.2.3)
+    bulma-rails (0.8.0)
+      sassc (~> 2.0)
     byebug (11.0.1)
     capybara (3.20.2)
       addressable
@@ -315,6 +317,7 @@ PLATFORMS
 DEPENDENCIES
   annotate
   bootsnap (>= 1.1.0)
+  bulma-rails
   byebug
   capybara (>= 2.15)
   coffee-rails (~> 4.2)

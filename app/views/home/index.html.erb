@@ -1,16 +1,95 @@
-<p>
+<p class="box">
   Hi, <%= current_user.email %>!
 </p>
 
 <p>
-  Manage:
+  This is the admin site for ODIE.
 </p>
 
+<h1 class="is-size-4">
+  Expected workflow:
+</h1>
+
 <ul>
-  <li>
-    <%= link_to 'Search Queries', search_queries_path %>
+  <li>Define one or more <em>Search Queries</em>.
+    <div class="dropdown is-hoverable">
+      <div class="dropdown-trigger">
+        <button class="button is-small" aria-haspopup="true" aria-controls="dropdown-search-query">
+          How?
+        </button>
+      </div>
+      <div class="dropdown-menu is-fullwidth" id="dropdown-search-query" role="menu">
+        <div class="dropdown-content">
+          <div class="dropdown-item">
+            A <em>Search Query</em> is a media source or other URL you'd like to monitor for on Twitter. ODIE will look for links to this URL.
+          </div>
+          <hr class="dropdown-divider">
+          <div class="dropdown-item">
+            You can define Search Queries via the menu above.
+          </div>
+        </div>
+      </div>
+    </div>
   </li>
-  <li>
-    <%= link_to 'Cohort Collectors', cohort_collectors_path %>
+  <li>Define one or more <em>Cohort Collectors</em>.
+    <div class="dropdown is-hoverable">
+      <div class="dropdown-trigger">
+        <button class="button is-small" aria-haspopup="true" aria-controls="dropdown-cohort-collector">
+          How?
+        </button>
+      </div>
+      <div class="dropdown-menu is-fullwidth" id="dropdown-cohort-collector" role="menu">
+        <div class="dropdown-content">
+          <div class="dropdown-item">
+            A <em>Cohort Collector</em> monitors Twitter for one or more Search Queries, and then samples a set of users who are tweeting about those terms.
+          </div>
+          <hr class="dropdown-divider">
+          <div class="dropdown-item">
+            You can define Cohort Collectors via the menu above.
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
+  <li>Define one or more <em>Cohorts</em>.
+    <div class="dropdown is-hoverable">
+      <div class="dropdown-trigger">
+        <button class="button is-small" aria-haspopup="true" aria-controls="dropdown-cohort">
+          How?
+        </button>
+      </div>
+      <div class="dropdown-menu is-fullwidth" id="dropdown-cohort" role="menu">
+        <div class="dropdown-content">
+          <div class="dropdown-item">
+            A <em>Cohort</em> is a group of Twitter users. ODIE can collect data from Twitter about these users' recent timelines.
+          </div>
+          <hr class="dropdown-divider">
+          <div class="dropdown-item">
+            You can define Cohorts via Cohort Collectors; if you have a Cohort Collector representing a set of Search Queries of interest, ODIE can collect the data from there.
+          </div>
+          <div class="dropdown-item">
+            You can also define Cohorts manually, using the menu above, by entering a set of Twitter IDs you've defined via other means.
+          </div>
+        </div>
+      </div>
+    </div>
+  </li>
+  <li>Collect data for a Cohort.
+    <div class="dropdown is-hoverable">
+      <div class="dropdown-trigger">
+        <button class="button is-small" aria-haspopup="true" aria-controls="dropdown-cohort">
+          How?
+        </button>
+      </div>
+      <div class="dropdown-menu is-fullwidth" id="dropdown-cohort" role="menu">
+        <div class="dropdown-content">
+          <div class="dropdown-item">
+            Data for a given Cohort can be collected on that Cohort's page.
+          </div>
+          <div class="dropdown-item">
+            Data is viewed through the API, on the front end.
+          </div>
+      </div>
+    </div>
   </li>
 </ul>

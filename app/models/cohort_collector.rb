@@ -18,12 +18,19 @@ class CohortCollector < ApplicationRecord
   after_create :add_index_name
 
   def monitor_twitter
+    unless services_available?
+      Rails.logger.warn('Cannot monitor twitter because services are not available')
+      return false
+    end
+
     datarun = StreamingDataCollector.new(self)
     datarun.write_conf
     datarun.kickoff
     self.update_attributes({
       end_time: Time.now + CohortCollector.logstash_run_time.seconds,
       start_time: Time.now})
+
+    true
   end
 
   def create_cohort
@@ -67,6 +74,13 @@ class CohortCollector < ApplicationRecord
     date.strftime('%e %B %Y')
   end
 
+  def readable_time(date)
+    # Yes, we're assuming admin users are in Eastern time.
+    date.in_time_zone('Eastern Time (US & Canada)')
+        .strftime('%k:%M %p on %e %B %Y')
+        .squeeze
+  end
+
   def running?
     [start_time.present? && start_time < Time.now,
      end_time.present? && end_time > Time.now].all?
@@ -102,5 +116,11 @@ class CohortCollector < ApplicationRecord
   # SearchQuery.
   def initialize_keywords
     update_column(:keywords, search_queries.pluck(:keyword))
+  end
+
+  def services_available?
+    # the [e] is to turn it into a regex, so that the grep command itself does
+    # not show up in the ps results.
+    `ps aux | grep [e]lasticsearch` != ''
   end
 end

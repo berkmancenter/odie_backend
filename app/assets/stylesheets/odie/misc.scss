@@ -1,0 +1,11 @@
+.section.flash {
+  padding-top: 0.5 rem;
+  padding-bottom: 0.5 rem;
+}
+
+.dropdown.is-hoverable:hover {
+  .is-fullwidth {
+    margin-left: 0;
+    margin-right: calc(50% - 50vw);
+  }
+}

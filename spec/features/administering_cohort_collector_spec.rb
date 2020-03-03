@@ -47,7 +47,7 @@ feature 'Administering CohortCollector' do
         visit new_cohort_collector_path
 
         find 'select'
-        select sq.name
+        select sq.url
         click_on 'Create'
 
         latest = CohortCollector.last
@@ -74,28 +74,28 @@ feature 'Administering CohortCollector' do
         cc.update_attributes(start_time: nil, end_time: nil)
 
         visit cohort_collector_path(cc)
-        expect(page).to have_text 'Run in progress? false'
+        expect(page).to have_text 'Data collection run in progress? no'
 
         # Run not yet started
         cc.update_attributes(
           start_time: Time.now + 10.minutes, end_time: Time.now + 20.minutes)
 
         visit cohort_collector_path(cc)
-        expect(page).to have_text 'Run in progress? false'
+        expect(page).to have_text 'Data collection run in progress? no'
 
         # Run in process
         cc.update_attributes(
           start_time: Time.now - 10.minutes, end_time: Time.now + 10.minutes)
 
         visit cohort_collector_path(cc)
-        expect(page).to have_text 'Run in progress? true'
+        expect(page).to have_text 'Data collection run in progress? yes'
 
         # Run concluded
         cc.update_attributes(
           start_time: Time.now - 20.minutes, end_time: Time.now - 10.minutes)
 
         visit cohort_collector_path(cc)
-        expect(page).to have_text 'Run in progress? false'
+        expect(page).to have_text 'Data collection run in progress? no'
       end
 
       it 'lets you create cohorts when creation is permissible', js: true do

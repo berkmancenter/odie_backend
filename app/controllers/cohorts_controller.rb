@@ -1,13 +1,64 @@
 class CohortsController < ApplicationController
-  skip_before_action :authenticate_user!
+  before_action :verify_admin, only: [:new, :create]
+  after_action { flash.discard if request.xhr? }
+  respond_to :html, :json, :js
 
   def index
+    return index_json unless current_user.admin?
+
+    respond_to do |format|
+      format.json { index_json }
+      format.html
+    end
+  end
+
+  def show
+    return show_json unless current_user.admin?
+
+    @cohort = Cohort.find(params[:id])
+
+    respond_to do |format|
+      format.json { show_json }
+      format.html
+    end
+  end
+
+  def create
+    @cohort = Cohort.new(cohort_params)
+
+    if @cohort.save
+      flash[:info] = 'Cohort created'
+      redirect_to cohort_path(@cohort)
+    else
+      render 'new'
+    end
+  end
+
+  def collect_data
+    Cohort.find(params[:cohort_id]).collect_data
+
+    flash[:info] = 'Data collection in process'
+  rescue Faraday::ConnectionFailed => error
+    Rails.logger.warn("Failed collection data for cohort #{params[:cohort_id]}: #{error}")
+    flash[:warning] = "Data can't be collected because Elasticsearch isn't running. Talk to the geeks."
+  rescue Exception => error
+    Rails.logger.warn("Failed collection data for cohort #{params[:cohort_id]}: #{error}")
+    flash[:warning] = 'Something went wrong.'
+  ensure
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  private
+
+  def index_json
     render json: CohortSerializer.new(
       Cohort.all
     ).serialized_json
   end
 
-  def show
+  def show_json
     if params.include? :id
       show_one
     elsif params.include? :ids
@@ -16,8 +67,6 @@ class CohortsController < ApplicationController
       raise ActionController::ParameterMissing('/:id or ?ids[]=1&ids[]=2 must be supplied')
     end
   end
-
-  private
 
   def show_one
     render json: CohortSerializer.new(
@@ -48,5 +97,14 @@ class CohortsController < ApplicationController
     # no error to handle.
     integer_ids = params[:ids].map(&:to_i).reject { |i| i == 0 }
     integer_ids.length == Cohort.where(id: params[:ids]).count
+  end
+
+  def cohort_params
+    params.permit(:description)
+          .merge({ twitter_ids: params[:twitter_ids].split(',').map(&:strip) })
+  end
+
+  def verify_admin
+    return head :unauthorized unless current_user.admin?
   end
 end

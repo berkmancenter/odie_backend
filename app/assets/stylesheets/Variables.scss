@@ -1,0 +1,43 @@
+// Bulma variables
+$primary: #1DA1F2;
+$primary-invert: findColorInvert($primary);
+$twitter: #4099FF;
+$twitter-invert: findColorInvert($twitter);
+
+// Navbar
+$navbar-breakpoint: 0;
+
+// Setup $colors to use as bulma classes (e.g. 'is-twitter')
+$colors: (
+    "white": ($white, $black),
+    "black": ($black, $white),
+    "light": ($light, $light-invert),
+    "dark": ($dark, $dark-invert),
+    "primary": ($primary, $primary-invert),
+    "info": ($info, $info-invert),
+    "success": ($success, $success-invert),
+    "warning": ($warning, $warning-invert),
+    "danger": ($danger, $danger-invert),
+    "twitter": ($twitter, $twitter-invert)
+);
+
+// Links
+$link: $primary;
+$link-invert: $primary-invert;
+$link-focus-border: $primary;
+
+// Colors
+$almostBlack: #333333;
+
+// Fonts
+$family-primary: 'Roboto';
+
+// Main breakpoints
+$breakpointXs: 0;
+$breakpointSm: 576px;
+$breakpointMd: 768px;
+$breakpointLg: 992px;
+$breakpointXl: 1200px;
+
+// Import Bulma styles
+@import "bulma";

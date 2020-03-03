@@ -1,17 +1,49 @@
-<h1>Cohort Collector #<%= @cohort_collector.id %><h1>
+<h1 class="title is-3"><%= @cohort_collector.keywords %></h1>
+<h2 class="subtitle is-5">Cohort Collector #<%= @cohort_collector.id %></h2>
 
-<h2><%= @cohort_collector.keywords %></h2>
+<h3 class="is-6">Data Collection</h3>
+<p>
+  Data collection run in progress?
+  <% if @cohort_collector.running? %>
+    <span id='running' class='tag is-warning is-light is-rounded'>yes</span>
+  <% else %>
+    <span id='running' class='tag is-info is-light is-rounded'>no</span>
+  <% end %>
+</p>
 
 <div id='monitoring_flash'></div>
 <%= button_to 'Start collecting data',
               cohort_collector_monitor_path(@cohort_collector),
-              remote: true %>
+              remote: true,
+              class: 'button' %>
 
+<h3 class="is-6">Cohort Creation</h3>
 <% if @cohort_collector.creation_permissible? %>
+  <p>
+    Cohort creation allowed? <span id='running' class='tag is-info is-light is-rounded'>yes</span>
+  </p>
+
   <div id='cohort_flash'></div>
   <%= button_to 'Create cohort',
                 cohort_collector_create_cohort_path(@cohort_collector),
-                remote: true %>
-<% end %>
+                remote: true,
+                class: 'button' %>
+<% else %>
+  <p>
+    Cohort creation allowed? <span id='running' class='tag is-warning is-light is-rounded'>no</span>
+  </p>
 
-Run in progress? <span id='running'><%= @cohort_collector.running? %></span>
+  <% if @cohort_collector.end_time %>
+    <% if @cohort_collector.end_time > Time.now %>
+      <p>
+        Data collection is still in progress. Come back after <%= @cohort_collector.readable_time(@cohort_collector.end_time) %>.
+      </p>
+    <% end %>
+  <% else %>
+    <p>
+      This cohort collector has not yet collected data. Cohorts cannot be
+      created until data has been collected. Try to start collecting data and
+      come back when the data collection run is complete.
+    </p>
+  <% end %>
+<% end %>

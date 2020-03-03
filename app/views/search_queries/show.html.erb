@@ -1,12 +1,23 @@
-<h1>Search Query #<%= @search_query.id %><h1>
+<h1 class="title is-3"><%= @search_query.name %></h1>
+<h2 class="subtitle is-5">Search Query #<%= @search_query.id %></h2>
 
-<h2><%= @search_query.name %></h2>
-<i><%= @search_query.url %></i>
-
-<p>
-  <%= @search_query.description %>
-</p>
-
-<p>
- <b>Keyword:</b> <%= @search_query.keyword %>
-</p>
+<table class="table is-hoverable is-striped">
+  <tbody>
+    <tr>
+      <th>Name</th>
+      <td><%= @search_query.name %></td>
+    </tr>
+    <tr>
+      <th>Description</th>
+      <td><%= @search_query.description %></td>
+    </tr>
+    <tr>
+      <th>URL</th>
+      <td><%= @search_query.url %></td>
+    </tr>
+    <tr>
+      <th>Search keyword</th>
+      <td><%= @search_query.keyword %></td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,49 @@
+<h1 class="title is-3">Create new Cohort <span class="is-size-7"><a href="#about">what's this?</a></span></h1>
+
+<div class="box">
+  <%= form_with model: Cohort.new, url: cohorts_path do |f| %>
+    <div class="field">
+      <label class="label" for="twitter_ids">Twitter IDs</label>
+      <div class="control">
+        <input class="input" type="text" placeholder="14706139, 19259102, 20095468" name="twitter_ids" id="twitter_ids">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="description">Description</label>
+      <div class="control">
+        <textarea class="textarea" placeholder="Description" name="description" id="description"></textarea>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="control">
+        <%= f.submit 'Create' , class: 'button is-primary'%>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="card" id="about">
+  <header class="card-header">
+    <p class="card-header-title">
+      About Cohorts
+    </p>
+  </header>
+  <div class="card-content">
+    <div class="content">
+      <p>
+        A Cohort:
+      </p>
+
+      <ol>
+        <li>Is a group of Twitter users (identified by ID)</li>
+        <li>Can pull data from those users' recent timelines.</li>
+      </ol>
+
+      <p>
+        The description will be publicly displayed to end users.
+      </p>
+    </div>
+  </div>
+</div>
