@@ -1,5 +1,6 @@
 class CohortsController < ApplicationController
   skip_before_action :authenticate_user!
+  after_action { flash.discard if request.xhr? }
 
   def index
     index_js unless current_user&.admin?
@@ -29,6 +30,22 @@ class CohortsController < ApplicationController
       redirect_to cohort_path(@cohort)
     else
       render 'new'
+    end
+  end
+
+  def collect_data
+    Cohort.find(params[:cohort_id]).collect_data
+
+    flash[:info] = 'Data collection in process'
+  rescue Faraday::ConnectionFailed => error
+    Rails.logger.warn("Failed collection data for cohort #{params[:cohort_id]}: #{error}")
+    flash[:warning] = "Data can't be collected because Elasticsearch isn't running. Talk to the geeks."
+  rescue Exception => error
+    Rails.logger.warn("Failed collection data for cohort #{params[:cohort_id]}: #{error}")
+    flash[:warning] = 'Something went wrong.'
+  ensure
+    respond_to do |format|
+      format.js
     end
   end
 

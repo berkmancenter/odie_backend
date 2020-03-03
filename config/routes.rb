@@ -3,7 +3,9 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  resources :cohorts, only: [:index, :new, :create, :show]
+  resources :cohorts, only: [:index, :new, :create, :show] do
+    post :collect_data, to: 'cohorts#collect_data'
+  end
   resources :search_queries, only: [:index, :new, :create, :show]
   resources :cohort_collectors, only: [:index, :new, :create, :show] do
     post :monitor, to: 'cohort_collectors#monitor'
