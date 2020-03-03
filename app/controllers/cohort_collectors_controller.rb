@@ -1,4 +1,6 @@
 class CohortCollectorsController < ApplicationController
+  after_action { flash.discard if request.xhr? }
+
   respond_to :html, :js
 
   def index
@@ -25,9 +27,9 @@ class CohortCollectorsController < ApplicationController
     @running = cc.monitor_twitter
 
     if @running
-      flash[:info] = "Data collection in process until approximately #{cc.end_time}."
+      flash[:info] = "Data collection in process until approximately #{cc.readable_time(cc.end_time)}."
     else
-      flash[:warning] = "Something went wrong."
+      flash[:warning] = "Something went wrong. Usually this means Elasticsearch isn't running and the geeks should restart it."
     end
 
     respond_to do |format|
@@ -37,14 +39,30 @@ class CohortCollectorsController < ApplicationController
 
   def create_cohort
     cc = CohortCollector.find(params[:cohort_collector_id])
-    cc.create_cohort
+    cohort = cc.create_cohort
 
+    add_feedback(cohort)
+  rescue ActiveRecord::StatementInvalid
+    flash[:warning] = 'Cohort could not be created.'
+  rescue Faraday::ConnectionFailed
+    flash[:warning] = 'Cohort could not be created because Elasticsearch is not running; talk to the geek team.'
+  ensure
     respond_to do |format|
-      format.js { flash[:notice] = 'Cohort created.' }
+      format.js
     end
   end
 
   private
+
+  def add_feedback(cohort)
+    if cohort&.valid?
+      flash[:notice] = 'Cohort created.'
+    elsif cohort&.errors.present?
+      flash[:warning] = "Cohort could not be created: #{cohort.errors}"
+    else
+      flash[:warning] = 'Cohort could not be created.'
+    end
+  end
 
   def cohort_collector_params
     params.require(:cohort_collector).permit(search_query_ids: [])

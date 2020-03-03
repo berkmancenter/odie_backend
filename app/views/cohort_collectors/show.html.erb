@@ -36,7 +36,7 @@
   <% if @cohort_collector.end_time %>
     <% if @cohort_collector.end_time > Time.now %>
       <p>
-        Data collection is still in progress. Come back after <%= @cohort_collector.readable_date(@cohort_collector.end_time) %>.
+        Data collection is still in progress. Come back after <%= @cohort_collector.readable_time(@cohort_collector.end_time) %>.
       </p>
     <% end %>
   <% else %>

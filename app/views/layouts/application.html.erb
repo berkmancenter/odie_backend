@@ -38,10 +38,10 @@
             <div class="buttons">
               <% if user_signed_in? %>
                 <%= link_to('Sign Out', destroy_user_session_path,
-                            class: 'navbar-item button is-light has-text-dark') %>
+                            class: 'navbar-item button is-inverted is-outlined is-primary') %>
               <% else %>
                 <%= link_to('Sign In', new_user_session_path,
-                            class: 'navbar-item button is-light has-text-dark') %>
+                            class: 'navbar-item button is-inverted is-outlined is-primary') %>
               <% end %>
             </div>
           </div>
