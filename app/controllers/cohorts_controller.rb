@@ -1,9 +1,10 @@
 class CohortsController < ApplicationController
-  skip_before_action :authenticate_user!
+  before_action :verify_admin, only: [:new, :create]
   after_action { flash.discard if request.xhr? }
+  respond_to :html, :json, :js
 
   def index
-    return index_json unless current_user&.admin?
+    return index_json unless current_user.admin?
 
     respond_to do |format|
       format.json { index_json }
@@ -12,7 +13,7 @@ class CohortsController < ApplicationController
   end
 
   def show
-    show_json unless current_user&.admin?
+    return show_json unless current_user.admin?
 
     @cohort = Cohort.find(params[:id])
 
@@ -100,6 +101,10 @@ class CohortsController < ApplicationController
 
   def cohort_params
     params.permit(:description)
-          .merge({ twitter_ids: params[:twitter_ids].split(',') })
+          .merge({ twitter_ids: params[:twitter_ids].split(',').map(&:strip) })
+  end
+
+  def verify_admin
+    return head :unauthorized unless current_user.admin?
   end
 end
