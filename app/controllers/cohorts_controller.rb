@@ -3,21 +3,21 @@ class CohortsController < ApplicationController
   after_action { flash.discard if request.xhr? }
 
   def index
-    index_js unless current_user&.admin?
+    return index_json unless current_user&.admin?
 
     respond_to do |format|
-      format.js { index_js }
+      format.json { index_json }
       format.html
     end
   end
 
   def show
-    show_js unless current_user&.admin?
+    show_json unless current_user&.admin?
 
     @cohort = Cohort.find(params[:id])
 
     respond_to do |format|
-      format.js { show_js }
+      format.json { show_json }
       format.html
     end
   end
@@ -51,13 +51,13 @@ class CohortsController < ApplicationController
 
   private
 
-  def index_js
+  def index_json
     render json: CohortSerializer.new(
       Cohort.all
     ).serialized_json
   end
 
-  def show_js
+  def show_json
     if params.include? :id
       show_one
     elsif params.include? :ids
