@@ -22,6 +22,13 @@ class SearchQuery < ApplicationRecord
   before_save :fix_url
   after_save :guess_keyword
 
+  def variants
+    source = Source.find_by_url(url.gsub('www.', ''))
+    return [] unless source.present?
+
+    (source.variant_hosts + [source.canonical_host]).sort
+  end
+
   private
 
   # This removes the protocol if present, so PublicSuffix can assume it is
