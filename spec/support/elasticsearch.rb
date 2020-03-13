@@ -13,8 +13,7 @@ RSpec.configure do |config|
 
   # Stop elasticsearch cluster after test run
   config.after :suite do
-    Elasticsearch::Extensions::Test::Cluster.stop(es_options) if \
-      Elasticsearch::Extensions::Test::Cluster.running?(on: es_port)
+    Elasticsearch::Extensions::Test::Cluster.stop(es_options)
     ENV['ELASTICSEARCH_URL'] = ENV['CACHED_ELASTICSEARCH_URL']
     ENV.delete('CACHED_ELASTICSEARCH_URL')
   end
@@ -24,7 +23,7 @@ RSpec.configure do |config|
   # This may throw a warning that the cluster is already running, but you can
   # ignore that.
   def start_cluster
-    if Elasticsearch::Extensions::Test::Cluster.running?(on: es_port)
+    if Elasticsearch::Extensions::Test::Cluster.running?(es_options)
       Elasticsearch::Extensions::Test::Cluster.stop(es_options)
     end
     Elasticsearch::Extensions::Test::Cluster.start(es_options)

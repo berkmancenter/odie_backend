@@ -134,7 +134,14 @@ describe CohortCollector do
     it 'sets its keywords' do
       sq = build(:search_query)
       cc = CohortCollector.create(search_queries: [sq])
-      expect(cc.keywords).to eq([sq.keyword])
+      expect(cc.keywords).to eq(sq.all_search_terms)
+    end
+
+    it 'sets its keywords when there are known variants' do
+      sq = build(:search_query)
+      create(:source, canonical_host: sq.url)
+      cc = CohortCollector.create(search_queries: [sq])
+      expect(cc.keywords).to eq(sq.all_search_terms)
     end
 
     it 'can set multiple keywords' do

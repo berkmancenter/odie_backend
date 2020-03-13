@@ -59,4 +59,9 @@ FactoryBot.define do
     name { 'WaPo' }
     url { 'https://www.washingtonpost.com' }
   end
+
+  factory :source do
+    canonical_host { 'washingtonpost.com' }
+    variant_hosts { ['wpo.st', 'wapo.st'] }
+  end
 end
