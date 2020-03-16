@@ -2,12 +2,12 @@ module TwitterConf
   TEMPLATE = <<EOF
   input {
     twitter {
-        consumer_key => "<%= env['TWITTER_CONSUMER_KEY'] %>"
-        consumer_secret => "<%= env['TWITTER_CONSUMER_SECRET'] %>"
-        oauth_token => "<%= env['TWITTER_OAUTH_TOKEN'] %>"
-        oauth_token_secret => "<%= env['TWITTER_OAUTH_SECRET'] %>"
-        keywords => <%= keywords %>
-        full_tweet => true
+      consumer_key => "<%= env['TWITTER_CONSUMER_KEY'] %>"
+      consumer_secret => "<%= env['TWITTER_CONSUMER_SECRET'] %>"
+      oauth_token => "<%= env['TWITTER_OAUTH_TOKEN'] %>"
+      oauth_token_secret => "<%= env['TWITTER_OAUTH_SECRET'] %>"
+      keywords => <%= keywords %>
+      full_tweet => true
     }
   }
 
@@ -21,12 +21,12 @@ module TwitterConf
   output {
     stdout { }
     elasticsearch {
-        hosts         => <%= env['ELASTICSEARCH_HOST'] %>
-        index         => "<%= env['ELASTICSEARCH_INDEX'] %>"
-        document_type => "_doc"
-        template      => "#{Rails.application.config.twitter_template}"
-        template_name => "odie"
-        template_overwrite => true
+      hosts         => "<%= env['ELASTICSEARCH_HOST'] %>"
+      index         => "<%= env['ELASTICSEARCH_INDEX'] %>"
+      document_type => "_doc"
+      template      => "#{Rails.application.config.twitter_template}"
+      template_name => "odie"
+      template_overwrite => true
     }
   }
 EOF
