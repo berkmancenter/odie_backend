@@ -40,16 +40,6 @@ services:
         hard: 65536
     mem_limit: 4g
 
-  logstash:
-    image: logstash:6.5.4
-    volumes:
-      - ./:/logstash_dir
-    command: logstash -f /logstash_dir/logstash/config/twitter.conf
-    depends_on:
-      - elasticsearch
-    ports:
-      - "5959:5959"
-
 volumes:
   postgres:
   esdata:
