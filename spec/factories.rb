@@ -61,7 +61,13 @@ FactoryBot.define do
   end
 
   factory :source do
-    canonical_host { 'washingtonpost.com' }
-    variant_hosts { ['wpo.st', 'wapo.st'] }
+    canonical_host { 'nytimes.com' }
+    variant_hosts { ['nyti.ms', 'newyorktimes.com'] }
+
+    trait :without_variants do
+      variant_hosts { [] }
+    end
+
+    initialize_with { Source.find_or_create_by(canonical_host: canonical_host)}
   end
 end

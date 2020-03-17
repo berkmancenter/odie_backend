@@ -19,6 +19,10 @@ class Source < ApplicationRecord
     self.canonical_source(url) || self.variant_source(url)
   end
 
+  def self.canonicalize(url)
+    self.find_by_url(url)&.canonical_host || url
+  end
+
   private
 
   def self.canonical_source(url)

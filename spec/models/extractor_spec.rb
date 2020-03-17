@@ -56,6 +56,20 @@ describe Extractor do
     })
   end
 
+  it 'combines sources' do
+    create(:source, canonical_host: 'cyber.harvard.edu',
+           variant_hosts: ['dash.harvard.edu'])
+    create(:source, canonical_host: 'bit.ly',
+           variant_hosts: ['medium.com'])
+    create(:source, canonical_host: 'twitter.com',
+           variant_hosts: ['knightcolumbia.org', 'news.bloomberglaw.com',
+                           'workflow.servicenow.com'])
+
+    expect(SourceExtractor.new(@tweets).harvest).to eq({
+      "bit.ly"=>4, "cyber.harvard.edu"=>2, "twitter.com"=>6,
+    })
+  end
+
   it 'extracts URLs' do
     expect(UrlExtractor.new(@tweets).harvest).to eq({
       "bit.ly/2OPEPRC"=>1, "bit.ly/2ORfrdY"=>1,

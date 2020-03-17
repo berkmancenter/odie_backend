@@ -15,36 +15,36 @@ require 'rails_helper'
 
 describe CohortCollector do
   context 'when monitoring twitter' do
+    before :each do
+      @sdf = instance_double(StreamingDataCollector).as_null_object
+      allow(StreamingDataCollector).to receive(:new).and_return(@sdf)
+
+      @cc = create(:cohort_collector)
+      allow(@cc).to receive(:services_available?).and_return true
+    end
+
     it 'makes a twitter conf' do
-      sdf = instance_double(StreamingDataCollector).as_null_object
-      allow(StreamingDataCollector).to receive(:new).and_return(sdf)
-      cc = create(:cohort_collector)
-      expect(sdf).to receive(:write_conf)
-      cc.monitor_twitter
+      expect(@sdf).to receive(:write_conf)
+
+      @cc.monitor_twitter
     end
 
     it 'kicks off a data run' do
-      sdf = instance_double(StreamingDataCollector).as_null_object
-      allow(StreamingDataCollector).to receive(:new).and_return(sdf)
-      cc = create(:cohort_collector)
-      expect(sdf).to receive(:kickoff)
-      cc.monitor_twitter
+      expect(@sdf).to receive(:kickoff)
+
+      @cc.monitor_twitter
     end
 
     it 'updates its start and end times' do
-      sdf = instance_double(StreamingDataCollector).as_null_object
-      allow(StreamingDataCollector).to receive(:new).and_return(sdf)
+      expect(@cc.start_time).not_to be_present
+      expect(@cc.end_time).not_to be_present
 
-      cc = create(:cohort_collector)
-      expect(cc.start_time).not_to be_present
-      expect(cc.end_time).not_to be_present
+      @cc.monitor_twitter
 
-      cc.monitor_twitter
-
-      expect(cc.start_time).to be_present
-      expect(cc.end_time).to be_present
-      expect(cc.start_time).to be_within(1.second).of(Time.now)
-      expect(cc.end_time).to be_within(1.second)
+      expect(@cc.start_time).to be_present
+      expect(@cc.end_time).to be_present
+      expect(@cc.start_time).to be_within(1.second).of(Time.now)
+      expect(@cc.end_time).to be_within(1.second)
         .of(Time.now + CohortCollector.logstash_run_time)
     end
   end
@@ -141,14 +141,14 @@ describe CohortCollector do
       sq = build(:search_query)
       create(:source, canonical_host: sq.url)
       cc = CohortCollector.create(search_queries: [sq])
-      expect(cc.keywords).to eq(sq.all_search_terms)
+      expect(cc.keywords).to match_array(sq.all_search_terms)
     end
 
-    it 'can set multiple keywords' do
+    it 'can set keywords from multiple search queries' do
       sq = build(:search_query, keyword: 'red')
       sq2 = build(:search_query, keyword: 'blue')
       cc = CohortCollector.create(search_queries: [sq, sq2])
-      expect(cc.keywords).to eq(['red', 'blue'])
+      expect(cc.keywords).to match_array(['red', 'blue'])
     end
 
     it 'persists keywords even when underlying queries change' do
