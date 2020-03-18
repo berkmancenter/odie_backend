@@ -115,7 +115,13 @@ class CohortCollector < ApplicationRecord
   # CohortCollector directly for keywords rather than reaching through it to
   # SearchQuery.
   def initialize_keywords
-    update_column(:keywords, search_queries.pluck(:keyword))
+    variants = []
+    search_queries.each do |sq|
+      variants << sq.keyword
+      variants += sq.variants
+    end
+
+    update_column(:keywords, variants.uniq)
   end
 
   def services_available?

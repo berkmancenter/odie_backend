@@ -57,10 +57,10 @@ feature 'Administering CohortCollector' do
     end
 
     context '/cohort_collectors/X' do
-      it 'lets you kick off a streaming twitter data collection run', js: true do
+      it 'lets you kick off a streaming twitter data collection run', js: true, elasticsearch: true do
         sdf = instance_double(StreamingDataCollector)
         allow(sdf).to receive(:write_conf)
-        sdf.stub(:kickoff)  # don't actually start logstash
+        allow(sdf).to receive(:kickoff)  # don't actually start logstash
         allow(StreamingDataCollector).to receive(:new).with(cc).and_return(sdf)
 
         expect(sdf).to receive :kickoff

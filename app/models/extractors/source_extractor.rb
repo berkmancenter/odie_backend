@@ -6,7 +6,7 @@ class SourceExtractor < Extractor
            .flatten
            .map { |url_obj| host(url_obj) }
            .each do |url|
-             @all_things[url] += 1
+             @all_things[Source.canonicalize(url)] += 1
            end
   end
 

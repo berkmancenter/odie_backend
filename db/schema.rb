@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_19_154047) do
+ActiveRecord::Schema.define(version: 2020_03_13_181803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -64,6 +64,15 @@ ActiveRecord::Schema.define(version: 2020_02_19_154047) do
     t.string "url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "sources", force: :cascade do |t|
+    t.string "canonical_host"
+    t.string "variant_hosts", array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["canonical_host"], name: "index_sources_on_canonical_host", unique: true
+    t.index ["variant_hosts"], name: "index_sources_on_variant_hosts", using: :gin
   end
 
   create_table "users", force: :cascade do |t|

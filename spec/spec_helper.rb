@@ -23,6 +23,14 @@ RSpec.configure do |config|
 
   config.after :suite do
     FileUtils.rm_rf(Dir["#{Rails.application.config.logstash_conf_dir}/*"])
+
+    `kill $(ps aux | grep [l]ogstash | awk '{print $2}')`
+
+    puts <<~WARNING
+
+      ⚠️ Elasticsearch and logstash may not shut down cleanly. Find and kill
+      these processes to ensure clean test runs later. ⚠️
+    WARNING
   end
 
   # rspec-expectations config goes here. You can use an alternate
