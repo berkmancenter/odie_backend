@@ -1,5 +1,7 @@
 # Local additions to .gitignore
 config/database.yml
+config/database.yml.*
+!config/database.yml.example
 logstash/config/*.conf
 logstash/config/test/*
 yarn.lock
