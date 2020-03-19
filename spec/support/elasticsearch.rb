@@ -15,7 +15,7 @@ RSpec.configure do |config|
 
   # Stop elasticsearch cluster after test run
   config.after :suite do
-    break unless ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
+    next unless ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
 
     Elasticsearch::Extensions::Test::Cluster.stop(es_options)
     ENV['ELASTICSEARCH_URL'] = ENV['CACHED_ELASTICSEARCH_URL']
