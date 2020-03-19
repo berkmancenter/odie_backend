@@ -11,13 +11,13 @@ class RetweetExtractor < Extractor
              }
            end
            .each do |tweet|
-             if @all_things[tweet[:text]].zero?
+             if @all_things[tweet[:text]].is_a?(Hash)
+               @all_things[tweet[:text]][:count] += 1
+             else
                @all_things[tweet[:text]] = {
                  count: 1,
                  link: tweet[:link]
                }
-             else
-               @all_things[tweet[:text]][:count] += 1
              end
            end
   end
@@ -25,8 +25,7 @@ class RetweetExtractor < Extractor
   def collate
     # Only report the top N ranks (including ties), and don't report anything
     # below the threshold.
-    min_count = @all_things.values.sort.last(TOP_N)[0]
-    @all_things.reject { |k, v| v < [min_count, THRESHOLD].max }
-    @all_things.transform_values(&:to_json)
+    min_count = @all_things.map { |_k, v| v[:count] }.sort.last(TOP_N)[0]
+    @all_things.reject { |_k, v| v[:count] < [min_count, THRESHOLD].max }
   end
 end

@@ -41,7 +41,7 @@ describe Cohort do
         "ruha9"=>"4",
         })
       expect(ds.top_retweets).to eq({
-        "If you haven't yet watched the video of @ruha9 speak at @BKCHarvard on The New Jim Code,take some time today to listen to her speak on the intersection of race and technology,carceral technoscience,&amp; liberatory imagination in everyday life. https://t.co/VUbrXxmYeD"=>"2"
+        "If you haven't yet watched the video of @ruha9 speak at @BKCHarvard on The New Jim Code,take some time today to listen to her speak on the intersection of race and technology,carceral technoscience,&amp; liberatory imagination in everyday life. https://t.co/VUbrXxmYeD"=>"{:count=>2, :link=>\"https://twitter.com/farman/status/1227305335901302785\"}"
       })
       # These numbers are lower than you'll see grepping through the VCR
       # cassette because 1) only the expanded_url field is considered and 2)
@@ -72,7 +72,7 @@ describe Cohort do
       create(:data_set,
         cohort: @cohorts.first,
         top_mentions: { 'plato'=>'5', 'aristotle'=>'7' },
-        top_retweets: { 'first tweet text'=>'2', 'second tweet text'=>'3'},
+        top_retweets: { 'first tweet test' => { count: '2', link: 'https://firsttweettext.com' }, 'second tweet text' => { count: '3', link: 'https://secondtweettext.com' } },
         top_sources: { 'godeysladysbook.com'=>'7', 'twitter.com'=>'4' },
         top_urls: { 'www.cnn.com/a_story'=>'4', 'http://bitly.com/98K8eH'=>'8'},
         top_words: { 'stopword'=>'5', 'moose'=>'74' },
@@ -81,7 +81,7 @@ describe Cohort do
       create(:data_set,
         cohort: @cohorts.second,
         top_mentions: { 'plato'=>'10', 'socrates'=>'7' },
-        top_retweets: { 'first tweet text'=>'1', 'second tweet text'=>'1'},
+        top_retweets: { 'first tweet test' => { count: '1', link: 'https://firsttweettext.com' }, 'second tweet text' => { count: '1', link: 'https://secondtweettext.com' }},
         top_sources: { 'twitter.com'=>'4', 'livejournal.com'=>'4' },
         top_urls: { 'www.cnn.com/a_story'=>'1' },
         top_words: { 'stopword'=>'5', 'bats'=>'7' },
@@ -100,7 +100,7 @@ describe Cohort do
         'plato'=>15, 'aristotle'=>7, 'socrates'=>7
       })
       expect(aggs[:top_retweets]).to eq({
-        'first tweet text'=>3, 'second tweet text'=>4
+        'first tweet test' => { count: 3, link: 'https://firsttweettext.com' }, 'second tweet text' => { count: 4, link: 'https://secondtweettext.com' }
       })
       expect(aggs[:top_sources]).to eq({
         'godeysladysbook.com'=>7, 'twitter.com'=>8, 'livejournal.com'=>4

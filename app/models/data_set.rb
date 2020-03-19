@@ -31,6 +31,8 @@
 class DataSet < ApplicationRecord
   belongs_to :cohort
 
+  store_accessor :top_retweets
+
   attr_readonly :index_name
   before_create :add_index_name
 
@@ -99,16 +101,37 @@ class DataSet < ApplicationRecord
     retval = {}
 
     keys.each do |key|
-      # Accumulate data from all datasets in scope.
-      data = data_sets.pluck(key)
-                      .map { |h| h.transform_values!(&:to_i) }
-                      .reduce ({}) do |first, second|
-                        first.merge(second) { |_, a, b| a + b }
-                      end
-
       # Keep only the data above our thresholds.
-      min_count = data.values.sort.last(Extractor::TOP_N)[0]
-      data.reject! { |k, v| v < [min_count, Extractor::THRESHOLD].max }
+      if key == :top_retweets
+        # Accumulate data from all datasets in scope.
+        data = data_sets.pluck(key)
+                        .reduce ({}) do |first, second|
+                          first.merge(second) do |_, a, b|
+                            a = eval(a)
+                            b = eval(b)
+                            { count: a[:count].to_i + b[:count].to_i, link: a[:link] }
+                          end
+                        end
+
+        data.each do |k, v|
+          if v.is_a?(String)
+            data[k] = eval(data[k])
+            data[k][:count] = data[k][:count].to_i
+          end
+        end
+        min_count = data.map(&:count).sort.last(Extractor::TOP_N)[0]
+        data.reject! { |k, v| v[:count] < [min_count, Extractor::THRESHOLD].max }
+      else
+        # Accumulate data from all datasets in scope.
+        data = data_sets.pluck(key)
+                        .map { |h| h.transform_values!(&:to_i) }
+                        .reduce ({}) do |first, second|
+                          first.merge(second) { |_, a, b| a + b }
+                        end
+
+        min_count = data.values.sort.last(Extractor::TOP_N)[0]
+        data.reject! { |k, v| v < [min_count, Extractor::THRESHOLD].max }
+      end
 
       retval[key] = data
     end

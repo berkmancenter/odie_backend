@@ -166,11 +166,11 @@ describe DataSet do
 
         expect(ds_pipelined.top_mentions).to eq ({ "BKCHarvard"=>"5" })
         expect(ds_pipelined.top_retweets).to eq({
-          "Amazon’s Judging of IP Claims Questioned in Seller Lawsuits (featuring comments from me) https://t.co/QuLXmtIWz3"=>"1",
-          "Check out this informative Q&amp;A by our friends at @BKCHarvard, combining aspects of two of our core initiatives, health advocacy and trust in the news, https://t.co/0ClD7Fx1mp"=>"1",
-          "Excited to have this out in the world!! I've been slammed on all sides on this one which, despite the saying, I don't think means I am definitely doing anything right😛, but I do think means it's a conversation we need to be having. 1/ https://t.co/h9E0BOujCn"=>"1",
-          "There are sooooo many attempts at codifying ethical principles for AI. This is a fantastic paper from @BKCHarvard @JessicaFjeld @ne8en et al organizing and mapping consensus. With great infographics. https://t.co/xEHD85Lj9C https://t.co/Ng4Cd2OdTV"=>"1",
-          "\"In a rush to apply technical solutions to urban problems regarding public health, we must consider who it’s working for, &amp; how to create more egalitarian spaces &amp; services.” — @draganakaurin for @BKCHarvard https://t.co/D39dG1HJMR"=>"1",
+          "Amazon’s Judging of IP Claims Questioned in Seller Lawsuits (featuring comments from me) https://t.co/QuLXmtIWz3" => "{:count=>1, :link=>\"https://twitter.com/rtushnet/status/1227619561412997124\"}",
+          "Check out this informative Q&amp;A by our friends at @BKCHarvard, combining aspects of two of our core initiatives, health advocacy and trust in the news, https://t.co/0ClD7Fx1mp" => "{:count=>1, :link=>\"https://twitter.com/EngageLab/status/1227585647856123904\"}",
+          "Excited to have this out in the world!! I've been slammed on all sides on this one which, despite the saying, I don't think means I am definitely doing anything right😛, but I do think means it's a conversation we need to be having. 1/ https://t.co/h9E0BOujCn" => "{:count=>1, :link=>\"https://twitter.com/evelyndouek/status/1227282185364918274\"}",
+          "There are sooooo many attempts at codifying ethical principles for AI. This is a fantastic paper from @BKCHarvard @JessicaFjeld @ne8en et al organizing and mapping consensus. With great infographics. https://t.co/xEHD85Lj9C https://t.co/Ng4Cd2OdTV" => "{:count=>1, :link=>\"https://twitter.com/omertene/status/1227807251227910147\"}",
+          "\"In a rush to apply technical solutions to urban problems regarding public health, we must consider who it’s working for, &amp; how to create more egalitarian spaces &amp; services.” — @draganakaurin for @BKCHarvard https://t.co/D39dG1HJMR" => "{:count=>1, :link=>\"https://twitter.com/datasociety/status/1228009942420000768\"}",
         })
         expect(ds_pipelined.top_sources).to eq({
           "bit.ly"=>"2", "medium.com"=>"2", "news.bloomberglaw.com"=>"2",
@@ -221,11 +221,11 @@ describe DataSet do
 
           expect(aggs[:top_mentions]).to eq ({"BKCHarvard"=>10})
           expect(aggs[:top_retweets]).to eq({
-            "Amazon’s Judging of IP Claims Questioned in Seller Lawsuits (featuring comments from me) https://t.co/QuLXmtIWz3"=>2,
-            "Check out this informative Q&amp;A by our friends at @BKCHarvard, combining aspects of two of our core initiatives, health advocacy and trust in the news, https://t.co/0ClD7Fx1mp"=>2,
-            "Excited to have this out in the world!! I've been slammed on all sides on this one which, despite the saying, I don't think means I am definitely doing anything right😛, but I do think means it's a conversation we need to be having. 1/ https://t.co/h9E0BOujCn"=>2,
-            "There are sooooo many attempts at codifying ethical principles for AI. This is a fantastic paper from @BKCHarvard @JessicaFjeld @ne8en et al organizing and mapping consensus. With great infographics. https://t.co/xEHD85Lj9C https://t.co/Ng4Cd2OdTV"=>2,
-            "\"In a rush to apply technical solutions to urban problems regarding public health, we must consider who it’s working for, &amp; how to create more egalitarian spaces &amp; services.” — @draganakaurin for @BKCHarvard https://t.co/D39dG1HJMR"=>2,
+            "\"In a rush to apply technical solutions to urban problems regarding public health, we must consider who it’s working for, &amp; how to create more egalitarian spaces &amp; services.” — @draganakaurin for @BKCHarvard https://t.co/D39dG1HJMR"=>{:count=>2, :link=>"https://twitter.com/datasociety/status/1228009942420000768"},
+            "There are sooooo many attempts at codifying ethical principles for AI. This is a fantastic paper from @BKCHarvard @JessicaFjeld @ne8en et al organizing and mapping consensus. With great infographics. https://t.co/xEHD85Lj9C https://t.co/Ng4Cd2OdTV"=>{:count=>2, :link=>"https://twitter.com/omertene/status/1227807251227910147"},
+            "Amazon’s Judging of IP Claims Questioned in Seller Lawsuits (featuring comments from me) https://t.co/QuLXmtIWz3"=>{:count=>2, :link=>"https://twitter.com/rtushnet/status/1227619561412997124"},
+            "Excited to have this out in the world!! I've been slammed on all sides on this one which, despite the saying, I don't think means I am definitely doing anything right😛, but I do think means it's a conversation we need to be having. 1/ https://t.co/h9E0BOujCn"=>{:count=>2, :link=>"https://twitter.com/evelyndouek/status/1227282185364918274"},
+            "Check out this informative Q&amp;A by our friends at @BKCHarvard, combining aspects of two of our core initiatives, health advocacy and trust in the news, https://t.co/0ClD7Fx1mp"=>{:count=>2, :link=>"https://twitter.com/EngageLab/status/1227585647856123904"}
           })
           expect(aggs[:top_sources]).to eq({
             "bit.ly"=>4, "medium.com"=>4, "news.bloomberglaw.com"=>4,

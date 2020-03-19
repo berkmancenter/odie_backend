@@ -72,9 +72,7 @@ feature 'API' do
       visit cohorts_path(params: { ids: [Cohort.pluck(:id)] })
       json = JSON.parse(page.body)
       expect(json.keys).to include 'aggregates'
-      expect(json['aggregates'].symbolize_keys).to eq(
-        DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
-      )
+      check_aggregates json['aggregates'].symbolize_keys, DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
     end
 
     it 'aggregates from the most recent data set' do
@@ -84,13 +82,21 @@ feature 'API' do
       visit cohorts_path(params: { ids: [Cohort.pluck(:id)] })
       json = JSON.parse(page.body)
       expect(json.keys).to include 'aggregates'
-      expect(json['aggregates'].symbolize_keys).to eq(
-        DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
-      )
+      check_aggregates json['aggregates'].symbolize_keys, DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
     end
   end
 
   def latest_data_set(page)
     JSON.parse(page.body)['data']['attributes']['latest_data']
+  end
+
+  def check_aggregates(json_aggs_symbolized, data_sets_aggregated)
+    json_aggs_symbolized[:top_retweets] = json_aggs_symbolized[:top_retweets].deep_transform_keys { |key| key.match(/\s/) ? key : key.to_sym }
+    expect(json_aggs_symbolized[:hashtags]).to eq(data_sets_aggregated[:hashtags])
+    expect(json_aggs_symbolized[:top_mentions]).to eq(data_sets_aggregated[:top_mentions])
+    expect(json_aggs_symbolized[:top_sources]).to eq(data_sets_aggregated[:top_sources])
+    expect(json_aggs_symbolized[:top_urls]).to eq(data_sets_aggregated[:top_urls])
+    expect(json_aggs_symbolized[:top_words]).to eq(data_sets_aggregated[:top_words])
+    expect(json_aggs_symbolized[:top_retweets]).to eq(data_sets_aggregated[:top_retweets])
   end
 end
