@@ -10,4 +10,5 @@ VCR.configure do |config|
   config.filter_sensitive_data('<TWITTER_OAUTH_SECRET>') { ENV['TWITTER_OAUTH_SECRET'] }
   config.configure_rspec_metadata!
   config.allow_http_connections_when_no_cassette = true
+  config.ignore_hosts 'elasticsearch_test'
 end

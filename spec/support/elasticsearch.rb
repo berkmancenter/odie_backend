@@ -7,12 +7,16 @@ RSpec.configure do |config|
     wipe_elasticsearch_data
     # When the elasticsearch clients in the model look for elasticsearch, they
     # should find the test cluster, not the normal cluster.
-    ENV['CACHED_ELASTICSEARCH_URL'] = ENV['ELASTICSEARCH_URL']
+    if ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
+      ENV['CACHED_ELASTICSEARCH_URL'] = ENV['ELASTICSEARCH_URL']
+    end
     ENV['ELASTICSEARCH_URL'] = "http://#{es_host}:#{es_port}"
   end
 
   # Stop elasticsearch cluster after test run
   config.after :suite do
+    break unless ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
+
     Elasticsearch::Extensions::Test::Cluster.stop(es_options)
     ENV['ELASTICSEARCH_URL'] = ENV['CACHED_ELASTICSEARCH_URL']
     ENV.delete('CACHED_ELASTICSEARCH_URL')
@@ -23,6 +27,8 @@ RSpec.configure do |config|
   # This may throw a warning that the cluster is already running, but you can
   # ignore that.
   def start_cluster
+    return unless ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
+
     if Elasticsearch::Extensions::Test::Cluster.running?(es_options)
       Elasticsearch::Extensions::Test::Cluster.stop(es_options)
     end
@@ -38,11 +44,11 @@ RSpec.configure do |config|
   end
 
   def es_host
-    'localhost'
+    ENV['ELASTICSEARCH_DOCKER_TEST_URL'] || 'localhost'
   end
 
   def es_port
-    9250
+    ENV['ELASTICSEARCH_DOCKER_TEST_PORT'] || 9250
   end
 
   def es_options
