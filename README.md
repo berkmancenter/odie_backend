@@ -78,6 +78,9 @@ In any environment:
 
 In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
+* `ELASTICSEARCH_DOCKER_TEST` (if you want to run the tests in Docker)
+* `ELASTICSEARCH_DOCKER_TEST_URL` (Elasticsearch instance url, only when you use Docker)
+* `ELASTICSEARCH_DOCKER_TEST_PORT` (Elasticsearch instance port, only when you use Docker)
 
 ## Collecting Twitter data
 To test that your streaming data collection pipeline is running, by hand:
@@ -127,6 +130,9 @@ development: &default
 ```
 
 - set `ELASTICSEARCH_HOST` and `ELASTICSEARCH_URL` in .env to `elasticsearch:9200`
+- set `ELASTICSEARCH_DOCKER_TEST` in .env to `true`
+- set `ELASTICSEARCH_DOCKER_TEST_URL` in .env to `elasticsearch_test`
+- set `ELASTICSEARCH_DOCKER_TEST_PORT` in .env to `9200`
 - `docker-compose up` and the application will run on http://localhost:3000
 - `docker-compose exec website sh`
 - `rails db:setup`
