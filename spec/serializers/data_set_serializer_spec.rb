@@ -36,7 +36,9 @@ describe DataSetSerializer do
     top_urls: { 'https://www.foo.com'=>'1', 'https://www.bar.com'=>'2'},
     top_sources: { 'twitter.com'=>'91', 'www.cnn.com'=>'8' },
     top_mentions: { 'BKCHarvard'=>'5' },
-    top_retweets: { 'tweet the first'=>'2', 'tweet the second'=>'3' }
+    retweets: [
+      Retweet.create(link: 'http://twit.com/123', count: 3, text: 'text')
+    ]
   ) }
 
   let(:serializer) { DataSetSerializer.new(ds) }

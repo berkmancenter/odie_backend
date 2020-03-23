@@ -30,8 +30,7 @@
 
 class DataSet < ApplicationRecord
   belongs_to :cohort
-
-  store_accessor :top_retweets
+  has_many :retweets
 
   attr_readonly :index_name
   before_create :add_index_name
@@ -59,9 +58,17 @@ class DataSet < ApplicationRecord
       top_urls: MetadataHarvester.new(:urls, all_tweets).harvest,
       top_words: MetadataHarvester.new(:words, all_tweets).harvest,
       top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest,
-      top_sources: MetadataHarvester.new(:sources, all_tweets).harvest,
-      top_retweets: MetadataHarvester.new(:retweets, all_tweets).harvest
+      top_sources: MetadataHarvester.new(:sources, all_tweets).harvest
     )
+    # Nested retweets goes to their own table
+    MetadataHarvester.new(:retweets, all_tweets).harvest.each do |text, retweet|
+      Retweet.create!(
+        data_set: self,
+        text: text,
+        count: retweet[:count],
+        link: retweet[:link]
+      )
+    end
   end
 
   def ingest_data
@@ -98,34 +105,28 @@ class DataSet < ApplicationRecord
   def self.aggregate(ids)
     keys = %i[hashtags top_urls top_words top_mentions top_sources top_retweets]
     data_sets = self.where(id: ids)
+
     retval = {}
 
     keys.each do |key|
       # Keep only the data above our thresholds.
       if key == :top_retweets
         # Accumulate data from all datasets in scope.
-        data = data_sets.pluck(key)
-                        .reduce ({}) do |first, second|
+        data = data_sets.map(&:top_retweets)
+                        .flatten(1)
+                        .reduce({}) do |first, second|
                           first.merge(second) do |_, a, b|
-                            a = eval(a)
-                            b = eval(b)
                             { count: a[:count].to_i + b[:count].to_i, link: a[:link] }
                           end
                         end
 
-        data.each do |k, v|
-          if v.is_a?(String)
-            data[k] = eval(data[k])
-            data[k][:count] = data[k][:count].to_i
-          end
-        end
-        min_count = data.map(&:count).sort.last(Extractor::TOP_N)[0]
+        min_count = data.map { |_k, v| v[:count] }.sort.last(Extractor::TOP_N)[0]
         data.reject! { |k, v| v[:count] < [min_count, Extractor::THRESHOLD].max }
       else
         # Accumulate data from all datasets in scope.
         data = data_sets.pluck(key)
                         .map { |h| h.transform_values!(&:to_i) }
-                        .reduce ({}) do |first, second|
+                        .reduce({}) do |first, second|
                           first.merge(second) { |_, a, b| a + b }
                         end
 
@@ -137,6 +138,14 @@ class DataSet < ApplicationRecord
     end
 
     retval
+  end
+
+  def top_retweets
+    top = {}
+    self.retweets.map do |item|
+      top[item[:text]] = { count: item[:count], link: item[:link] }
+    end
+    top
   end
 
   private

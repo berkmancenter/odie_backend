@@ -16,6 +16,7 @@ describe Extractor do
   after :all do
     DataSet.destroy_all
     Cohort.destroy_all
+    Retweet.destroy_all
     Rails.application.config.tweets_per_user = @tweets_per_user
   end
 

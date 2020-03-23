@@ -17,7 +17,6 @@ describe CohortSerializer do
 
     @ds1 = create(:data_set,
                   top_mentions: { 'squid'=>'3' },
-                  top_retweets: { 'first tweet test' => { count: '2', link: 'https://firsttweettext.com' } },
                   top_sources:  { 'twitter.com'=>'9', 'http://hasthelargehadroncolliderdestroyedtheworldyet.com/'=>'5'},
                   top_urls:     { 'www.cnn.com/a_story'=>'10' },
                   cohort: @cohort1
@@ -34,6 +33,7 @@ describe CohortSerializer do
     @ds3.destroy
     @cohort1.destroy
     @cohort2.destroy
+    Retweet.destroy_all
   end
 
   it 'includes the description attribute' do
@@ -68,7 +68,7 @@ describe CohortSerializer do
       { 'squid'=>3, 'plato'=>5, 'aristotle'=>7 }
     )
     expect(hsh[:aggregates][:top_retweets]).to eq(
-      { 'first tweet test' => { count: 4, link: 'https://firsttweettext.com' }, 'second tweet text' => { count: 3, link: 'https://secondtweettext.com' }}
+      { 'first tweet test' => { count: 4, link: 'https://firsttweettext.com' }, 'second tweet text' => { count: 6, link: 'https://secondtweettext.com' }}
     )
     expect(hsh[:aggregates][:top_sources]).to eq (
       { 'godeysladysbook.com'=>7, 'twitter.com'=>13,

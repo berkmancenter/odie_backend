@@ -66,6 +66,7 @@ feature 'API' do
     after :all do
       DataSet.destroy_all
       Cohort.destroy_all
+      Retweet.destroy_all
     end
 
     it 'returns aggregated data' do
