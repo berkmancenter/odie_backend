@@ -43,4 +43,11 @@ class Extractor
      tweet.retweeted_status&.quoted_status&.send(obj_type),
      tweet.quoted_status&.send(obj_type)]
   end
+
+  def all_nested_with_user(obj_type, tweet)
+    all_nested(obj_type, tweet).map do |nested|
+      nested = nested.is_a?(Array) ? nested : [nested]
+      { items: nested, user_id: tweet.user.id }
+    end
+  end
 end

@@ -34,12 +34,7 @@ describe Cohort do
       expect(ds.num_users).to eq 1
       expect(ds.num_tweets).to eq 8
       expect(ds.num_retweets).to eq 5
-      expect(ds.top_mentions).to eq({
-        "evelyndouek"=>"3",
-        "BKCHarvard"=>"6",
-        "farman"=>"2",
-        "ruha9"=>"4",
-        })
+      expect(ds.top_mentions).to eq({"BKCHarvard"=>"2", "farman"=>"2", "ruha9"=>"2"})
       expect(ds.top_retweets).to eq({
         "If you haven't yet watched the video of @ruha9 speak at @BKCHarvard on The New Jim Code,take some time today to listen to her speak on the intersection of race and technology,carceral technoscience,&amp; liberatory imagination in everyday life. https://t.co/VUbrXxmYeD"=> {:count=>2, :link=>"https://twitter.com/farman/status/1227305335901302785"}
       })
@@ -48,19 +43,15 @@ describe Cohort do
       # some URLs appear in the User entity (e.g. in their Twitter bio) and
       # thus should not be counted here -- we're only looking at (re)tweets.
       expect(ds.top_sources).to eq ({
-        "cyber.harvard.edu"=>"3",
-        "news.bloomberglaw.com"=>"2",
-        "twitter.com"=>"2"
+        "cyber.harvard.edu"=>"2"
       })
       expect(ds.top_urls).to eq ({
-        "news.bloomberglaw.com/ip-law/amazons-judging-of-ip-disputes-questioned-in-sellers-lawsuits"=>"2",
         "cyber.harvard.edu/events/new-jim-code"=>"2"
       })
       expect(ds.top_words).to eq({
-        "jim"=>"2", "new"=>"3", "yet"=>"2", "time"=>"2", "speak"=>"2",
+        "jim"=>"2", "new"=>"2", "yet"=>"2", "time"=>"2", "speak"=>"2",
         "today"=>"2", "video"=>"2", "@ruha9"=>"2", "her…"=>"2", "listen"=>"2",
-        "looking"=>"2", "watched"=>"2", "code,take"=>"2", "platforms"=>"2",
-        "@farman:if"=>"2", "@bkcharvard"=>"2"
+        "watched"=>"2", "code,take"=>"2", "@farman:if"=>"2", "@bkcharvard"=>"2"
       })
       expect(ds.hashtags).to eq({})
     end
