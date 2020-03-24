@@ -10,6 +10,12 @@ FactoryBot.define do
     end
   end
 
+  factory :retweet do
+    text { 'retweet text' }
+    count { 3 }
+    link { 'http://twitter.com/status/xxxxxx' }
+  end
+
   factory :cohort do
     twitter_ids { [14706139] }  # @BKCHarvard's twitter id
     description { 'Berkman Klein Center for Internet & Society' }
@@ -47,11 +53,27 @@ FactoryBot.define do
     num_tweets { 200 }
     num_retweets { 10 }
     top_mentions { { 'plato'=>'5', 'aristotle'=>'7' } }
-    top_retweets { { 'first tweet text'=>'2', 'second tweet text'=>'3'} }
     top_sources { { 'godeysladysbook.com'=>'7', 'twitter.com'=>'4' } }
     top_urls { { 'www.cnn.com/a_story'=>'4', 'http://bitly.com/98K8eH'=>'8'} }
     top_words { { 'stopword'=>'5', 'moose'=>'74' } }
     hashtags { { 'llamas'=>'7', 'octopodes'=>'24' } }
+
+    after(:create) do |data_set|
+      create(
+        :retweet,
+        data_set: data_set,
+        text: 'first tweet test',
+        count: 2,
+        link: 'https://firsttweettext.com'
+      )
+      create(
+        :retweet,
+        data_set: data_set,
+        text: 'second tweet text',
+        count: 3,
+        link: 'https://secondtweettext.com'
+      )
+    end
   end
 
   factory :search_query do
