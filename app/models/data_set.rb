@@ -11,7 +11,6 @@
 #  num_tweets   :integer
 #  num_users    :integer
 #  top_mentions :hstore
-#  top_retweets :hstore
 #  top_sources  :hstore
 #  top_urls     :hstore
 #  top_words    :hstore
@@ -60,15 +59,7 @@ class DataSet < ApplicationRecord
       top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest,
       top_sources: MetadataHarvester.new(:sources, all_tweets).harvest
     )
-    # Nested retweets goes to their own table
-    MetadataHarvester.new(:retweets, all_tweets).harvest.each do |text, retweet|
-      Retweet.create!(
-        data_set: self,
-        text: text,
-        count: retweet[:count],
-        link: retweet[:link]
-      )
-    end
+    create_retweets
   end
 
   def ingest_data
@@ -110,29 +101,11 @@ class DataSet < ApplicationRecord
 
     keys.each do |key|
       # Keep only the data above our thresholds.
-      if key == :top_retweets
-        # Accumulate data from all datasets in scope.
-        data = data_sets.map(&:top_retweets)
-                        .flatten(1)
-                        .reduce({}) do |first, second|
-                          first.merge(second) do |_, a, b|
-                            { count: a[:count].to_i + b[:count].to_i, link: a[:link] }
-                          end
-                        end
-
-        min_count = data.map { |_k, v| v[:count] }.sort.last(Extractor::TOP_N)[0]
-        data.reject! { |k, v| v[:count] < [min_count, Extractor::THRESHOLD].max }
-      else
-        # Accumulate data from all datasets in scope.
-        data = data_sets.pluck(key)
-                        .map { |h| h.transform_values!(&:to_i) }
-                        .reduce({}) do |first, second|
-                          first.merge(second) { |_, a, b| a + b }
-                        end
-
-        min_count = data.values.sort.last(Extractor::TOP_N)[0]
-        data.reject! { |k, v| v < [min_count, Extractor::THRESHOLD].max }
-      end
+      data = if (key == :top_retweets)
+               self.accumulate_retweets(data_sets)
+             else
+               self.accumulate_data(key, data_sets)
+             end
 
       retval[key] = data
     end
@@ -190,5 +163,48 @@ class DataSet < ApplicationRecord
     results = es_client.count index: index_name,
                 body: { query: { exists: { field: 'retweeted_status' } } }
     results['count']
+  end
+
+  # We have a Retweet object, rather than storing this data in a postgres
+  # hstore, because hstore doesn't deal well with nested hashes. However, we
+  # need nested hashes for retweets in order to keep track of more than 2 data
+  # elements (not just text and count, but also link -- we want to be able
+  # to display links on the front end).
+  def create_retweets
+    # Nested retweets goes to their own table
+    MetadataHarvester.new(:retweets, all_tweets).harvest.each do |text, retweet|
+      Retweet.create!(
+        data_set: self,
+        text: text,
+        count: retweet[:count],
+        link: retweet[:link]
+      )
+    end
+  end
+
+  # Retweets don't use the generic self.accumulate_data function because they have
+  # a different data structure -- Retweet objects in the db rather than hstores.
+  def self.accumulate_retweets(data_sets)
+    data = data_sets.map(&:top_retweets)
+                    .flatten(1)
+                    .reduce({}) do |first, second|
+                      first.merge(second) do |_, a, b|
+                        { count: a[:count].to_i + b[:count].to_i, link: a[:link] }
+                      end
+                    end
+
+    min_count = data.map { |_k, v| v[:count] }.sort.last(Extractor::TOP_N)[0]
+    data.reject { |k, v| v[:count] < [min_count, Extractor::THRESHOLD].max }
+  end
+
+  def self.accumulate_data(key, data_sets)
+    data = data_sets.pluck(key)
+                    .map { |h| h.transform_values!(&:to_i) }
+                    .reduce({}) do |first, second|
+                      first.merge(second) { |_, a, b| a + b }
+                    end
+
+    min_count = data.values.sort.last(Extractor::TOP_N)[0]
+    data.reject { |k, v| v < [min_count, Extractor::THRESHOLD].max }
   end
 end
