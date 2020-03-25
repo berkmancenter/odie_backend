@@ -2,23 +2,11 @@ class UrlExtractor < Extractor
   private
 
   def extract
-    # See https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/entities-object.html#hashtags
-    # Extract url objects
-    items_users = @tweets.map { |tweet| all_nested_with_user(:urls, tweet) }
-                         .flatten(1)
-
-    items_users = items_users.map do |item|
-      [item[:user_id]].product(item[:items])
-    end
-
-    # [0] is the user_id, [1] is the item
-    items_users.flatten(1)
-               .uniq { |user_and_item| [user_and_item[0], normalized_url(user_and_item[1])] }
-               .map { |user_and_item| normalized_url(user_and_item[1]) }
-               .select(&:present?)
-               .each do |url| # update url counter
-                 @all_things[url] += 1
-               end
+    @tweets.map { |tweet| all_nested_with_user(:urls, tweet) }
+           .flatten
+           .each do |item_user|
+             @working_space[normalized_url(item_user[:item])] << item_user[:user_id]
+           end
   end
 
   # The expanded_url is the most informative field, per Twitter developer docs.

@@ -1,4 +1,21 @@
 class RetweetExtractor < Extractor
+  def accumulate(data_sets, key)
+    @all_things = data_sets.map(&:top_retweets)
+      .flatten(1)
+      .reduce({}) do |first, second|
+        first.merge(second) do |_, a, b|
+          { count: a[:count].to_i + b[:count].to_i, link: a[:link] }
+        end
+      end
+
+    self
+  end
+
+  def collate
+    min_count = @all_things.map { |_k, v| v[:count] }.sort.last(Extractor::TOP_N)[0]
+    @all_things.reject { |k, v| v[:count] < [min_count, Extractor::THRESHOLD].max }
+  end
+
   private
 
   def extract
@@ -22,10 +39,5 @@ class RetweetExtractor < Extractor
            end
   end
 
-  def collate
-    # Only report the top N ranks (including ties), and don't report anything
-    # below the threshold.
-    min_count = @all_things.map { |_k, v| v[:count] }.sort.last(TOP_N)[0]
-    @all_things.reject { |_k, v| v[:count] < [min_count, THRESHOLD].max }
-  end
+  def set_all_things ; end
 end

@@ -2,19 +2,15 @@ class MentionExtractor < Extractor
   private
 
   def extract
-    items_users = @tweets.map { |tweet| all_nested_with_user(:user_mentions, tweet) }
-                         .flatten(1)
-
-    items_users = items_users.map do |item|
-      [item[:user_id]].product(item[:items])
-    end
-
-    # [0] is the user_id, [1] is the item
-    items_users.flatten(1)
-               .uniq { |user_and_item| [user_and_item[0], user_and_item[1].screen_name] }
-               .map { |user_and_item| user_and_item[1].screen_name }
-               .each do |mention|
-                 @all_things[mention] += 1 unless mention.nil?
-               end
+    # The first step extracts a list of items of the form
+    # {item: Twitter::Entity::UserMention, user_id: Integer}.
+    # The second removes any empty lists (i.e. tweets without mentions).
+    # The third keeps track of which users (screen_names) have been mentioned
+    # by which users (user_id).
+    @tweets.map { |tweet| all_nested_with_user(:user_mentions, tweet) }
+           .flatten
+           .each do |item_user|
+             @working_space[item_user[:item].screen_name] << item_user[:user_id]
+           end
   end
 end

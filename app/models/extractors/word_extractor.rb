@@ -1,4 +1,4 @@
-class WordExtractor < Extractor  
+class WordExtractor < Extractor
   EXTRA_STOPWORDS = ['rt', '&amp;']
 
   private
@@ -6,20 +6,14 @@ class WordExtractor < Extractor
   # This is made case-insensitive by downcasing everything. That's a bummer;
   # it would be better for the stopword filter to be case-insensitive.
   def extract
-    users_and_words = []
     @tweets.each do |tweet|
-      users_and_words += sw_filter(tweet.lang)
-                         .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
-                         .map { |w| [tweet.user.id, w] }
+     sw_filter(tweet.lang)
+       .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
+       .each do |token|
+         next unless is_word? token
+         @working_space[token] << tweet.user.id
+       end
     end
-
-    users_and_words
-      .uniq { |user_and_word| [user_and_word[0], user_and_word[1]] }
-      .map { |user_and_word| user_and_word[1] }
-      .each do |token|
-        next unless is_word? token
-        @all_things[token] += 1 unless token.nil?
-      end
   end
 
   def is_word?(token)
