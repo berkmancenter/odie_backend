@@ -42,12 +42,19 @@ class Extractor
   # type-specific.
   def extract; end
 
-  def accumulate(data_sets, key)
-    @all_things = data_sets.pluck(key)
-                                 .map { |h| h.transform_values!(&:to_i) }
-                                 .reduce({}) do |first, second|
-                                   first.merge(second) { |_, a, b| a + b }
-                                 end
+  def accumulate(data_sets)
+    client = Elasticsearch::Client.new
+    @tweets = []
+
+    # Rehydrate Tweet objects from Elasticsearch. Then we can use the extractors
+    # in their usual fashion.
+    data_sets.each do |ds|
+      results = client.search index: ds.index_name
+      @tweets += results['hits']['hits'].map do |t|
+        Twitter::Tweet.new(t['_source'].deep_symbolize_keys)
+      end
+    end
+
     self  # make method chainable
   end
 

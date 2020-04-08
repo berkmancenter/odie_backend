@@ -56,17 +56,19 @@ feature 'API' do
     end
   end
 
-  context '/cohorts?ids[]=1&ids[]=2' do
+  context '/cohorts?ids[]=1&ids[]=2', elasticsearch: true do
     before :all do
       create_list(:cohort, 2)
-      create(:data_set, cohort: Cohort.second_to_last)
-      create(:data_set, cohort: Cohort.last)
+      VCR.use_cassette('data set spec') do
+        create(:data_set, cohort: Cohort.second_to_last).run_pipeline
+        create(:data_set, cohort: Cohort.last).run_pipeline
+      end
     end
 
     after :all do
-      DataSet.destroy_all
-      Cohort.destroy_all
-      Retweet.destroy_all
+      DataSet.delete_all
+      Cohort.delete_all
+      Retweet.delete_all
     end
 
     it 'returns aggregated data' do
@@ -77,8 +79,10 @@ feature 'API' do
     end
 
     it 'aggregates from the most recent data set' do
-      create(:data_set, cohort: Cohort.second_to_last)
-      create(:data_set, cohort: Cohort.last)
+      VCR.use_cassette('data set spec') do
+        create(:data_set, cohort: Cohort.second_to_last).run_pipeline
+        create(:data_set, cohort: Cohort.last).run_pipeline
+      end
 
       visit cohorts_path(params: { ids: [Cohort.pluck(:id)] })
       json = JSON.parse(page.body)

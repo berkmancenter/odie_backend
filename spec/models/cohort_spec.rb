@@ -58,52 +58,24 @@ describe Cohort do
   end
 
   context :aggregation do
-    before :all do
-      @cohorts = create_list(:cohort, 2)
-      create(:data_set,
-        cohort: @cohorts.first,
-        top_mentions: { 'plato'=>'5', 'aristotle'=>'7' },
-        top_sources: { 'godeysladysbook.com'=>'7', 'twitter.com'=>'4' },
-        top_urls: { 'www.cnn.com/a_story'=>'4', 'http://bitly.com/98K8eH'=>'8'},
-        top_words: { 'stopword'=>'5', 'moose'=>'74' },
-        hashtags: { 'llamas'=>'7', 'octopodes'=>'24' }
-      )
-      create(:data_set,
-        cohort: @cohorts.second,
-        top_mentions: { 'plato'=>'10', 'socrates'=>'7' },
-        top_sources: { 'twitter.com'=>'4', 'livejournal.com'=>'4' },
-        top_urls: { 'www.cnn.com/a_story'=>'1' },
-        top_words: { 'stopword'=>'5', 'bats'=>'7' },
-        hashtags: { 'alpacas'=>'7', 'octopodes'=>'24' }
-      )
-    end
-
-    after :all do
-      DataSet.destroy_all
-      Cohort.destroy_all
-      Retweet.destroy_all
-    end
-
     it 'can aggregate data from multiple cohorts' do
-      aggs = Cohort.aggregate(@cohorts.pluck(:id))
-      expect(aggs[:top_mentions]).to eq({
-        'plato'=>15, 'aristotle'=>7, 'socrates'=>7
-      })
-      expect(aggs[:top_retweets]).to eq({
-        'first tweet test' => { count: 4, link: 'https://firsttweettext.com' }, 'second tweet text' => { count: 6, link: 'https://secondtweettext.com' }
-      })
-      expect(aggs[:top_sources]).to eq({
-        'godeysladysbook.com'=>7, 'twitter.com'=>8, 'livejournal.com'=>4
-      })
-      expect(aggs[:top_urls]).to eq({
-        'www.cnn.com/a_story'=>5, 'http://bitly.com/98K8eH'=>8
-      })
-      expect(aggs[:top_words]).to eq({
-        'stopword'=>10, 'moose'=>74, 'bats'=>7
-      })
-      expect(aggs[:hashtags]).to eq({
-        'llamas'=>7, 'octopodes'=>48, 'alpacas'=>7
-      })
+      cohorts = create_list(:cohort, 2)
+      ds1 = create(:data_set, cohort: Cohort.last)
+      ds2 = create(:data_set, cohort: Cohort.second_to_last)
+
+      expect(DataSet).to receive(:aggregate)
+                     .with(contain_exactly(ds1.id, ds2.id))
+      Cohort.aggregate(cohorts.pluck(:id))
+    end
+
+    it 'chooses the latest data set when aggregating data from multiple cohorts' do
+      cohorts = create_list(:cohort, 2)
+      ds, ds1 = create_list(:data_set, 2, cohort: Cohort.last)
+      ds, ds2 = create_list(:data_set, 2, cohort: Cohort.second_to_last)
+
+      expect(DataSet).to receive(:aggregate)
+                     .with(contain_exactly(ds1.id, ds2.id))
+      Cohort.aggregate(cohorts.pluck(:id))
     end
   end
 end

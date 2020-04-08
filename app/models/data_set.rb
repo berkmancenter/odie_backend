@@ -110,8 +110,8 @@ class DataSet < ApplicationRecord
 
     data_sets_to_extractors.each do |dataset_key, extractor_key|
       data = MetadataHarvester.new(extractor_key, [])
-                              .accumulate(data_sets, dataset_key)
-                              .collate
+                              .accumulate(data_sets)
+                              .harvest
 
       retval[dataset_key] = data
     end

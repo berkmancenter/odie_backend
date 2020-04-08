@@ -326,47 +326,49 @@ describe DataSet do
         stub_const('Extractor::THRESHOLD', 1)  # small enough it cannot interfere
         stub_const('Extractor::TOP_N', 1)
 
-        VCR.use_cassette('data aggregation with many users') do
-          cohort = create(:cohort)
-          ds = DataSet.create(cohort: cohort)
-          ds.run_pipeline
-          ds.dup.save
+        VCR.use_cassette('data aggregation with many users second dataset') do
+          VCR.use_cassette('data aggregation with many users') do
+            cohort1 = create(:cohort)
+            cohort2 = create(:cohort, twitter_ids: [214706139])
+            ds = DataSet.create(cohort: cohort1)
+            ds2 = DataSet.create(cohort: cohort2)
+            ds.run_pipeline
+            ds2.run_pipeline
 
-          aggs = DataSet.aggregate(DataSet.last(2).pluck(:id))
+            aggs = DataSet.aggregate(DataSet.last(2).pluck(:id))
 
-          expect(aggs[:top_mentions]).to eq ({
-            "BKCHarvard"=>2, "EngageLab"=>2,
-            "ISOC_NA"=>2, "JessicaFjeld"=>2, "coindesk"=>2, "datasociety"=>2,
-            "draganakaurin"=>2, "evelyndouek"=>2, "hackylawyER"=>2,
-            "knightcolumbia"=>2, "ne8en"=>2, "omertene"=>2, "rtushnet"=>2,
-            "techpolicy4POC"=>2
-          })
-          expect(aggs[:top_retweets]).to eq({
-            "\"In a rush to apply technical solutions to urban problems regarding public health, we must consider who it’s working for, & how to create more egalitarian spaces & services.” — @draganakaurin for @BKCHarvard https://t.co/D39dG1HJMR"=>{:count=>1, :link=>"https://twitter.com/datasociety/status/1228009942420000768"},
-            "There are sooooo many attempts at codifying ethical principles for AI. This is a fantastic paper from @BKCHarvard @JessicaFjeld @ne8en et al organizing and mapping consensus. With great infographics. https://t.co/xEHD85Lj9C https://t.co/Ng4Cd2OdTV"=>{:count=>1, :link=>"https://twitter.com/omertene/status/1227807251227910147"},
-            "Amazon’s Judging of IP Claims Questioned in Seller Lawsuits (featuring comments from me) https://t.co/QuLXmtIWz3"=>{:count=>1, :link=>"https://twitter.com/rtushnet/status/1227619561412997124"},
-            "Excited to have this out in the world!! I've been slammed on all sides on this one which, despite the saying, I don't think means I am definitely doing anything right😛, but I do think means it's a conversation we need to be having. 1/ https://t.co/h9E0BOujCn"=>{:count=>1, :link=>"https://twitter.com/evelyndouek/status/1227282185364918274"},
-            "Check out this informative Q&A by our friends at @BKCHarvard, combining aspects of two of our core initiatives, health advocacy and trust in the news, https://t.co/0ClD7Fx1mp"=>{:count=>1, :link=>"https://twitter.com/EngageLab/status/1227585647856123904"}
-          })
-          expect(aggs[:top_sources]).to eq({"bit.ly"=>2, "cyber.harvard.edu"=>2,
-            "dash.harvard.edu"=>2, "knightcolumbia.org"=>2, "medium.com"=>2,
-            "news.bloomberglaw.com"=>2, "twitter.com"=>2,
-            "workflow.servicenow.com"=>2
-          })
-          expect(aggs[:top_words]['contribute']).to eq(2)
-          expect(aggs[:top_words]['graduate']).to eq(2)
-          expect(aggs[:top_urls]).to eq({
-            "bit.ly/2OPEPRC"=>2, "bit.ly/2ORfrdY"=>2,
-            "cyber.harvard.edu/getinvolved/internships2020"=>2,
-            "dash.harvard.edu/bitstream/handle/1/42160420/HLS%20White%20Paper%20Final_v3.pdf"=>2,
-            "knightcolumbia.org/content/the-rise-of-content-cartels"=>2,
-            "medium.com/berkman-klein-center/navigating-the-digital-city-during-an-outbreak-3b21d2cb5bde"=>2,
-            "medium.com/berkman-klein-center/q-a-misinformation-and-coronavirus-14ce5f3e7d94"=>2,
-            "news.bloomberglaw.com/ip-law/amazons-judging-of-ip-disputes-questioned-in-sellers-lawsuits"=>2,
-            "twitter.com/JessicaFjeld/status/1227945985487314945"=>2,
-            "twitter.com/KGlennBass/status/1227278824200691712"=>2,
-            "workflow.servicenow.com/security-risk/emerging-model-ethical-ai-qa/"=>2
-          })
+            expect(aggs[:top_mentions]).to eq ({"BKCHarvard"=>6})
+
+            expect(aggs[:top_retweets]).to eq({
+              "\"In a rush to apply technical solutions to urban problems regarding public health, we must consider who it’s working for, &amp; how to create more egalitarian spaces &amp; services.” — @draganakaurin for @BKCHarvard https://t.co/D39dG1HJMR"=>{:count=>2, :link=>"https://twitter.com/datasociety/status/1228009942420000768"},
+              "There are sooooo many attempts at codifying ethical principles for AI. This is a fantastic paper from @BKCHarvard @JessicaFjeld @ne8en et al organizing and mapping consensus. With great infographics. https://t.co/xEHD85Lj9C https://t.co/Ng4Cd2OdTV"=>{:count=>2, :link=>"https://twitter.com/omertene/status/1227807251227910147"},
+              "Amazon’s Judging of IP Claims Questioned in Seller Lawsuits (featuring comments from me) https://t.co/QuLXmtIWz3"=>{:count=>2, :link=>"https://twitter.com/rtushnet/status/1227619561412997124"},
+              "Excited to have this out in the world!! I've been slammed on all sides on this one which, despite the saying, I don't think means I am definitely doing anything right😛, but I do think means it's a conversation we need to be having. 1/ https://t.co/h9E0BOujCn"=>{:count=>2, :link=>"https://twitter.com/evelyndouek/status/1227282185364918274"},
+              "Check out this informative Q&amp;A by our friends at @BKCHarvard, combining aspects of two of our core initiatives, health advocacy and trust in the news, https://t.co/0ClD7Fx1mp"=>{:count=>2, :link=>"https://twitter.com/EngageLab/status/1227585647856123904"}
+            })
+
+            expect(aggs[:top_sources]).to eq({
+              "bit.ly"=>4, "medium.com"=>4, "twitter.com"=>4
+            })
+
+            expect(aggs[:top_words]).to eq({
+              "-"=>4, "bkc"=>4, "check"=>4, "interns"=>4, "must"=>4,
+              "new"=>4, "q&amp;a"=>4
+            })
+
+            expect(aggs[:top_urls]).to eq({
+              "bit.ly/2OPEPRC"=>2, "bit.ly/2ORfrdY"=>2,
+              "cyber.harvard.edu/getinvolved/internships2020"=>2,
+              "dash.harvard.edu/bitstream/handle/1/42160420/HLS%20White%20Paper%20Final_v3.pdf"=>2,
+              "knightcolumbia.org/content/the-rise-of-content-cartels"=>2,
+              "medium.com/berkman-klein-center/navigating-the-digital-city-during-an-outbreak-3b21d2cb5bde"=>2,
+              "medium.com/berkman-klein-center/q-a-misinformation-and-coronavirus-14ce5f3e7d94"=>2,
+              "news.bloomberglaw.com/ip-law/amazons-judging-of-ip-disputes-questioned-in-sellers-lawsuits"=>2,
+              "twitter.com/JessicaFjeld/status/1227945985487314945"=>2,
+              "twitter.com/KGlennBass/status/1227278824200691712"=>2,
+              "workflow.servicenow.com/security-risk/emerging-model-ethical-ai-qa/"=>2
+            })
+          end
         end
       end
     end
