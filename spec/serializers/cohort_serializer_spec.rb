@@ -58,30 +58,14 @@ describe CohortSerializer do
   end
 
   it 'aggregates data for collections' do
+    expect(Cohort).to receive(:aggregate)
+                   .with(contain_exactly(
+                     @cohort1.id, @cohort2.id
+                   ))
     hsh = CohortSerializer.new(
       [@cohort1, @cohort2], is_collection: true
     ).serializable_hash
 
     expect(hsh.keys).to include(:aggregates)
-    # to_set makes it order-independent
-    expect(hsh[:aggregates][:top_mentions]).to eq(
-      { 'squid'=>3, 'plato'=>5, 'aristotle'=>7 }
-    )
-    expect(hsh[:aggregates][:top_retweets]).to eq(
-      { 'first tweet test' => { count: 4, link: 'https://firsttweettext.com' }, 'second tweet text' => { count: 6, link: 'https://secondtweettext.com' }}
-    )
-    expect(hsh[:aggregates][:top_sources]).to eq (
-      { 'godeysladysbook.com'=>7, 'twitter.com'=>13,
-        'http://hasthelargehadroncolliderdestroyedtheworldyet.com/'=>5 }
-    )
-    expect(hsh[:aggregates][:top_words]).to eq(
-      { 'stopword'=>10, 'moose'=>148 }
-    )
-    expect(hsh[:aggregates][:top_urls]).to eq(
-      { 'www.cnn.com/a_story'=>14, 'http://bitly.com/98K8eH'=>8 }
-    )
-    expect(hsh[:aggregates][:hashtags]).to eq(
-      { 'llamas'=>14, 'octopodes'=>48 }
-    )
   end
 end

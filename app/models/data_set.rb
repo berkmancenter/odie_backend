@@ -94,20 +94,26 @@ class DataSet < ApplicationRecord
   # This aggregates data from multiple DataSet instances. It does NOT aggregate
   # the num_whatevers as there is no way to deduplicate those.
   def self.aggregate(ids)
-    keys = %i[hashtags top_urls top_words top_mentions top_sources top_retweets]
+    # Why, oh why, did I use different names for data set attributes and
+    # MetadataHarvester options. And yet, here we are.
+    data_sets_to_extractors = {
+      hashtags: :hashtags,
+      top_urls: :urls,
+      top_words: :words,
+      top_mentions: :mentions,
+      top_sources: :sources,
+      top_retweets: :retweets
+    }
     data_sets = self.where(id: ids)
 
     retval = {}
 
-    keys.each do |key|
-      # Keep only the data above our thresholds.
-      data = if (key == :top_retweets)
-               self.accumulate_retweets(data_sets)
-             else
-               self.accumulate_data(key, data_sets)
-             end
+    data_sets_to_extractors.each do |dataset_key, extractor_key|
+      data = MetadataHarvester.new(extractor_key, [])
+                              .accumulate(data_sets)
+                              .harvest
 
-      retval[key] = data
+      retval[dataset_key] = data
     end
 
     retval
@@ -180,31 +186,5 @@ class DataSet < ApplicationRecord
         link: retweet[:link]
       )
     end
-  end
-
-  # Retweets don't use the generic self.accumulate_data function because they have
-  # a different data structure -- Retweet objects in the db rather than hstores.
-  def self.accumulate_retweets(data_sets)
-    data = data_sets.map(&:top_retweets)
-                    .flatten(1)
-                    .reduce({}) do |first, second|
-                      first.merge(second) do |_, a, b|
-                        { count: a[:count].to_i + b[:count].to_i, link: a[:link] }
-                      end
-                    end
-
-    min_count = data.map { |_k, v| v[:count] }.sort.last(Extractor::TOP_N)[0]
-    data.reject { |k, v| v[:count] < [min_count, Extractor::THRESHOLD].max }
-  end
-
-  def self.accumulate_data(key, data_sets)
-    data = data_sets.pluck(key)
-                    .map { |h| h.transform_values!(&:to_i) }
-                    .reduce({}) do |first, second|
-                      first.merge(second) { |_, a, b| a + b }
-                    end
-
-    min_count = data.values.sort.last(Extractor::TOP_N)[0]
-    data.reject { |k, v| v < [min_count, Extractor::THRESHOLD].max }
   end
 end

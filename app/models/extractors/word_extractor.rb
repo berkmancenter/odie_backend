@@ -7,12 +7,12 @@ class WordExtractor < Extractor
   # it would be better for the stopword filter to be case-insensitive.
   def extract
     @tweets.each do |tweet|
-      sw_filter(tweet.lang)
-        .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
-        .each do |token|
-          next unless is_word? token
-          @all_things[token] += 1
-        end
+     sw_filter(tweet.lang)
+       .filter(tweet.attrs[:full_text].split.map { |w| w.downcase } )
+       .each do |token|
+         next unless is_word? token
+         @working_space[token] << tweet.user.id
+       end
     end
   end
 

@@ -27,14 +27,14 @@ describe Extractor do
   end
 
   it 'extracts hashtags' do
-    expect(HashtagExtractor.new(@tweets).harvest).to eq({"PrincipledAI"=>2})
+    expect(HashtagExtractor.new(@tweets).harvest).to eq({"PrincipledAI"=>1})
   end
 
   it 'extracts mentions' do
     expect(MentionExtractor.new(@tweets).harvest).to eq(
-      {"BKCHarvard"=>5, "coindesk"=>1, "datasociety"=>1, "draganakaurin"=>1,
-       "EngageLab"=>1, "evelyndouek"=>2, "hackylawyER"=>1, "ISOC_NA"=>1,
-       "JessicaFjeld"=>2, "knightcolumbia"=>1, "ne8en"=>1, "omertene"=>1,
+      {"BKCHarvard"=>1, "coindesk"=>1, "datasociety"=>1, "draganakaurin"=>1,
+       "EngageLab"=>1, "evelyndouek"=>1, "hackylawyER"=>1, "ISOC_NA"=>1,
+       "JessicaFjeld"=>1, "knightcolumbia"=>1, "ne8en"=>1, "omertene"=>1,
        "rtushnet"=>1, "techpolicy4POC"=>1}
      )
   end
@@ -51,9 +51,9 @@ describe Extractor do
 
   it 'extracts sources' do
     expect(SourceExtractor.new(@tweets).harvest).to eq({
-      "bit.ly"=>2, "cyber.harvard.edu"=>1, "dash.harvard.edu"=>1,
-      "knightcolumbia.org"=>1, "medium.com"=>2, "news.bloomberglaw.com"=>2,
-      "twitter.com"=>2, "workflow.servicenow.com"=>1
+      "bit.ly"=>1, "cyber.harvard.edu"=>1, "dash.harvard.edu"=>1,
+      "knightcolumbia.org"=>1, "medium.com"=>1, "news.bloomberglaw.com"=>1,
+      "twitter.com"=>1, "workflow.servicenow.com"=>1
     })
   end
 
@@ -66,8 +66,10 @@ describe Extractor do
            variant_hosts: ['knightcolumbia.org', 'news.bloomberglaw.com',
                            'workflow.servicenow.com'])
 
-    expect(SourceExtractor.new(@tweets).harvest).to eq({
-      "bit.ly"=>4, "cyber.harvard.edu"=>2, "twitter.com"=>6,
+    expect(SourceExtractor.new(@tweets).harvest).to eq({"bit.ly"=>1,
+      "cyber.harvard.edu"=>1, "dash.harvard.edu"=>1, "knightcolumbia.org"=>1,
+      "medium.com"=>1, "news.bloomberglaw.com"=>1, "twitter.com"=>1,
+      "workflow.servicenow.com"=>1
     })
   end
 
@@ -79,7 +81,7 @@ describe Extractor do
       "knightcolumbia.org/content/the-rise-of-content-cartels"=>1,
       "medium.com/berkman-klein-center/navigating-the-digital-city-during-an-outbreak-3b21d2cb5bde"=>1,
       "medium.com/berkman-klein-center/q-a-misinformation-and-coronavirus-14ce5f3e7d94"=>1,
-      "news.bloomberglaw.com/ip-law/amazons-judging-of-ip-disputes-questioned-in-sellers-lawsuits"=>2,
+      "news.bloomberglaw.com/ip-law/amazons-judging-of-ip-disputes-questioned-in-sellers-lawsuits"=>1,
       "twitter.com/JessicaFjeld/status/1227945985487314945"=>1,
       "twitter.com/KGlennBass/status/1227278824200691712"=>1,
       "workflow.servicenow.com/security-risk/emerging-model-ethical-ai-qa/"=>1
@@ -88,10 +90,9 @@ describe Extractor do
 
   it 'extracts words' do
     # this test is too annoying if you fetch all the words
-    stub_const("Extractor::THRESHOLD", 2)
-    expect(WordExtractor.new(@tweets).harvest).to eq({
-      "-"=>2, "bkc"=>2, "check"=>2, "interns"=>2, "looking"=>2, "must"=>2,
-      "new"=>2, "q&amp;a"=>2, "👇"=>2
-    })
+    stub_const("Extractor::THRESHOLD", 1)
+    harvested_words = WordExtractor.new(@tweets).harvest
+    expect(harvested_words['ethical']).to eq(1)
+    expect(harvested_words['lawsuits']).to eq(1)
   end
 end

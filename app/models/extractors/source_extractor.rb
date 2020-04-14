@@ -2,11 +2,10 @@ class SourceExtractor < Extractor
   private
 
   def extract
-    @tweets.map { |tweet| all_nested(:urls, tweet) }
+    @tweets.map { |tweet| all_nested_with_user(:urls, tweet) }
            .flatten
-           .map { |url_obj| host(url_obj) }
-           .each do |url|
-             @all_things[Source.canonicalize(url)] += 1
+           .each do |item_user|
+             @working_space[host(item_user[:item])] << item_user[:user_id]
            end
   end
 
