@@ -22,10 +22,9 @@ Authentication is via user/password. See [Devise](https://github.com/plataformat
 **Example**
 Get cookie:
 ```
-curl -H 'Content-Type: application/json' \
-  -H 'Accept: application/json' \
-  -X POST http://localhost:3000/users/sign_in \
-  -d '{"user": {"email": "api@example.com", "password": "password"}}' \
+curl -v -H 'Content-Type: application/json' \
+  -XPOST http://localhost:3000/users/sign_in  \
+  -d '{"user": {"email": "api@example.com", "password": "password" } }' \
   -c cookie
 ```
 
