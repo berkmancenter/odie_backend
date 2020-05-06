@@ -75,6 +75,7 @@ In any environment:
 * `TWEETS_PER_USER` (optional; defaults to `50`)
 * `LOGSTASH_COMMAND` (optional; whatever invokes logstash on your system; defaults to `logstash`)
 * `LOGSTASH_RUN_TIME` (optional; how long to run the streaming data collection run; can be any duration accepted by `timeout`; defaults to `1h`)
+* `DEVISE_JWT_SECRET_KEY` (set it to something different than the regular Rails secret key value)
 
 In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
