@@ -9,6 +9,8 @@ class ApplicationController < ActionController::Base
 
   before_action :set_current_user, if: :json_request?
   before_action :authenticate_user!
+  before_action :cors_preflight_check
+  after_action  :cors_set_access_control_headers
 
   layout 'application'
 
@@ -37,5 +39,25 @@ class ApplicationController < ActionController::Base
   # So we can use Pundit policies etc. for api_users
   def set_current_user
     @current_user ||= warden.authenticate(scope: :api_user)
+  end
+
+  def cors_set_access_control_headers
+    set_cors_headers
+  end
+
+  def cors_preflight_check
+    return unless request.method == :options
+
+    set_cors_headers
+    render text: '', content_type: 'text/plain'
+  end
+
+  def set_cors_headers
+    headers['Access-Control-Allow-Origin'] = ENV['CORS_ORIGIN'] || '*'
+    headers['Access-Control-Allow-Methods'] = ENV['CORS_ALLOWED_METHODS'] ||
+                                              'POST, GET, OPTIONS'
+    headers['Access-Control-Allow-Headers'] = ENV['CORS_ALLOWED_HEADERS'] || '*'
+    headers['Access-Control-Expose-Headers'] = ENV['CORS_EXPOSED_HEADERS'] ||
+                                               '*'
   end
 end

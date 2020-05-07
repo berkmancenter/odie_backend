@@ -76,6 +76,10 @@ In any environment:
 * `LOGSTASH_COMMAND` (optional; whatever invokes logstash on your system; defaults to `logstash`)
 * `LOGSTASH_RUN_TIME` (optional; how long to run the streaming data collection run; can be any duration accepted by `timeout`; defaults to `1h`)
 * `DEVISE_JWT_SECRET_KEY` (set it to something different than the regular Rails secret key value)
+* `CORS_ORIGIN` (sets the `Access-Control-Allow-Origin` header; defaults to `*`)
+* `CORS_ALLOWED_METHODS` (sets the `Access-Control-Allow-Methods` header; defaults to `POST, GET, OPTIONS`)
+* `CORS_ALLOWED_HEADERS` (sets the `Access-Control-Allow-Headers` header; defaults to `*`)
+* `CORS_EXPOSED_HEADERS` (sets the `Access-Control-Expose-Headers` header; defaults to `*`)
 
 In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
