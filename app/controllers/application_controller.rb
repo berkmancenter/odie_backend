@@ -21,7 +21,8 @@ class ApplicationController < ActionController::Base
   # Use api_user Devise scope for JSON access
   def authenticate_user!(*args)
     super && return unless args.blank?
-    json_request? ? (super || authenticate_api_user!) : super
+    super && return if json_request? && !warden.authenticate(scope: :api_user)
+    json_request? ? authenticate_api_user! : super
   end
 
   def invalid_auth_token
