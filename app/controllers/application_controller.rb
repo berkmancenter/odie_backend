@@ -8,11 +8,17 @@ class ApplicationController < ActionController::Base
               with: :invalid_auth_token
 
   before_action :set_current_user, if: :json_request?
-  before_action :authenticate_user!
-  before_action :cors_preflight_check
+  before_action :authenticate_user!, except: :cors_preflight_check
   after_action  :cors_set_access_control_headers
 
   layout 'application'
+
+  def cors_preflight_check
+    return unless request.method == :options
+
+    set_cors_headers
+    render text: '', content_type: 'text/plain'
+  end
 
   private
 
@@ -43,13 +49,6 @@ class ApplicationController < ActionController::Base
 
   def cors_set_access_control_headers
     set_cors_headers
-  end
-
-  def cors_preflight_check
-    return unless request.method == :options
-
-    set_cors_headers
-    render text: '', content_type: 'text/plain'
   end
 
   def set_cors_headers

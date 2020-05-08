@@ -31,4 +31,6 @@ Rails.application.routes.draw do
   end
 
   root to: 'home#index', as: 'home'
+
+  match '*all', to: 'application#cors_preflight_check', via: :options
 end
