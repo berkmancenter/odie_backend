@@ -53,25 +53,20 @@ class CohortsController < ApplicationController
   private
 
   def index_json
+    return show_multiple if params.include? :ids
+
     render json: CohortSerializer.new(
       Cohort.all
     ).serialized_json
   end
 
   def show_json
-    if params.include? :id
-      show_one
-    elsif params.include? :ids
-      show_multiple
-    else
-      raise ActionController::ParameterMissing('/:id or ?ids[]=1&ids[]=2 must be supplied')
-    end
-  end
-
-  def show_one
     render json: CohortSerializer.new(
       Cohort.find(params[:id])
     ).serialized_json
+  end
+
+  def show_one
   end
 
   # Given a list of cohort IDs, returns the most recent data sets for each, plus
