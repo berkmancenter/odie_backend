@@ -72,7 +72,7 @@ feature 'API' do
     end
 
     it 'returns aggregated data' do
-      visit cohorts_path(params: { ids: [Cohort.pluck(:id)] })
+      visit cohorts_path(params: { ids: Cohort.pluck(:id) })
       json = JSON.parse(page.body)
       expect(json.keys).to include 'aggregates'
       check_aggregates json['aggregates'].symbolize_keys, DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
@@ -84,10 +84,26 @@ feature 'API' do
         create(:data_set, cohort: Cohort.last).run_pipeline
       end
 
-      visit cohorts_path(params: { ids: [Cohort.pluck(:id)] })
+      visit cohorts_path(params: { ids: Cohort.pluck(:id) })
       json = JSON.parse(page.body)
       expect(json.keys).to include 'aggregates'
       check_aggregates json['aggregates'].symbolize_keys, DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
+    end
+
+    it 'only aggregates requested cohorts' do
+      ids = Cohort.pluck(:id)
+      expected = DataSet.aggregate([DataSet.last.id, DataSet.second_to_last.id])
+
+      VCR.use_cassette('data set spec') do
+        create(:data_set, cohort: create(:cohort)).run_pipeline
+      end
+
+      puts cohorts_path
+
+      visit cohorts_path(params: { ids: ids })
+      json = JSON.parse(page.body)
+      expect(json.keys).to include 'aggregates'
+      check_aggregates json['aggregates'].symbolize_keys, expected
     end
   end
 
