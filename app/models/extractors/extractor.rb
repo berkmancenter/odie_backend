@@ -47,9 +47,11 @@ class Extractor
     @tweets = []
 
     # Rehydrate Tweet objects from Elasticsearch. Then we can use the extractors
-    # in their usual fashion.
+    # in their usual fashion. The size argument guarantees we get all of the
+    # tweets and may be terribly nonperformant -- scrolling may end up being
+    # better, but this is very easy.
     data_sets.each do |ds|
-      results = client.search index: ds.index_name
+      results = client.search index: ds.index_name, size: ds.num_tweets
       @tweets += results['hits']['hits'].map do |t|
         Twitter::Tweet.new(t['_source'].deep_symbolize_keys)
       end
