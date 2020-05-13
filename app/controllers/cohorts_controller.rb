@@ -69,16 +69,14 @@ class CohortsController < ApplicationController
   end
 
   def index_csv
-    render csv: active_media_sources
+    render csv: Cohort.all
   end
 
   def show_csv
     if params.include? :id
       render csv: Cohort.find(params[:id])
-    elsif params.include? :ids
-      show_multiple
     else
-      raise ActionController::ParameterMissing('/:id or ?ids[]=1&ids[]=2 must be supplied')
+      raise ActionController::BadRequest
     end
   end
 

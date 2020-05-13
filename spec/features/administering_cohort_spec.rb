@@ -23,6 +23,13 @@ feature 'Administering Cohort' do
         expect(page.response_headers['Content-Type']).to include('application/json')
       end
 
+      it 'lets you see csv' do
+        visit cohorts_path(format: :csv)
+
+        expect(page).to have_http_status(200)
+        expect(page.response_headers['Content-Type']).to include('text/csv')
+      end
+
       it 'links to cohorts' do
         create_list(:cohort, 2)
         visit cohorts_path
@@ -78,6 +85,13 @@ feature 'Administering Cohort' do
 
         expect(page).to have_http_status(200)
         expect(page.response_headers['Content-Type']).to include('application/json')
+      end
+
+      it 'lets you see json' do
+        visit cohorts_path(Cohort.last, format: :csv)
+
+        expect(page).to have_http_status(200)
+        expect(page.response_headers['Content-Type']).to include('text/csv')
       end
 
       it 'shows metadata' do
