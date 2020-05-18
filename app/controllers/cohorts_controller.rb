@@ -8,6 +8,7 @@ class CohortsController < ApplicationController
 
     respond_to do |format|
       format.json { index_json }
+      format.csv { index_csv }
       format.html
     end
   end
@@ -19,6 +20,7 @@ class CohortsController < ApplicationController
 
     respond_to do |format|
       format.json { show_json }
+      format.csv { show_csv }
       format.html
     end
   end
@@ -64,6 +66,18 @@ class CohortsController < ApplicationController
     render json: CohortSerializer.new(
       Cohort.find(params[:id])
     ).serialized_json
+  end
+
+  def index_csv
+    render csv: Cohort.all
+  end
+
+  def show_csv
+    if params.include? :id
+      render csv: Cohort.find(params[:id])
+    else
+      raise ActionController::BadRequest
+    end
   end
 
   def show_one

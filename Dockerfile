@@ -22,4 +22,4 @@ WORKDIR /app
 COPY . .
 RUN bundle install
 
-CMD puma -C config/puma.rb
+CMD (while true; do sleep 1; done;)

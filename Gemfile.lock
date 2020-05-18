@@ -85,6 +85,8 @@ GEM
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.6)
+    csverizer (0.0.7)
+      activemodel (>= 5.1)
     devise (4.7.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -341,6 +343,7 @@ DEPENDENCIES
   capybara (>= 2.15)
   coffee-rails (~> 4.2)
   coveralls
+  csverizer (~> 0.0.7)
   devise
   devise-jwt (~> 0.6.0)
   dotenv-rails
