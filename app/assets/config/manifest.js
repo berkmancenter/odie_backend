@@ -1,3 +1,4 @@
 //= link_tree ../images
 //= link_directory ../javascripts .js
-//= link_directory ../stylesheets .css
+// See https://github.com/rails/sprockets/issues/474#issuecomment-597563991 .
+//= link application.css
