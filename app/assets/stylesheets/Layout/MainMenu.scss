@@ -1,4 +1,10 @@
 .navbar-menu {
+  background-color: $primary;
+  @media all and (max-width: $breakpointLg) {
+    padding-left: 1.5rem;
+    padding-right: 2.25rem;
+  }
+
   .navbar-start {
     a.navbar-item {
       outline: none;
