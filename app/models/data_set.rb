@@ -14,6 +14,7 @@
 #  top_sources  :hstore
 #  top_urls     :hstore
 #  top_words    :hstore
+#  unauthorized :text             default([]), is an Array
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  cohort_id    :bigint
@@ -57,7 +58,8 @@ class DataSet < ApplicationRecord
       top_urls: MetadataHarvester.new(:urls, all_tweets).harvest,
       top_words: MetadataHarvester.new(:words, all_tweets).harvest,
       top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest,
-      top_sources: MetadataHarvester.new(:sources, all_tweets).harvest
+      top_sources: MetadataHarvester.new(:sources, all_tweets).harvest,
+      unauthorized: unauthorized_ids
     )
     create_retweets
   end
@@ -67,6 +69,8 @@ class DataSet < ApplicationRecord
       tweets = fetch_tweets(user_id)
       store_data(tweets)
       all_tweets << tweets
+    rescue Twitter::Error::Unauthorized
+      unauthorized_ids << user_id
     end
   end
 
@@ -186,5 +190,11 @@ class DataSet < ApplicationRecord
         link: retweet[:link]
       )
     end
+  end
+
+  # We may find at runtime that some of the accounts we want to monitor are
+  # no longer public; we'll keep a record of them here.
+  def unauthorized_ids
+    @unauthorized_ids ||= []
   end
 end

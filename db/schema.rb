@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_06_173022) do
+ActiveRecord::Schema.define(version: 2020_06_03_205140) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 2020_05_06_173022) do
     t.hstore "top_mentions", default: {}
     t.hstore "top_sources", default: {}
     t.bigint "cohort_id"
+    t.text "unauthorized", default: [], array: true
     t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
   end
 

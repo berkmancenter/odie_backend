@@ -14,6 +14,7 @@
 #  top_sources  :hstore
 #  top_urls     :hstore
 #  top_words    :hstore
+#  unauthorized :text             default([]), is an Array
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  cohort_id    :bigint
@@ -114,6 +115,17 @@ describe DataSet do
                   .times
         ds.ingest_data
       end
+    end
+
+    it 'handles unauthorized accounts' do
+      assert ds.cohort.twitter_ids.size == 1
+      allow(ds).to receive(:fetch_tweets)
+               .with(ds.cohort.twitter_ids.first)
+               .and_raise Twitter::Error::Unauthorized
+
+      ds.run_pipeline
+
+      expect(ds.unauthorized).to match_array ds.cohort.twitter_ids
     end
   end
 

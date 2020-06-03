@@ -12,6 +12,7 @@
 #  top_sources  :hstore
 #  top_urls     :hstore
 #  top_words    :hstore
+#  unauthorized :text             default([]), is an Array
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  cohort_id    :bigint
