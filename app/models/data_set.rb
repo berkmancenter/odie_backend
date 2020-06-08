@@ -31,6 +31,7 @@
 class DataSet < ApplicationRecord
   belongs_to :cohort
   has_many :retweets
+  has_many :tweet_fetchers
 
   attr_readonly :index_name
   before_create :add_index_name
@@ -129,6 +130,14 @@ class DataSet < ApplicationRecord
       top[item[:text]] = { count: item[:count], link: item[:link] }
     end
     top
+  end
+
+  def status
+    if tweet_fetchers.data.pluck(:data).include? nil
+      :in_progress
+    else
+      :complete
+    end
   end
 
   private
