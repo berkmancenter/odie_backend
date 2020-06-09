@@ -27,7 +27,7 @@ describe Cohort do
     # the aggregations are correct. One tweet has also been duplicated in order
     # to ensure that some objects occur more than once.
     VCR.use_cassette('cohort creates a data set based on itself') do
-      cohort = build(:cohort)
+      cohort = create(:cohort)
       cohort.collect_data
       ds = DataSet.last
       expect(ds.cohort.id).to eq cohort.id
