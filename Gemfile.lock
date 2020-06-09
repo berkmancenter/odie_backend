@@ -87,6 +87,7 @@ GEM
     crass (1.0.6)
     csverizer (0.0.7)
       activemodel (>= 5.1)
+    database_cleaner (1.8.5)
     devise (4.7.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -344,6 +345,7 @@ DEPENDENCIES
   coffee-rails (~> 4.2)
   coveralls
   csverizer (~> 0.0.7)
+  database_cleaner
   devise
   devise-jwt (~> 0.6.0)
   dotenv-rails
