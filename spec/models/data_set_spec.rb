@@ -75,57 +75,21 @@ describe DataSet do
     end
   end
 
-  context 'during data ingestion', elasticsearch: true do
-    it 'asks twitter for data on a user' do
-      VCR.use_cassette('data set spec') do
-        expect_any_instance_of(Twitter::REST::Client)
-          .to receive(:user_timeline)
-          .once
-          .with(1, count: Rails.application.config.tweets_per_user,
-                tweet_mode: 'extended')
-        allow(ds).to receive(:index_exists?).and_return(true)
-        ds.fetch_tweets(1)
-      end
-    end
+  context 'data ingestion' do
+    it 'creates TweetFetchers for all cohort users' do
+      assert TweetFetcher.count == 0
 
-    it 'creates an elasticsearch document for each tweet' do
-      tweets = [
-        { foo: 1 }, { bar: 2 }
-      ]
-      # Why not expect_any_instance_of(Elasticsearch::Client)? Because the
-      # create action is provided by a mixin, so although it's present on all
-      # instances, the the test suite can't find it on the class, and therefore
-      # can't mock it.
-      expect_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:create)
-        .once.with(index: ds.index_name, type: '_doc', body: tweets[0].to_json)
-      expect_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:create)
-        .once.with(index: ds.index_name, type: '_doc', body: tweets[1].to_json)
-      ds.store_data(tweets)
-    end
-
-    it 'fetches data on all cohort users' do
       VCR.use_cassette('data ingestion') do
+        allow_any_instance_of(TweetFetcher).to receive(:ingest)
+        expect_any_instance_of(TweetFetcher).to receive(:ingest)
+                                            .exactly(ds.cohort.twitter_ids.size)
+                                            .times
+        ds.run_pipeline
+
         ds.cohort.twitter_ids.each do |id|
-          expect(ds).to receive(:fetch_tweets).with(id)
+          expect(TweetFetcher.find_by(data_set: ds, user_id: id)).to be_present
         end
-        expect(ds).to receive(:store_data)
-                  .exactly(ds.cohort.twitter_ids.length)
-                  .times
-        ds.ingest_data
       end
-    end
-
-    it 'handles unauthorized accounts' do
-      assert ds.cohort.twitter_ids.size == 1
-      allow(ds).to receive(:fetch_tweets)
-               .with(ds.cohort.twitter_ids.first)
-               .and_raise Twitter::Error::Unauthorized
-
-      ds.run_pipeline
-
-      expect(ds.unauthorized).to match_array ds.cohort.twitter_ids
     end
   end
 

@@ -92,4 +92,9 @@ FactoryBot.define do
 
     initialize_with { Source.find_or_create_by(canonical_host: canonical_host)}
   end
+
+  factory :tweet_fetcher do
+    data_set
+    user_id { 14706139 }
+  end
 end

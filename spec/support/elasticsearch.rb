@@ -38,6 +38,8 @@ RSpec.configure do |config|
   def wipe_elasticsearch_data
     client = Elasticsearch::Client.new
     DataSet.all.each do |ds|
+      next unless client.indices.exists? index: ds.index_name
+
       client.delete_by_query index: ds.index_name
       client.indices.delete index: ds.index_name
     end

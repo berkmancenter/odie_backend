@@ -38,7 +38,12 @@ class DataSet < ApplicationRecord
 
   def run_pipeline
     verify_index
-    ingest_data
+    schedule_ingest
+  end
+
+  def finish_when_ready
+    return unless complete?
+
     update_aggregates
   end
 
@@ -53,47 +58,25 @@ class DataSet < ApplicationRecord
     es_client.indices.refresh index: index_name
     self.update_attributes(
       num_users: cohort.twitter_ids.length,
-      num_tweets: es_client.count(index: index_name)['count'],
+      num_tweets: count_tweets,
       num_retweets: count_retweets,
-      hashtags: MetadataHarvester.new(:hashtags, all_tweets).harvest,
-      top_urls: MetadataHarvester.new(:urls, all_tweets).harvest,
-      top_words: MetadataHarvester.new(:words, all_tweets).harvest,
-      top_mentions: MetadataHarvester.new(:mentions, all_tweets).harvest,
-      top_sources: MetadataHarvester.new(:sources, all_tweets).harvest,
-      unauthorized: unauthorized_ids
+      hashtags: MetadataHarvester.new(:hashtags, self).harvest,
+      top_urls: MetadataHarvester.new(:urls, self).harvest,
+      top_words: MetadataHarvester.new(:words, self).harvest,
+      top_mentions: MetadataHarvester.new(:mentions, self).harvest,
+      top_sources: MetadataHarvester.new(:sources, self).harvest
     )
     create_retweets
   end
 
-  def ingest_data
+  def schedule_ingest
     cohort.twitter_ids.each do |user_id|
-      tweets = fetch_tweets(user_id)
-      store_data(tweets)
-      all_tweets << tweets
-    rescue Twitter::Error::Unauthorized
-      unauthorized_ids << user_id
+      TweetFetcher.create(data_set: self, user_id: user_id).ingest
     end
   end
 
   def index_exists?
     es_client.indices.exists? index: index_name
-  end
-
-  def fetch_tweets(user_id)
-    # logstash only uses the streaming api, not the user timeline api. oy.
-    # so we're going to need to create an elasticsearch index with the
-    # usual mapping and dump this in..?
-    twitter_client.user_timeline(
-      user_id.to_i,
-      count: Rails.application.config.tweets_per_user,
-      tweet_mode: 'extended'
-    )
-  end
-
-  def store_data(tweets)
-    tweets.each do |tweet|
-      es_client.create index: index_name, type: '_doc', body: tweet.to_json
-    end
   end
 
   # This aggregates data from multiple DataSet instances. It does NOT aggregate
@@ -114,9 +97,7 @@ class DataSet < ApplicationRecord
     retval = {}
 
     data_sets_to_extractors.each do |dataset_key, extractor_key|
-      data = MetadataHarvester.new(extractor_key, [])
-                              .accumulate(data_sets)
-                              .harvest
+      data = MetadataHarvester.new(extractor_key, data_sets).harvest
 
       retval[dataset_key] = data
     end
@@ -132,27 +113,26 @@ class DataSet < ApplicationRecord
     top
   end
 
-  def status
-    if tweet_fetchers.data.pluck(:data).include? nil
-      :in_progress
-    else
-      :complete
-    end
+  def complete?
+    status == :complete
+  end
+
+  def count_tweets
+    es_client.count(index: index_name)['count']
   end
 
   private
 
-  def all_tweets
-    @all_tweets ||= []
+  def status
+    if tweet_fetchers.pluck(:complete).all?
+      :complete
+    else
+      :in_progress
+    end
   end
 
-  def twitter_client
-    @twitter_client ||= Twitter::REST::Client.new do |config|
-      config.consumer_key        = ENV['TWITTER_CONSUMER_KEY']
-      config.consumer_secret     = ENV['TWITTER_CONSUMER_SECRET']
-      config.access_token        = ENV['TWITTER_OAUTH_TOKEN']
-      config.access_token_secret = ENV['TWITTER_OAUTH_SECRET']
-    end
+  def all_tweets
+    @all_tweets ||= []
   end
 
   def es_client
@@ -191,7 +171,7 @@ class DataSet < ApplicationRecord
   # to display links on the front end).
   def create_retweets
     # Nested retweets goes to their own table
-    MetadataHarvester.new(:retweets, all_tweets).harvest.each do |text, retweet|
+    MetadataHarvester.new(:retweets, self).harvest.each do |text, retweet|
       Retweet.create!(
         data_set: self,
         text: text,
@@ -199,11 +179,5 @@ class DataSet < ApplicationRecord
         link: retweet[:link]
       )
     end
-  end
-
-  # We may find at runtime that some of the accounts we want to monitor are
-  # no longer public; we'll keep a record of them here.
-  def unauthorized_ids
-    @unauthorized_ids ||= []
   end
 end
