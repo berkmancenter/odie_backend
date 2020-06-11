@@ -80,7 +80,6 @@ class TweetFetcher < ApplicationRecord
   end
 
   def set_backoff
-    enqueued = TweetFetcher.where(complete: false).count
     limit = Rails.configuration.rate_limit_limit * 0.95 # safety margin
     window = Rails.configuration.rate_limit_window * 60 # convert to seconds
 
@@ -99,6 +98,11 @@ class TweetFetcher < ApplicationRecord
     # In addition, since this looks at all enqueued TweetFetchers and not just
     # those belonging to a given DataSet, when we are fetching data for multiple
     # DataSets at once, they will cooperate to avoid hitting the window.
-    self.backoff = max(2*window - (2^(-2*enqueued/limit))*4*window, 0)
+    self.backoff = [2*window - (2.0**(-2*enqueued/limit))*4*window, 0].max
+  end
+
+  # Separated into a function to make it easy to stub in testing.
+  def enqueued
+    TweetFetcher.where(complete: false).count
   end
 end

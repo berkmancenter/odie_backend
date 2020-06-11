@@ -75,4 +75,46 @@ describe TweetFetcher do
       expect(tf.data_set.unauthorized).to match_array [tf.user_id, tf2.user_id]
     end
   end
+
+  context 'backoff' do
+    it 'is none when is nothing else in the queue' do
+      tf = build(:tweet_fetcher)
+      mock_count(tf, 1)
+      tf.save
+
+      expect(tf.backoff).to eq 0
+    end
+
+    it 'is none when there is not much in the queue' do
+      tf = build(:tweet_fetcher)
+      mock_count(tf, Rails.configuration.rate_limit_limit * 0.25)
+      tf.save
+
+      expect(tf.backoff).to eq 0
+    end
+
+    it 'is small when the queue is mid-sized' do
+      tf = build(:tweet_fetcher)
+      # We cross 0 when the queue is half of 95% of the limit size (95% rather
+      # than 100% for a safety margin). So if we are just one item above that
+      # limit, we expect a nonzero but small backoff time.
+      mock_count(tf, Rails.configuration.rate_limit_limit * 0.95 * 0.5 + 1)
+      tf.save
+
+      expect(tf.backoff).to be > 0
+      expect(tf.backoff).to be < 60  # 1.minute
+    end
+
+    it 'is long when there are many things in queue' do
+      tf = build(:tweet_fetcher)
+      mock_count(tf, Rails.configuration.rate_limit_limit * 1.05)
+      tf.save
+
+      expect(tf.backoff).to be > (Rails.configuration.rate_limit_window * 60)
+    end
+
+    def mock_count(fetcher, num)
+      allow(fetcher).to receive(:enqueued).and_return(num)
+    end
+  end
 end
