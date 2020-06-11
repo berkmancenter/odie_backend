@@ -39,5 +39,10 @@ module OdieBackend
     config.autoload_paths << Rails.root.join('app', 'models', 'extractors')
 
     config.log_level = :debug
+
+    # Max number of calls to user_timeline in Twiter's rolling window
+    config.rate_limit_limit = ENV['RATE_LIMIT_LIMIT'] || 900
+    # Size of Twitter's rolling window, in minutes (unit used in Twitter docs)
+    config.rate_limit_window = ENV['RATE_LIMIT_WINDOW'] || 15
   end
 end

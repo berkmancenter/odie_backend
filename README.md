@@ -80,6 +80,8 @@ In any environment:
 * `CORS_ALLOWED_METHODS` (sets the `Access-Control-Allow-Methods` header; defaults to `POST, GET, OPTIONS`)
 * `CORS_ALLOWED_HEADERS` (sets the `Access-Control-Allow-Headers` header; defaults to `*`)
 * `CORS_EXPOSED_HEADERS` (sets the `Access-Control-Expose-Headers` header; defaults to `*`)
+* `RATE_LIMIT_LIMIT` (the number of calls to `user_timeline` that Twitter permits per window; optional; defaults to 900)
+* `RATE_LIMIT_WINDOW` (the size, in minutes, of Twitter's rate limit window; optional; defaults to 15)
 
 In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
