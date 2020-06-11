@@ -14,6 +14,7 @@
 #
 # Indexes
 #
+#  index_tweet_fetchers_on_complete     (complete)
 #  index_tweet_fetchers_on_data_set_id  (data_set_id)
 #
 # Foreign Keys
@@ -28,6 +29,8 @@
 # finalized.
 class TweetFetcher < ApplicationRecord
   belongs_to :data_set
+
+  before_create :set_backoff
 
   def ingest
     store_data(fetch_tweets)
@@ -74,5 +77,28 @@ class TweetFetcher < ApplicationRecord
 
   def es_client
     @es_client ||= Elasticsearch::Client.new
+  end
+
+  def set_backoff
+    enqueued = TweetFetcher.where(complete: false).count
+    limit = Rails.configuration.rate_limit_limit * 0.95 # safety margin
+    window = Rails.configuration.rate_limit_window * 60 # convert to seconds
+
+    # This messy exponential:
+    # - sets backoff to 0 (i.e. execute task immediately) when we have fewer
+    # than half of our limit in the queue
+    # - sets the backoff to the entire window size when the enqueued is near
+    # (95% of) our limit
+    # - in between, biases toward the shorter end, via exponential decay
+    # This means that when cohorts are small, we'll grab all the data as quickly
+    # as possible. When they're medium-sized, we'll still be pretty fast. As
+    # the cohort size approaches the limit, the time to fetch all data will
+    # approach the window size. When the cohort size is near or above the limit,
+    # the time to fetch all data will exceed the window size, in order to avoid
+    # rate limiting.
+    # In addition, since this looks at all enqueued TweetFetchers and not just
+    # those belonging to a given DataSet, when we are fetching data for multiple
+    # DataSets at once, they will cooperate to avoid hitting the window.
+    self.backoff = max(2*window - (2^(-2*enqueued/limit))*4*window, 0)
   end
 end

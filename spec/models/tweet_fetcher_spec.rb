@@ -1,3 +1,25 @@
+# == Schema Information
+#
+# Table name: tweet_fetchers
+#
+#  id          :bigint           not null, primary key
+#  backoff     :integer          default(1)
+#  complete    :boolean          default(FALSE)
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  data_set_id :bigint
+#  user_id     :string
+#
+# Indexes
+#
+#  index_tweet_fetchers_on_complete     (complete)
+#  index_tweet_fetchers_on_data_set_id  (data_set_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (data_set_id => data_sets.id)
+#
+
 require 'rails_helper'
 
 describe TweetFetcher do

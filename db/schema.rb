@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_08_150549) do
+ActiveRecord::Schema.define(version: 2020_06_11_170859) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 2020_06_08_150549) do
     t.integer "backoff", default: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["complete"], name: "index_tweet_fetchers_on_complete"
     t.index ["data_set_id"], name: "index_tweet_fetchers_on_data_set_id"
   end
 
