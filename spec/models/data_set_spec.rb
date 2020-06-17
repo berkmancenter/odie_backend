@@ -10,6 +10,7 @@
 #  num_retweets :integer
 #  num_tweets   :integer
 #  num_users    :integer
+#  processed    :text             default([]), is an Array
 #  top_mentions :hstore
 #  top_sources  :hstore
 #  top_urls     :hstore
@@ -75,24 +76,6 @@ describe DataSet do
     end
   end
 
-  context 'data ingestion' do
-    it 'creates TweetFetchers for all cohort users' do
-      assert TweetFetcher.count == 0
-
-      VCR.use_cassette('data ingestion') do
-        allow_any_instance_of(TweetFetcher).to receive(:ingest)
-        expect_any_instance_of(TweetFetcher).to receive(:ingest)
-                                            .exactly(ds.cohort.twitter_ids.size)
-                                            .times
-        ds.run_pipeline
-
-        ds.cohort.twitter_ids.each do |id|
-          expect(TweetFetcher.find_by(data_set: ds, user_id: id)).to be_present
-        end
-      end
-    end
-  end
-
   context 'data aggregation', elasticsearch: true do
     it 'sets aggregates appropriately' do
       stub_const('Extractor::THRESHOLD', 1)  # make sure everything has data
@@ -101,7 +84,9 @@ describe DataSet do
       VCR.use_cassette('data aggregation with many users') do
         cohort = create(:cohort)
         ds_pipelined = DataSet.create(cohort: cohort)
+
         ds_pipelined.run_pipeline
+        ds_pipelined.reload
 
         expect(ds_pipelined.num_retweets).to eq 5
         expect(ds_pipelined.num_tweets).to eq 10
@@ -188,7 +173,9 @@ describe DataSet do
       VCR.use_cassette('data aggregation with many users') do
         cohort = create(:cohort)
         ds_pipelined = DataSet.create(cohort: cohort)
+
         ds_pipelined.run_pipeline
+        ds_pipelined.reload
 
         expect(ds_pipelined.top_mentions).to eq({
           "BKCHarvard"=>"3","JessicaFjeld"=>"2"
@@ -218,7 +205,9 @@ describe DataSet do
       VCR.use_cassette('data aggregation with many users') do
         cohort = create(:cohort)
         ds_pipelined = DataSet.create(cohort: cohort)
+
         ds_pipelined.run_pipeline
+        ds_pipelined.reload
 
         expect(ds_pipelined.top_mentions).to eq({
           "BKCHarvard"=>"3"

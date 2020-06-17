@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_11_170859) do
+ActiveRecord::Schema.define(version: 2020_06_16_155253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "hstore"
@@ -53,7 +53,23 @@ ActiveRecord::Schema.define(version: 2020_06_11_170859) do
     t.hstore "top_sources", default: {}
     t.bigint "cohort_id"
     t.text "unauthorized", default: [], array: true
+    t.text "processed", default: [], array: true
     t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
+  end
+
+  create_table "delayed_jobs", force: :cascade do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string "locked_by"
+    t.string "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
   create_table "retweets", force: :cascade do |t|
@@ -87,12 +103,8 @@ ActiveRecord::Schema.define(version: 2020_06_11_170859) do
 
   create_table "tweet_fetchers", force: :cascade do |t|
     t.bigint "data_set_id"
-    t.string "user_id"
-    t.boolean "complete", default: false
-    t.integer "backoff", default: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["complete"], name: "index_tweet_fetchers_on_complete"
     t.index ["data_set_id"], name: "index_tweet_fetchers_on_data_set_id"
   end
 

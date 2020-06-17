@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Extractor do
+describe Extractor, elasticsearch: true do
   before :all do
     VCR.use_cassette('data aggregation') do
       # Make our Twitter API request match the recorded cassette (the URL

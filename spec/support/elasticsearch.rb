@@ -28,10 +28,8 @@ RSpec.configure do |config|
   # ignore that.
   def start_cluster
     return unless ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
+    return if Elasticsearch::Extensions::Test::Cluster.running?(es_options)
 
-    if Elasticsearch::Extensions::Test::Cluster.running?(es_options)
-      Elasticsearch::Extensions::Test::Cluster.stop(es_options)
-    end
     Elasticsearch::Extensions::Test::Cluster.start(es_options)
   end
 

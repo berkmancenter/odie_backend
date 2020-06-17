@@ -6,6 +6,7 @@ ruby '2.6.3'
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'coffee-rails', '~> 4.2'
 gem 'csverizer', '~> 0.0.7'
+gem 'delayed_job_active_record'
 gem 'devise'
 gem 'devise-jwt', '~> 0.6.0'
 gem 'dotenv-rails'

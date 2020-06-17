@@ -44,5 +44,7 @@ module OdieBackend
     config.rate_limit_limit = ENV['RATE_LIMIT_LIMIT'] || 900
     # Size of Twitter's rolling window, in minutes (unit used in Twitter docs)
     config.rate_limit_window = ENV['RATE_LIMIT_WINDOW'] || 15
+
+    config.active_job.queue_adapter = :delayed_job
   end
 end

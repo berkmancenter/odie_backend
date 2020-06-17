@@ -10,6 +10,7 @@
 #  num_retweets :integer
 #  num_tweets   :integer
 #  num_users    :integer
+#  processed    :text             default([]), is an Array
 #  top_mentions :hstore
 #  top_sources  :hstore
 #  top_urls     :hstore
@@ -42,7 +43,7 @@ class DataSet < ApplicationRecord
   end
 
   def finish_when_ready
-    return unless complete?
+    return unless fully_processed?
 
     update_aggregates
   end
@@ -70,9 +71,7 @@ class DataSet < ApplicationRecord
   end
 
   def schedule_ingest
-    cohort.twitter_ids.each do |user_id|
-      TweetFetcher.create(data_set: self, user_id: user_id).ingest
-    end
+    TweetFetcher.create(data_set: self).ingest
   end
 
   def index_exists?
@@ -113,23 +112,21 @@ class DataSet < ApplicationRecord
     top
   end
 
-  def complete?
-    status == :complete
+  def fully_processed?
+    self.processed == cohort.twitter_ids
   end
 
   def count_tweets
     es_client.count(index: index_name)['count']
   end
 
-  private
-
-  def status
-    if tweet_fetchers.pluck(:complete).all?
-      :complete
-    else
-      :in_progress
-    end
+  # Expose this so that TweetFetcher doesn't need to reach through to the
+  # collaborator.
+  def twitter_ids
+    cohort.twitter_ids
   end
+
+  private
 
   def all_tweets
     @all_tweets ||= []
