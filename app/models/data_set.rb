@@ -42,7 +42,7 @@ class DataSet < ApplicationRecord
     schedule_ingest
   end
 
-  def finish_when_ready
+  def finalize_when_ready
     return unless fully_processed?
 
     update_aggregates

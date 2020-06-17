@@ -25,7 +25,7 @@ class TweetFetchingJob < ApplicationJob
     @data_set.unauthorized << @user_id unless successful
     @data_set.processed << @user_id
     @data_set.save
-    @data_set.finish_when_ready
+    @data_set.finalize_when_ready
   end
 
   def fetch_tweets

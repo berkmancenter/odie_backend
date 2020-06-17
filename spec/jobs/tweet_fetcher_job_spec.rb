@@ -19,7 +19,7 @@ describe TweetFetchingJob do
                 tweet_mode: 'extended')
 
         allow_any_instance_of(TweetFetchingJob).to receive(:store_data)
-        allow(ds).to receive(:finish_when_ready)
+        allow(ds).to receive(:finalize_when_ready)
 
         TweetFetchingJob.perform_now(ds, 1)
       end
