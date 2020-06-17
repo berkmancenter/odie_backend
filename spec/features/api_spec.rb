@@ -101,8 +101,6 @@ feature 'API' do
         create(:data_set, cohort: create(:cohort)).run_pipeline
       end
 
-      puts cohorts_path
-
       visit cohorts_path(params: { ids: ids })
       json = JSON.parse(page.body)
       expect(json.keys).to include 'aggregates'

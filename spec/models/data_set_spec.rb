@@ -49,6 +49,22 @@ describe DataSet do
                                    .and_return(10)
   end
 
+  it 'protects already-collected data' do
+    # mock out anything where we might deal with Elasticsearch
+    null_client = double('null object').as_null_object
+    null_client.stub(:to_ary)
+    null_client.stub(:search).and_return({ 'hits' => { 'hits' => {} } })
+    allow(Elasticsearch::Client).to receive(:new).and_return(null_client)
+    DataSet.any_instance.stub(:finalize_when_ready)
+    allow(ds).to receive(:schedule_ingest).and_call_original
+
+    ds.run_pipeline
+    ds.reload
+    ds.run_pipeline
+
+    expect(ds).to have_received(:schedule_ingest).once
+  end
+
   context 'index names' do
     it 'sets them on creation' do
       expect(ds.index_name).to be

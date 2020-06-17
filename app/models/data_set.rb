@@ -38,6 +38,11 @@ class DataSet < ApplicationRecord
   before_create :add_index_name
 
   def run_pipeline
+    if fully_processed?
+      Rails.logger.warn 'Cannot rerun the pipeline for a data set; create a new data set instead'
+      return
+    end
+
     verify_index
     schedule_ingest
   end
