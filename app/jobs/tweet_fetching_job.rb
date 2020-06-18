@@ -1,12 +1,26 @@
 class TweetFetchingJob < ApplicationJob
   queue_as :default
 
-  rescue_from(Twitter::Error::Unauthorized) do |exception|
+  rescue_from(Twitter::Error::Unauthorized,
+              Twitter::Error::BadRequest,
+              Twitter::Error::Forbidden,
+              Twitter::Error::NotFound,
+              Twitter::Error::NotAcceptable,
+              Twitter::Error::RequestEntityTooLarge,
+              Twitter::Error::UnprocessableEntity) do |exception|
     do_completion_bookkeeping(false)
   end
 
   rescue_from(Twitter::Error::TooManyRequests) do |exception|
     TweetFetchingJob.set(wait: Rails.configuration.rate_limit_window + TweetFetchingJob.backoff)
+                    .perform_later(@data_set, @user_id)
+  end
+
+  rescue_from(Twitter::Error::InternalServerError,
+              Twitter::Error::BadGateway,
+              Twitter::Error::ServiceUnavailable,
+              Twitter::Error::GatewayTimeout) do |exception|
+    TweetFetchingJob.set(wait: TweetFetchingJob.backoff)
                     .perform_later(@data_set, @user_id)
   end
 
