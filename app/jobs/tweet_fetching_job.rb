@@ -1,6 +1,8 @@
 class TweetFetchingJob < ApplicationJob
   queue_as :default
 
+  # These exceptions indicate that retry will be unsuccessful, so we should
+  # tell the parent DataSet that the user id has been fully processed.
   rescue_from(Twitter::Error::Unauthorized,
               Twitter::Error::BadRequest,
               Twitter::Error::Forbidden,
@@ -11,11 +13,21 @@ class TweetFetchingJob < ApplicationJob
     do_completion_bookkeeping(false)
   end
 
+  # This exception is retryable, but we should pause ALL jobs until after the
+  # rate limiting window resets.
   rescue_from(Twitter::Error::TooManyRequests) do |exception|
-    TweetFetchingJob.set(wait: Rails.configuration.rate_limit_window + TweetFetchingJob.backoff)
-                    .perform_later(@data_set, @user_id)
+    # Stop execution of jobs; restart it after the rate limiting window has
+    # elapsed.
+    stop_cmd = "RAILS_ENV=#{Rails.env} #{Rails.root}/bin/delayed_job stop"
+    start_cmd = "RAILS_ENV=#{Rails.env} #{Rails.configuration.delayed_job_command} | at now + #{Rails.configuration.rate_limit_window} minutes"
+
+    system(stop_cmd)
+    system(start_cmd)
+
+    TweetFetchingJob.perform_later(@data_set, @user_id)
   end
 
+  # These exceptions indicate that the job may succeed if tried again.
   rescue_from(Twitter::Error::InternalServerError,
               Twitter::Error::BadGateway,
               Twitter::Error::ServiceUnavailable,
@@ -25,12 +37,16 @@ class TweetFetchingJob < ApplicationJob
   end
 
   def perform(data_set, user_id)
-    @user_id = user_id
     @data_set = data_set
+    @user_id = user_id
 
     store_data(fetch_tweets)
 
     do_completion_bookkeeping
+  end
+
+  def reschedule_at(current_time, attempts)
+    current_time + TweetFetchingJob.backoff
   end
 
   private
@@ -96,6 +112,6 @@ class TweetFetchingJob < ApplicationJob
   # Separated into a function to make it easy to stub in testing.
   # Oddly, ActiveJob does not make it easy to find this number.
   def self.enqueued
-     Delayed::Job.count
+    Delayed::Job.count
   end
 end

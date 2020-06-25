@@ -99,6 +99,17 @@ describe TweetFetchingJob do
       expect(Delayed::Job.all.count).to eq 1
     end
 
+    it 're-enqueues other jobs upon receiving TooManyRequests' do
+      ds.save
+      allow_any_instance_of(Twitter::REST::Client)
+        .to receive(:user_timeline)
+        .and_raise Twitter::Error::TooManyRequests
+
+      TweetFetchingJob.perform_now(ds, 1)
+
+      expect(Delayed::Job.all.count).to eq 1
+    end
+
     def mock_count(num)
       allow(TweetFetchingJob).to receive(:enqueued).and_return(num)
     end

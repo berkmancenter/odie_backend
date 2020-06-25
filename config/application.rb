@@ -46,5 +46,11 @@ module OdieBackend
     config.rate_limit_window = ENV['RATE_LIMIT_WINDOW'] || 15
 
     config.active_job.queue_adapter = :delayed_job
+
+    # This command will be used to (re)start the delayed job handler in
+    # TweetFetchingJob and in the rake task to ensure that the worker is
+    # running. It's here as a config setting to ensure both of these run with
+    # the same settings.
+    config.delayed_job_command = "#{Rails.root}/bin/delayed_job start"
   end
 end

@@ -118,6 +118,11 @@ To collect user data:
 
 This will all be wrapped into an admin-friendly workflow at some point, but it hasn't been yet.
 
+## Delayed jobs
+DelayedJob is used to run twitter collection in the background.
+
+You should set a cron job to periodically check that the start_job_daemons task is running.
+
 ## Docker
 
 You can use Docker for development to make things easier. You will need to install `Docker` and `Docker Compose`.
