@@ -118,7 +118,7 @@ class DataSet < ApplicationRecord
   end
 
   def fully_processed?
-    self.processed == cohort.twitter_ids
+    self.processed.uniq == cohort.twitter_ids
   end
 
   def count_tweets

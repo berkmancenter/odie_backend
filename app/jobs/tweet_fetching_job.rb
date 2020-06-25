@@ -37,6 +37,8 @@ class TweetFetchingJob < ApplicationJob
   end
 
   def perform(data_set, user_id)
+    return if data_set.processed.include? user_id
+
     @data_set = data_set
     @user_id = user_id
 
