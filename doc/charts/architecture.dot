@@ -10,9 +10,13 @@ digraph G {
     "CohortCollector" [shape=box]
     "Cohort" [shape=box]
     "DataSet" [shape=box]
+    "TweetFetcher" [shape=box]
+    "TweetFetchingJob" [shape=box]
   }
   "SearchQuery" -> "CohortCollector" [arrowhead=crow]
   "CohortCollector" -> "SearchQuery" [arrowhead=crow]
   "CohortCollector" -> "Cohort" [arrowhead=crow]
   "Cohort" -> "DataSet" [arrowhead=crow]
+  "DataSet" -> "TweetFetcher" [arrowhead=vee]
+  "TweetFetcher" -> "TweetFetchingJob" [arrowhead=crow]
 }
