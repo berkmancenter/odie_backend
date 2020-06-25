@@ -51,6 +51,6 @@ module OdieBackend
     # TweetFetchingJob and in the rake task to ensure that the worker is
     # running. It's here as a config setting to ensure both of these run with
     # the same settings.
-    config.delayed_job_command = "#{Rails.root}/bin/delayed_job start"
+    config.delayed_job_command = "#{Rails.root}/bin/delayed_job restart"
   end
 end
