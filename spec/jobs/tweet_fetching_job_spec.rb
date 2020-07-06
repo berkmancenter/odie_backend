@@ -59,33 +59,33 @@ describe TweetFetchingJob do
     end
   end
 
-  context 'backoff' do
+  context 'seconds_to_wait' do
     it 'is none when is nothing else in the queue' do
       mock_count(1)
 
-      expect(TweetFetchingJob.backoff).to eq 0
+      expect(TweetFetchingJob.seconds_to_wait).to eq 0
     end
 
     it 'is none when there is not much in the queue' do
       mock_count(Rails.configuration.rate_limit_limit * 0.25)
 
-      expect(TweetFetchingJob.backoff).to eq 0
+      expect(TweetFetchingJob.seconds_to_wait).to eq 0
     end
 
     it 'is small when the queue is mid-sized' do
       # We cross 0 when the queue is half of 95% of the limit size (95% rather
       # than 100% for a safety margin). So if we are just one item above that
-      # limit, we expect a nonzero but small backoff time.
+      # limit, we expect a nonzero but small seconds_to_wait time.
       mock_count(Rails.configuration.rate_limit_limit * 0.95 * 0.5 + 1)
 
-      expect(TweetFetchingJob.backoff).to be > 0
-      expect(TweetFetchingJob.backoff).to be < 60  # 1.minute
+      expect(TweetFetchingJob.seconds_to_wait).to be > 0
+      expect(TweetFetchingJob.seconds_to_wait).to be < 60  # 1.minute
     end
 
     it 'is long when there are many things in queue' do
       mock_count(Rails.configuration.rate_limit_limit * 1.05)
 
-      expect(TweetFetchingJob.backoff).to be > (Rails.configuration.rate_limit_window * 60)
+      expect(TweetFetchingJob.seconds_to_wait).to be > (Rails.configuration.rate_limit_window * 60)
     end
 
     it 'is re-enqueued upon receiving TooManyRequests' do

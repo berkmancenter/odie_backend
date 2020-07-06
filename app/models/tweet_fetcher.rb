@@ -28,7 +28,7 @@ class TweetFetcher < ApplicationRecord
 
   def ingest
     data_set.twitter_ids.each do |user_id|
-      TweetFetchingJob.set(wait: TweetFetchingJob.backoff)
+      TweetFetchingJob.set(wait: TweetFetchingJob.seconds_to_wait)
                       .perform_later(data_set, user_id)
     end
   end

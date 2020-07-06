@@ -32,7 +32,7 @@ class TweetFetchingJob < ApplicationJob
               Twitter::Error::BadGateway,
               Twitter::Error::ServiceUnavailable,
               Twitter::Error::GatewayTimeout) do |exception|
-    TweetFetchingJob.set(wait: TweetFetchingJob.backoff)
+    TweetFetchingJob.set(wait: TweetFetchingJob.seconds_to_wait)
                     .perform_later(@data_set, @user_id)
   end
 
@@ -45,10 +45,6 @@ class TweetFetchingJob < ApplicationJob
     store_data(fetch_tweets)
 
     do_completion_bookkeeping
-  end
-
-  def reschedule_at(current_time, attempts)
-    current_time + TweetFetchingJob.backoff
   end
 
   private
@@ -89,14 +85,14 @@ class TweetFetchingJob < ApplicationJob
     @es_client ||= Elasticsearch::Client.new
   end
 
-  def self.backoff
+  def self.seconds_to_wait
     limit = Rails.configuration.rate_limit_limit * 0.95 # safety margin
     window = Rails.configuration.rate_limit_window * 60 # convert to seconds
 
     # This messy exponential:
-    # - sets backoff to 0 (i.e. execute task immediately) when we have fewer
+    # - sets wait time to 0 (i.e. execute task immediately) when we have fewer
     # than half of our limit in the queue
-    # - sets the backoff to the entire window size when the enqueued is near
+    # - sets wait time to the entire window size when the enqueued is near
     # (95% of) our limit
     # - in between, biases toward the shorter end, via exponential decay
     # This means that when cohorts are small, we'll grab all the data as quickly
@@ -108,6 +104,13 @@ class TweetFetchingJob < ApplicationJob
     # In addition, since this looks at all enqueued TweetFetchers and not just
     # those belonging to a given DataSet, when we are fetching data for multiple
     # DataSets at once, they will cooperate to avoid hitting the window.
+    # Two important notes:
+    # 1) This works well for cohorts that are not too much larger than the rate
+    # limit size. As the cohort size increases, a lot of jobs stack up near
+    # 2x the rate limit window. You will likely get rate-limited for cohorts
+    # that are more than 2x the rate limit size (here, 900).
+    # 2) This checks everything in the queue. If we subsequently write other
+    # kinds of jobs, self.enqueued will have to be made less dumb.
     [2*window - (2.0**(-2*enqueued/limit))*4*window, 0].max
   end
 
