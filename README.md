@@ -121,23 +121,8 @@ This will all be wrapped into an admin-friendly workflow at some point, but it h
 You can use Docker for development to make things easier. You will need to install `Docker` and `Docker Compose`.
 
 Then:
-- copy `config/database.yml.example` to `config/database.yml` and set the following:
-
-```
-development: &default
-  adapter: postgresql
-  encoding: utf8
-  database: postgres
-  pool: 5
-  username: postgres
-  password: postgres
-  host: postgres
-```
-
-- set `ELASTICSEARCH_HOST` and `ELASTICSEARCH_URL` in .env to `elasticsearch:9200`
-- set `ELASTICSEARCH_DOCKER_TEST` in .env to `true`
-- set `ELASTICSEARCH_DOCKER_TEST_URL` in .env to `elasticsearch_test`
-- set `ELASTICSEARCH_DOCKER_TEST_PORT` in .env to `9200`
+- copy `config/database.yml.docker` to `config/database.yml`
+- copy `env.docker` to `.env`
 - `docker-compose up` and the application will run on http://localhost:3000
 - `docker-compose exec website sh`
 - `rails db:setup`
