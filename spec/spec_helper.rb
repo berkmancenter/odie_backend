@@ -22,6 +22,7 @@ RSpec.configure do |config|
   end
 
   config.after :suite do
+    system("#{Rails.root}/bin/delayed_job stop")
     FileUtils.rm_rf(Dir["#{Rails.application.config.logstash_conf_dir}/*"])
 
     `kill $(ps aux | grep [l]ogstash | awk '{print $2}')`

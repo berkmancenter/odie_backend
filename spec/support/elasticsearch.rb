@@ -28,16 +28,16 @@ RSpec.configure do |config|
   # ignore that.
   def start_cluster
     return unless ENV['ELASTICSEARCH_DOCKER_TEST'].nil?
+    return if Elasticsearch::Extensions::Test::Cluster.running?(es_options)
 
-    if Elasticsearch::Extensions::Test::Cluster.running?(es_options)
-      Elasticsearch::Extensions::Test::Cluster.stop(es_options)
-    end
     Elasticsearch::Extensions::Test::Cluster.start(es_options)
   end
 
   def wipe_elasticsearch_data
     client = Elasticsearch::Client.new
     DataSet.all.each do |ds|
+      next unless client.indices.exists? index: ds.index_name
+
       client.delete_by_query index: ds.index_name
       client.indices.delete index: ds.index_name
     end

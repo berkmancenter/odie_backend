@@ -65,7 +65,7 @@ feature 'Administering Cohort' do
     end
 
     after :all do
-      Cohort.last.destroy
+      Cohort.destroy_all
     end
 
     context 'when logged in as admin' do
@@ -119,6 +119,7 @@ feature 'Administering Cohort' do
       end
 
       it 'defaults to json' do
+        cohort
         visit cohort_path(Cohort.last)
 
         expect(page).to have_http_status(200)

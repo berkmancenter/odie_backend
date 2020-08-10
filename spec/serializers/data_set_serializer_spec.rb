@@ -8,6 +8,7 @@
 #  num_retweets :integer
 #  num_tweets   :integer
 #  num_users    :integer
+#  processed    :text             default([]), is an Array
 #  top_mentions :hstore
 #  top_sources  :hstore
 #  top_urls     :hstore

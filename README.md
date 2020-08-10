@@ -38,8 +38,16 @@ description. It is also the model which feeds the API, since a "cohort" is the
 conceptually significant model for the front end. See `doc/api.md` for details.
 
 `DataSet` collects and stores user timeline data from a given `Cohort`. The raw
-data is stored in Elasticsearch, but metadata is stored on the `DataSet`
-instance for ease of API querying.
+data is stored in Elasticsearch, but metadata is calculated and stored on the
+`DataSet` instance for ease of API querying once all user data has been
+collected.
+
+`TweetFetcher` mediates between `DataSet` and whatever is used to actually fetch
+tweets. At the moment this is only `TweetFetchingJob`, but we've added the layer
+of indirection in order to support other backends in future.
+
+`TweetFetchingJob` queries Twitter for individual user timelines and stores the
+data in Elasticsearch.
 
 As the first two models govern Twitter firehose data and the second two govern
 user timeline data, there's a clean separation boundary between `CohortCollector`
@@ -80,6 +88,8 @@ In any environment:
 * `CORS_ALLOWED_METHODS` (sets the `Access-Control-Allow-Methods` header; defaults to `POST, GET, OPTIONS`)
 * `CORS_ALLOWED_HEADERS` (sets the `Access-Control-Allow-Headers` header; defaults to `*`)
 * `CORS_EXPOSED_HEADERS` (sets the `Access-Control-Expose-Headers` header; defaults to `*`)
+* `RATE_LIMIT_LIMIT` (the number of calls to `user_timeline` that Twitter permits per window; optional; defaults to 900)
+* `RATE_LIMIT_WINDOW` (the size, in minutes, of Twitter's rate limit window; optional; defaults to 15)
 
 In test:
 * `TEST_CLUSTER_COMMAND` (the command which runs Elasticsearch on your machine)
@@ -87,7 +97,7 @@ In test:
 * `ELASTICSEARCH_DOCKER_TEST_URL` (Elasticsearch instance url, only when you use Docker)
 * `ELASTICSEARCH_DOCKER_TEST_PORT` (Elasticsearch instance port, only when you use Docker)
 
-## Collecting Twitter data
+## Collecting Twitter data to create cohorts
 To test that your streaming data collection pipeline is running, by hand:
 * Copy `twitter.conf.example` to `test.conf` and edit in the appropriate variables.
   * The keywords can be anything, but not all keywords will be found on Twitter within a short amount of time; "washingtonpost" is a reliable choice.
@@ -104,17 +114,24 @@ To run it via the pipeline:
 Note that the logstash process collecting data is owned by your rails process;
 if the rails process terminates, so will your data collection run.
 
-To collect user data:
-* Make sure you have collected some streaming data.
-* Make sure elasticsearch is running.
-* Create a MediaSource, a DataConfig and a DataSet.
-  - Good defaults:
-    - `ms = MediaSource.create(url: 'https://www.washingtonpost.com', name: 'Washington Post', description: 'Democracy dies in darkness')`
-    - `dc = DataConfig.create(media_sources: [ms])`
-    - `ds = DataSet.create(media_source: ms, data_config: dc)`
-* `ds.run_pipeline`
+This process exists for legacy reasons but we have found it more convenient to
+define cohorts outside of ODIE and then process user data within it.
 
-This will all be wrapped into an admin-friendly workflow at some point, but it hasn't been yet.
+## Collecting Twitter user data, given a cohort definition
+
+* Make sure elasticsearch is running.
+* (rails c) `c = Cohort.create(twitter_ids: [14706139], description: 'BKC')`
+  - This is BKC's twitter ID but you can use whatever else you like
+* (rails c) `c.collect_data`
+* (command line) `rails run_delayed_jobs`
+
+You can also create a cohort and collect data via the web front end. `rails s`,
+`http://localhost:3000`, follow the prompts.
+
+## Delayed jobs
+DelayedJob is used to run twitter collection in the background.
+
+You should set a cron job to periodically invoke `rails run_delayed_jobs`.
 
 ## Docker
 

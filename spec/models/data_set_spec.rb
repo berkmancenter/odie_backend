@@ -10,6 +10,7 @@
 #  num_retweets :integer
 #  num_tweets   :integer
 #  num_users    :integer
+#  processed    :text             default([]), is an Array
 #  top_mentions :hstore
 #  top_sources  :hstore
 #  top_urls     :hstore
@@ -48,6 +49,22 @@ describe DataSet do
                                    .and_return(10)
   end
 
+  it 'protects already-collected data' do
+    # mock out anything where we might deal with Elasticsearch
+    null_client = double('null object').as_null_object
+    null_client.stub(:to_ary)
+    null_client.stub(:search).and_return({ 'hits' => { 'hits' => {} } })
+    allow(Elasticsearch::Client).to receive(:new).and_return(null_client)
+    DataSet.any_instance.stub(:finalize_when_ready)
+    allow(ds).to receive(:schedule_ingest).and_call_original
+
+    ds.run_pipeline
+    ds.reload
+    ds.run_pipeline
+
+    expect(ds).to have_received(:schedule_ingest).once
+  end
+
   context 'index names' do
     it 'sets them on creation' do
       expect(ds.index_name).to be
@@ -75,60 +92,6 @@ describe DataSet do
     end
   end
 
-  context 'during data ingestion', elasticsearch: true do
-    it 'asks twitter for data on a user' do
-      VCR.use_cassette('data set spec') do
-        expect_any_instance_of(Twitter::REST::Client)
-          .to receive(:user_timeline)
-          .once
-          .with(1, count: Rails.application.config.tweets_per_user,
-                tweet_mode: 'extended')
-        allow(ds).to receive(:index_exists?).and_return(true)
-        ds.fetch_tweets(1)
-      end
-    end
-
-    it 'creates an elasticsearch document for each tweet' do
-      tweets = [
-        { foo: 1 }, { bar: 2 }
-      ]
-      # Why not expect_any_instance_of(Elasticsearch::Client)? Because the
-      # create action is provided by a mixin, so although it's present on all
-      # instances, the the test suite can't find it on the class, and therefore
-      # can't mock it.
-      expect_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:create)
-        .once.with(index: ds.index_name, type: '_doc', body: tweets[0].to_json)
-      expect_any_instance_of(Elasticsearch::API::Actions)
-        .to receive(:create)
-        .once.with(index: ds.index_name, type: '_doc', body: tweets[1].to_json)
-      ds.store_data(tweets)
-    end
-
-    it 'fetches data on all cohort users' do
-      VCR.use_cassette('data ingestion') do
-        ds.cohort.twitter_ids.each do |id|
-          expect(ds).to receive(:fetch_tweets).with(id)
-        end
-        expect(ds).to receive(:store_data)
-                  .exactly(ds.cohort.twitter_ids.length)
-                  .times
-        ds.ingest_data
-      end
-    end
-
-    it 'handles unauthorized accounts' do
-      assert ds.cohort.twitter_ids.size == 1
-      allow(ds).to receive(:fetch_tweets)
-               .with(ds.cohort.twitter_ids.first)
-               .and_raise Twitter::Error::Unauthorized
-
-      ds.run_pipeline
-
-      expect(ds.unauthorized).to match_array ds.cohort.twitter_ids
-    end
-  end
-
   context 'data aggregation', elasticsearch: true do
     it 'sets aggregates appropriately' do
       stub_const('Extractor::THRESHOLD', 1)  # make sure everything has data
@@ -137,7 +100,9 @@ describe DataSet do
       VCR.use_cassette('data aggregation with many users') do
         cohort = create(:cohort)
         ds_pipelined = DataSet.create(cohort: cohort)
+
         ds_pipelined.run_pipeline
+        ds_pipelined.reload
 
         expect(ds_pipelined.num_retweets).to eq 5
         expect(ds_pipelined.num_tweets).to eq 10
@@ -224,7 +189,9 @@ describe DataSet do
       VCR.use_cassette('data aggregation with many users') do
         cohort = create(:cohort)
         ds_pipelined = DataSet.create(cohort: cohort)
+
         ds_pipelined.run_pipeline
+        ds_pipelined.reload
 
         expect(ds_pipelined.top_mentions).to eq({
           "BKCHarvard"=>"3","JessicaFjeld"=>"2"
@@ -254,7 +221,9 @@ describe DataSet do
       VCR.use_cassette('data aggregation with many users') do
         cohort = create(:cohort)
         ds_pipelined = DataSet.create(cohort: cohort)
+
         ds_pipelined.run_pipeline
+        ds_pipelined.reload
 
         expect(ds_pipelined.top_mentions).to eq({
           "BKCHarvard"=>"3"

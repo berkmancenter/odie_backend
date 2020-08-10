@@ -65,10 +65,13 @@ feature 'API' do
       end
     end
 
+    # Anything created in a before :all is outside of the transaction and needs
+    # to be manually cleaned.
     after :all do
-      DataSet.delete_all
-      Cohort.delete_all
-      Retweet.delete_all
+      TweetFetcher.destroy_all
+      DataSet.destroy_all
+      Cohort.destroy_all
+      Retweet.destroy_all
     end
 
     it 'returns aggregated data' do
@@ -97,8 +100,6 @@ feature 'API' do
       VCR.use_cassette('data set spec') do
         create(:data_set, cohort: create(:cohort)).run_pipeline
       end
-
-      puts cohorts_path
 
       visit cohorts_path(params: { ids: ids })
       json = JSON.parse(page.body)

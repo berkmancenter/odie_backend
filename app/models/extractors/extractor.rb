@@ -26,8 +26,10 @@ class Extractor
   THRESHOLD = ENV['EXTRACTOR_THRESHOLD'] ? ENV['EXTRACTOR_THRESHOLD'].to_i : 5
   TOP_N  = ENV['EXTRACTOR_TOP_N'] ? ENV['EXTRACTOR_TOP_N'].to_i : 5
 
-  def initialize(tweets)
-    @tweets = tweets.flatten
+  def initialize(data_sets)
+    @data_sets = listify(data_sets)
+    # sets tweets
+    accumulate
     # @all_things will be used to report out final counts.
     @all_things = Hash.new 0
     # @working_space will be used to keep track of every mention of an object
@@ -42,16 +44,21 @@ class Extractor
   # type-specific.
   def extract; end
 
-  def accumulate(data_sets)
+  def accumulate
     client = Elasticsearch::Client.new
     @tweets = []
 
     # Rehydrate Tweet objects from Elasticsearch. Then we can use the extractors
     # in their usual fashion. The size argument guarantees we get all of the
-    # tweets and may be terribly nonperformant -- scrolling may end up being
+    # tweets and is terribly nonperformant -- scrolling may end up being
     # better, but this is very easy.
-    data_sets.each do |ds|
-      results = client.search index: ds.index_name, size: ds.num_tweets
+    @data_sets.each do |ds|
+      unless client.indices.exists? index: ds.index_name
+        Rails.logger.warn "Attempted to accumulate data for nonexistent index #{ds.index_name} on dataset #{ds.id}"
+        next
+      end
+
+      results = client.search index: ds.index_name, size: tweet_count(ds)
       @tweets += results['hits']['hits'].map do |t|
         Twitter::Tweet.new(t['_source'].deep_symbolize_keys)
       end
@@ -107,5 +114,18 @@ class Extractor
     @working_space.each do |item, user_ids|
       @all_things[item] = user_ids.uniq.length
     end
+  end
+
+  # This lets Extractor be instantiated with a single DataSet, or an enumerable.
+  def listify(data_sets)
+    if data_sets.respond_to? :each
+      data_sets
+    else
+      [data_sets]
+    end
+  end
+
+  def tweet_count(ds)
+    ds.num_tweets || ds.count_tweets
   end
 end
