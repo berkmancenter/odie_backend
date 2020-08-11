@@ -43,7 +43,7 @@ class Extractor
   def extract; end
 
   def accumulate(data_sets)
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: ENV['ELASTICSEARCH_HOST']
     @tweets = []
 
     # Rehydrate Tweet objects from Elasticsearch. Then we can use the extractors

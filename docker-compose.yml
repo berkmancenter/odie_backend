@@ -21,7 +21,7 @@ services:
       - '.env'
 
   elasticsearch:
-    image: elasticsearch:6.5.4
+    image: elasticsearch:6.8.6
     environment:
       - http.host=0.0.0.0
       - transport.host=0.0.0.0
@@ -41,7 +41,7 @@ services:
     mem_limit: 4g
 
   elasticsearch_test:
-    image: elasticsearch:6.5.4
+    image: elasticsearch:6.8.6
     environment:
       - http.host=0.0.0.0
       - transport.host=0.0.0.0
