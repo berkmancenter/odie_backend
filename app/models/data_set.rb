@@ -147,7 +147,7 @@ class DataSet < ApplicationRecord
   end
 
   def es_client
-    @es_client ||= Elasticsearch::Client.new
+    @es_client ||= Elasticsearch::Client.new host: ENV['ELASTICSEARCH_HOST']
   end
 
   def add_index_name
