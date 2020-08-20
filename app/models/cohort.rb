@@ -2,29 +2,20 @@
 #
 # Table name: cohorts
 #
-#  id          :bigint           not null, primary key
-#  description :text
-#  twitter_ids :text             default([]), is an Array
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id           :bigint           not null, primary key
+#  description  :text
+#  index_prefix :string
+#  twitter_ids  :text             default([]), is an Array
+#  created_at   :datetime         not null
+#  updated_at   :datetime         not null
 #
 
 class Cohort < ApplicationRecord
-  has_many :data_sets
+  after_save :update_data_collection
 
-  # Given a list of cohort IDs, returns aggregated metadata from their most
-  # recent DataSets.
-  def self.aggregate(ids)
-    DataSet.aggregate(
-      self.where(id: ids).map(&:latest_data_set).compact.pluck(:id)
-    )
-  end
+  private
 
-  def collect_data
-    DataSet.create(cohort: self).run_pipeline
-  end
-
-  def latest_data_set
-    data_sets.last
+  def update_data_collection
+    StreamingDataCollector.write_conf
   end
 end

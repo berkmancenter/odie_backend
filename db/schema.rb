@@ -10,79 +10,51 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_03_205140) do
+ActiveRecord::Schema.define(version: 2020_08_11_214934) do
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "hstore"
   enable_extension "plpgsql"
 
-  create_table "cohort_collectors", force: :cascade do |t|
+  create_table "cohort_comparisons", force: :cascade do |t|
+    t.bigint "cohort_id"
+    t.bigint "cohort_a_id"
+    t.bigint "timespan_a_id"
+    t.bigint "cohort_b_id"
+    t.bigint "timespan_b_id"
+    t.json "results"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "index_name"
-    t.datetime "start_time"
-    t.datetime "end_time"
-    t.text "keywords", default: [], array: true
+    t.index ["cohort_a_id"], name: "index_cohort_comparisons_on_cohort_a_id"
+    t.index ["cohort_b_id"], name: "index_cohort_comparisons_on_cohort_b_id"
+    t.index ["cohort_id"], name: "index_cohort_comparisons_on_cohort_id"
+    t.index ["timespan_a_id"], name: "index_cohort_comparisons_on_timespan_a_id"
+    t.index ["timespan_b_id"], name: "index_cohort_comparisons_on_timespan_b_id"
   end
 
-  create_table "cohort_collectors_search_queries", id: false, force: :cascade do |t|
-    t.bigint "cohort_collector_id", null: false
-    t.bigint "search_query_id", null: false
-    t.index ["cohort_collector_id"], name: "index_cohort_collectors_search_queries_on_cohort_collector_id"
-    t.index ["search_query_id"], name: "index_cohort_collectors_search_queries_on_search_query_id"
+  create_table "cohort_summaries", force: :cascade do |t|
+    t.bigint "cohort_id"
+    t.bigint "timespan_id"
+    t.json "results"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cohort_id"], name: "index_cohort_summaries_on_cohort_id"
+    t.index ["timespan_id"], name: "index_cohort_summaries_on_timespan_id"
   end
 
   create_table "cohorts", force: :cascade do |t|
     t.text "twitter_ids", default: [], array: true
     t.text "description"
+    t.string "index_prefix"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "data_sets", force: :cascade do |t|
-    t.string "index_name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "num_users"
-    t.integer "num_tweets"
-    t.integer "num_retweets"
-    t.hstore "hashtags", default: {}
-    t.hstore "top_words", default: {}
-    t.hstore "top_urls", default: {}
-    t.hstore "top_mentions", default: {}
-    t.hstore "top_sources", default: {}
-    t.bigint "cohort_id"
-    t.text "unauthorized", default: [], array: true
-    t.index ["cohort_id"], name: "index_data_sets_on_cohort_id"
-  end
-
-  create_table "retweets", force: :cascade do |t|
-    t.text "text"
-    t.integer "count"
-    t.string "link"
-    t.bigint "data_set_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["data_set_id"], name: "index_retweets_on_data_set_id"
-  end
-
-  create_table "search_queries", force: :cascade do |t|
-    t.boolean "active"
-    t.text "description"
-    t.string "keyword"
+  create_table "timespans", force: :cascade do |t|
     t.string "name"
-    t.string "url"
+    t.datetime "start"
+    t.datetime "end"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "sources", force: :cascade do |t|
-    t.string "canonical_host"
-    t.string "variant_hosts", array: true
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["canonical_host"], name: "index_sources_on_canonical_host", unique: true
-    t.index ["variant_hosts"], name: "index_sources_on_variant_hosts", using: :gin
   end
 
   create_table "users", force: :cascade do |t|
@@ -107,6 +79,12 @@ ActiveRecord::Schema.define(version: 2020_06_03_205140) do
     t.index ["user_id"], name: "index_whitelisted_jwts_on_user_id"
   end
 
-  add_foreign_key "data_sets", "cohorts"
+  add_foreign_key "cohort_comparisons", "cohorts"
+  add_foreign_key "cohort_comparisons", "cohorts", column: "cohort_a_id"
+  add_foreign_key "cohort_comparisons", "cohorts", column: "cohort_b_id"
+  add_foreign_key "cohort_comparisons", "timespans", column: "timespan_a_id"
+  add_foreign_key "cohort_comparisons", "timespans", column: "timespan_b_id"
+  add_foreign_key "cohort_summaries", "cohorts"
+  add_foreign_key "cohort_summaries", "timespans"
   add_foreign_key "whitelisted_jwts", "users", on_delete: :cascade
 end

@@ -36,7 +36,6 @@ module OdieBackend
     config.logstash_conf_dir = Rails.root.join('logstash', 'config')
 
     config.autoload_paths << Rails.root.join('lib')
-    config.autoload_paths << Rails.root.join('app', 'models', 'extractors')
 
     config.log_level = :debug
   end

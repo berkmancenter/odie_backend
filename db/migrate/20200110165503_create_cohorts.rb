@@ -3,6 +3,7 @@ class CreateCohorts < ActiveRecord::Migration[5.2]
     create_table :cohorts do |t|
       t.text :twitter_ids, array: true, default: []
       t.text :description
+      t.string :index_prefix
 
       t.timestamps
     end

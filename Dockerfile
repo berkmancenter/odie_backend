@@ -1,5 +1,7 @@
 FROM ruby:2.6.3
 
+ARG TINI_VERSION=v0.19.0
+
 RUN apt-get update && apt-get -y install nodejs tzdata git sqlite build-essential patch ruby-dev zlib1g-dev liblzma-dev default-jre
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
         && apt-get install -y nodejs
@@ -22,5 +24,14 @@ WORKDIR /app
 COPY . .
 RUN bundle install
 
+COPY entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+
+CMD ["rails", "server", "-b", "0.0.0.0"]
+
 #CMD (while true; do sleep 1; done;)
-CMD puma -C config/puma.rb
+#CMD puma -C config/puma.rb
+#ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
+#RUN chmod a+x /usr/local/bin/tini
+#ENTRYPOINT ["/usr/local/bin/tini", "--"]
