@@ -26,9 +26,11 @@
 #  fk_rails_...  (timespan_b_id => timespans.id)
 #
 
-class CohortComparison < ApplicationRecord
-  belongs_to :cohort_a, class_name: 'Cohort'
-  belongs_to :timespan_a, class_name: 'Timespan'
-  belongs_to :cohort_b, class_name: 'Cohort'
-  belongs_to :timespan_b, class_name: 'Timespan'
+class CohortComparisonSerializer
+  include FastJsonapi::ObjectSerializer
+  attribute :cohort_a_id
+  attribute :timespan_a_id
+  attribute :cohort_b_id
+  attribute :timespan_b_id
+  attribute :results
 end

@@ -19,7 +19,15 @@ RSpec.configure do |config|
   config.before :suite do
     testdir = Rails.application.config.logstash_conf_dir
     Dir.mkdir testdir unless File.directory? testdir
+    DatabaseCleaner.strategy = :truncation
+    DatabaseCleaner.clean_with(:truncation)
   end
+
+   config.around(:each) do |example|
+     DatabaseCleaner.cleaning do
+       example.run
+     end
+   end
 
   config.after :suite do
     FileUtils.rm_rf(Dir["#{Rails.application.config.logstash_conf_dir}/*"])

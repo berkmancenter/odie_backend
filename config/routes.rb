@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  resources :cohorts, only: [:index, :new, :create, :show]
+  resources :timespans, only: [:index]
+
+  get 'cohort_summaries', to: 'cohort_summaries#index', as: :cohort_summaries
+  get 'cohort/:id/timespan/:timespan_id', to: 'cohort_summaries#show'
+  put 'cohort/:id/timespan/:timespan_id', to: 'cohort_summaries#update', as: :cohort_summary_receiver
+
+  get 'cohort_comparisons', to: 'cohort_comparisons#index', as: :cohort_comparisons
+  get 'cohort/:cohort_a_id/timespan/:timespan_a_id/cohort/:cohort_b_id/timespan/:timespan_b_id',
+    to: 'cohort_comparisons#show'
+  put 'cohort/:cohort_a_id/timespan/:timespan_a_id/cohort/:cohort_b_id/timespan/:timespan_b_id',
+    to: 'cohort_comparisons#update', as: :cohort_comparison_receiver
+
   devise_for :users
-
-  resources :cohorts, only: [:index, :new, :create, :show] do
-    post :collect_data, to: 'cohorts#collect_data'
-  end
-  resources :search_queries, only: [:index, :new, :create, :show]
-  resources :cohort_collectors, only: [:index, :new, :create, :show] do
-    post :monitor, to: 'cohort_collectors#monitor'
-    post :create_cohort, to: 'cohort_collectors#create_cohort'
-  end
-
   devise_for :api_users,
              defaults: { format: :json },
              class_name: 'ApiUser',

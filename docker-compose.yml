@@ -8,6 +8,13 @@ services:
     env_file:
       - '.env'
 
+  analysis:
+    depends_on:
+      - 'elasticsearch'
+    build: "../analysis/server"
+    ports:
+      - '5000:80'
+
   website:
     depends_on:
       - 'postgres'
@@ -56,28 +63,7 @@ services:
     ports:
       - 5602:5601
 
-  elasticsearch_test:
-    image: elasticsearch:7.8.1
-    environment:
-      - http.host=0.0.0.0
-      - transport.host=0.0.0.0
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
-    volumes:
-      - esdata_test:/usr/share/elasticsearch/data
-    ports:
-      - 9201:9200
-      - 9301:9300
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    mem_limit: 4g
-
 volumes:
   logstash-config:
   postgres:
   esdata:
-  esdata_test:

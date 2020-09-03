@@ -24,6 +24,8 @@ gem 'therubyracer'
 gem 'turbolinks', '~> 5'
 gem 'twitter'
 gem 'uglifier', '>= 1.3.0'
+gem 'httparty', '~> 0.18.1'
+gem 'whenever', '~> 1.0.0'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
@@ -49,6 +51,7 @@ group :test do
   gem 'vcr'
   gem 'webdrivers'
   gem 'webmock'
+  gem 'database_cleaner-active_record'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

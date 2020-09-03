@@ -13,7 +13,7 @@ module TwitterConf
    # }
 
     file {
-      path => "<%= Rails.root + '/' + env['TWEETS_DIR'] %>/*.ndjson"
+      path => "<%= env['TWEETS_DIR'] %>/*.ndjson"
       file_completed_action => "delete"
       mode => "read"
       codec => "json"
@@ -35,6 +35,7 @@ module TwitterConf
       dictionary => {<% acct_ids_to_cohort_prefix.each do |acct_id, cohort_prefix| %>
         <%= '"' + acct_id.to_s + '" => "' + cohort_prefix + '"' %><% end %>
       }
+      fallback => "unknown_"
     }
   }
 

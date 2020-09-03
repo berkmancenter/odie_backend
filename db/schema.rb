@@ -16,7 +16,6 @@ ActiveRecord::Schema.define(version: 2020_08_11_214934) do
   enable_extension "plpgsql"
 
   create_table "cohort_comparisons", force: :cascade do |t|
-    t.bigint "cohort_id"
     t.bigint "cohort_a_id"
     t.bigint "timespan_a_id"
     t.bigint "cohort_b_id"
@@ -26,7 +25,6 @@ ActiveRecord::Schema.define(version: 2020_08_11_214934) do
     t.datetime "updated_at", null: false
     t.index ["cohort_a_id"], name: "index_cohort_comparisons_on_cohort_a_id"
     t.index ["cohort_b_id"], name: "index_cohort_comparisons_on_cohort_b_id"
-    t.index ["cohort_id"], name: "index_cohort_comparisons_on_cohort_id"
     t.index ["timespan_a_id"], name: "index_cohort_comparisons_on_timespan_a_id"
     t.index ["timespan_b_id"], name: "index_cohort_comparisons_on_timespan_b_id"
   end
@@ -50,9 +48,10 @@ ActiveRecord::Schema.define(version: 2020_08_11_214934) do
   end
 
   create_table "timespans", force: :cascade do |t|
-    t.string "name"
-    t.datetime "start"
-    t.datetime "end"
+    t.string "name", null: false
+    t.datetime "start", null: false
+    t.datetime "end", null: false
+    t.integer "in_seconds", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -79,7 +78,6 @@ ActiveRecord::Schema.define(version: 2020_08_11_214934) do
     t.index ["user_id"], name: "index_whitelisted_jwts_on_user_id"
   end
 
-  add_foreign_key "cohort_comparisons", "cohorts"
   add_foreign_key "cohort_comparisons", "cohorts", column: "cohort_a_id"
   add_foreign_key "cohort_comparisons", "cohorts", column: "cohort_b_id"
   add_foreign_key "cohort_comparisons", "timespans", column: "timespan_a_id"
