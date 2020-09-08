@@ -1,5 +1,5 @@
 class CohortComparisonsController < ApplicationController
-  before_filter :load_cohort_comparison, only: [:show, :update]
+  before_action :load_cohort_comparison, only: [:show, :update]
   respond_to :json
 
   def index

@@ -9,7 +9,6 @@ describe 'cohort_summary' do
     AnalysisStack.request_cohort_summary_results(cs)
     while cs.results.nil?
       sleep 1
-      puts 'here'
       cs.reload
     end
     visit "/cohort/#{cs.cohort_id}/timespan/#{cs.timespan_id}"

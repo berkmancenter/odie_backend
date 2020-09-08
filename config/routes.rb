@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     to: 'cohort_comparisons#show'
   put 'cohort/:cohort_a_id/timespan/:timespan_a_id/cohort/:cohort_b_id/timespan/:timespan_b_id',
     to: 'cohort_comparisons#update', as: :cohort_comparison_receiver
+  #put 'cohort/:cohort_a_id/timespan/:timespan_a_id/cohort/:cohort_b_id/timespan/:timespan_b_id',
+    #to: 'cohort_comparisons#update', as: :cohort_comparison_receiver
 
   devise_for :users
   devise_for :api_users,
