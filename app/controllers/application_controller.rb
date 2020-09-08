@@ -7,17 +7,17 @@ class ApplicationController < ActionController::Base
   rescue_from ActionController::InvalidAuthenticityToken,
               with: :invalid_auth_token
 
-  #before_action :set_current_user, if: :json_request?
-  #before_action :authenticate_user!, except: :cors_preflight_check
+  before_action :set_current_user, if: :json_request?
+  before_action :authenticate_user!, except: :cors_preflight_check
   after_action  :cors_set_access_control_headers
 
   layout 'application'
 
   def cors_preflight_check
-    return unless request.method == :options
+    return unless request.method == 'OPTIONS'
 
     set_cors_headers
-    render text: '', content_type: 'text/plain'
+    render plain: '', content_type: 'text/plain'
   end
 
   private
