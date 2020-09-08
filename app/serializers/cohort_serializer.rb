@@ -13,7 +13,7 @@
 
 class CohortSerializer
   include FastJsonapi::ObjectSerializer
-  attribute :id
+  attribute :name
   attribute :description
   attribute :twitter_ids
 end
