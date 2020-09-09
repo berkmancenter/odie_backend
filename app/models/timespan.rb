@@ -14,12 +14,14 @@
 class Timespan < ApplicationRecord
   DAY_DURATION = ActiveSupport::Duration::SECONDS_PER_DAY - 1
   WEEK_DURATION = ActiveSupport::Duration::SECONDS_PER_WEEK - 1
+  MONTH_DURATION = ActiveSupport::Duration::SECONDS_PER_WEEK * 4 - 1
 
   before_create :calc_span
   before_create :ensure_name
 
   scope :day_long, -> { where(in_seconds: DAY_DURATION) }
   scope :week_long, -> { where(in_seconds: WEEK_DURATION) }
+  scope :month_long, -> { where(in_seconds: MONTH_DURATION) }
 
   private
 
@@ -42,6 +44,8 @@ class Timespan < ApplicationRecord
       self.name = "Day of #{start.strftime('%b %e, %Y')}"
     elsif in_seconds == WEEK_DURATION
       self.name = "Week starting #{start.strftime('%b %e, %Y')}"
+    elsif in_seconds == MONTH_DURATION
+      self.name = "Four weeks starting #{start.strftime('%b %e, %Y')}"
     else
       self.name = 'Untitled'
     end
