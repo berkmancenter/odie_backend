@@ -39,9 +39,9 @@ class Timespan < ApplicationRecord
     return unless name.nil?
 
     if in_seconds == DAY_DURATION
-      self.name = "Day of #{start.to_date.iso8601}"
+      self.name = "Day of #{start.strftime('%b %e, %Y')}"
     elsif in_seconds == WEEK_DURATION
-      self.name = "Week starting #{start.to_date.iso8601}"
+      self.name = "Week starting #{start.strftime('%b %e, %Y')}"
     else
       self.name = 'Untitled'
     end
