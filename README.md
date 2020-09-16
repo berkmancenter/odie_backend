@@ -67,7 +67,7 @@ In production, or in dev if you want to write `twitter.conf` files, you will nee
 * `TWITTER_CONSUMER_SECRET`
 * `TWITTER_OAUTH_TOKEN`
 * `TWITTER_OAUTH_SECRET`
-* `ELASTICSEARCH_HOST`
+* `ELASTICSEARCH_URL`
 * `ELASTICSEARCH_INDEX`
 
 In any environment:

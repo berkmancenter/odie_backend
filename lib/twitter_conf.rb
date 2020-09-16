@@ -41,7 +41,7 @@ module TwitterConf
 
   output {
     elasticsearch {
-      hosts => "<%= env['ELASTICSEARCH_HOST'] %>"
+      hosts => "<%= env['ELASTICSEARCH_URL'] %>"
       index => "%{[@metadata][cohort_prefix]}%{+yyyy-ww}"
       document_id => "%{[id]}"
     }
