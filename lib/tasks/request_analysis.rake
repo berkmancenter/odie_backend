@@ -8,6 +8,7 @@ namespace :odie do
     end
   end
 
+  desc 'Request outstanding cohort comparisons from analysis stack'
   task :get_cohort_comparisons => [:environment] do |t|
     CohortComparison.where(results: :nil).each do |cc|
       AnalysisStack.request_cohort_comparison_results(cc)
