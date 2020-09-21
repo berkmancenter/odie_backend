@@ -4,16 +4,21 @@ Rails.application.load_tasks
 Rake::Task.define_task(:environment)
 
 describe 'odie:create_timespans' do
+
+  before(:example) do
+    Rake::Task.clear
+    Rails.application.load_tasks
+  end
+
   it 'creates daily timespan if none exist' do
     expect(Timespan.day_long.count).to eq(0)
-    Rake::Task['odie:create_timespans'].invoke
+    Rake::Task['odie:create_timespans'].invoke('2020-01-01', '2020-01-02')
     expect(Timespan.day_long.count).to eq(1)
-    puts Timespan.first.to_json
   end
 
   it 'creates weekly timespan if none exist' do
     expect(Timespan.week_long.count).to eq(0)
-    Rake::Task['odie:create_timespans'].invoke
+    Rake::Task['odie:create_timespans'].invoke('2020-01-01', '2020-01-08')
     expect(Timespan.week_long.count).to eq(1)
   end
 
@@ -28,10 +33,10 @@ describe 'odie:create_timespans' do
 
   it 'creates weekly timespan if the most recent is old' do
     create(:timespan,
-           start: 4.weeks.ago.beginning_of_week,
+           start: 8.days.ago.midnight,
            in_seconds: Timespan::WEEK_DURATION)
     expect(Timespan.week_long.count).to eq(1)
-    Rake::Task['odie:create_timespans'].invoke
+    Rake::Task['odie:create_timespans'].invoke(8.days.ago.to_date.to_s)
     expect(Timespan.week_long.count).to eq(2)
   end
 
