@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_08_215613) do
+ActiveRecord::Schema.define(version: 2020_09_21_222209) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2020_09_08_215613) do
     t.json "results"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["cohort_a_id", "timespan_a_id", "cohort_b_id", "timespan_b_id"], name: "by_cohort_and_timespan", unique: true
     t.index ["cohort_a_id"], name: "index_cohort_comparisons_on_cohort_a_id"
     t.index ["cohort_b_id"], name: "index_cohort_comparisons_on_cohort_b_id"
     t.index ["timespan_a_id"], name: "index_cohort_comparisons_on_timespan_a_id"
@@ -35,6 +36,7 @@ ActiveRecord::Schema.define(version: 2020_09_08_215613) do
     t.json "results"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["cohort_id", "timespan_id"], name: "index_cohort_summaries_on_cohort_id_and_timespan_id", unique: true
     t.index ["cohort_id"], name: "index_cohort_summaries_on_cohort_id"
     t.index ["timespan_id"], name: "index_cohort_summaries_on_timespan_id"
   end

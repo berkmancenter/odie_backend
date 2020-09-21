@@ -13,6 +13,7 @@
 #
 # Indexes
 #
+#  by_cohort_and_timespan                     (cohort_a_id,timespan_a_id,cohort_b_id,timespan_b_id) UNIQUE
 #  index_cohort_comparisons_on_cohort_a_id    (cohort_a_id)
 #  index_cohort_comparisons_on_cohort_b_id    (cohort_b_id)
 #  index_cohort_comparisons_on_timespan_a_id  (timespan_a_id)

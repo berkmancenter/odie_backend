@@ -42,6 +42,9 @@ namespace :odie do
         cohort_id: cohort_timespan[0],
         timespan_id: cohort_timespan[1])
     end
+    if !Rails.env.test?
+      puts "Created #{to_create.count} cohort summaries"
+    end
   end
 
   desc 'Create cohort comparisons that do not yet exist'

@@ -11,8 +11,9 @@
 #
 # Indexes
 #
-#  index_cohort_summaries_on_cohort_id    (cohort_id)
-#  index_cohort_summaries_on_timespan_id  (timespan_id)
+#  index_cohort_summaries_on_cohort_id                  (cohort_id)
+#  index_cohort_summaries_on_cohort_id_and_timespan_id  (cohort_id,timespan_id) UNIQUE
+#  index_cohort_summaries_on_timespan_id                (timespan_id)
 #
 # Foreign Keys
 #
