@@ -6,7 +6,8 @@ module AnalysisStack
       timespan_end: cs.timespan.end.iso8601,
       post_to: Rails.application.routes.url_helpers.cohort_summary_receiver_url(
         cs.cohort_id, cs.timespan_id,
-        host: ENV['HOST'], port: ENV['PORT'], format: 'json')
+        protocol: ENV['PROTOCOL'], host: ENV['HOST'], port: ENV['PORT'],
+        format: 'json')
     }
     submit_analysis_request('cohort_summary', params)
   end
@@ -22,7 +23,8 @@ module AnalysisStack
       post_to: Rails.application.routes.url_helpers.cohort_comparison_receiver_url(
         cc.cohort_a_id, cc.timespan_a_id,
         cc.cohort_b_id, cc.timespan_b_id,
-        host: ENV['HOST'], port: ENV['PORT'], format: 'json')
+        protocol: ENV['PROTOCOL'], host: ENV['HOST'], port: ENV['PORT'],
+        format: 'json')
     }
     submit_analysis_request('cohort_comparison', params)
   end
