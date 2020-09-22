@@ -37,13 +37,13 @@ namespace :odie do
     cohort_timespans = Cohort.pluck(:id).product(Timespan.pluck(:id)).to_set
     cohort_summaries = CohortSummary.pluck(:cohort_id, :timespan_id).to_set
     to_create = cohort_timespans - cohort_summaries
+    if !Rails.env.test?
+      puts "Creating #{to_create.count} cohort summaries"
+    end
     to_create.to_a.each do |cohort_timespan|
       CohortSummary.create(
         cohort_id: cohort_timespan[0],
         timespan_id: cohort_timespan[1])
-    end
-    if !Rails.env.test?
-      puts "Created #{to_create.count} cohort summaries"
     end
   end
 
@@ -51,6 +51,9 @@ namespace :odie do
   task :create_cohort_comparisons => [:environment] do |t|
     cohort_timespans = Cohort.pluck(:id).product(Timespan.pluck(:id))
     cohort_timespan_pairs = cohort_timespans.combination(2)
+    if !Rails.env.test?
+      puts "Ensuring existence of #{cohort_timespan_pairs.count} comparisons"
+    end
     cohort_timespan_pairs.each do |cohort_timespan_pair|
       params = {
         cohort_a_id: cohort_timespan_pair[0][0],
