@@ -3,8 +3,12 @@ require 'rake'
 namespace :odie do
   desc 'Request outstanding cohort summaries from analysis stack'
   task :get_cohort_summaries => [:environment] do |t|
-    CohortSummary.where(results: nil).each do |cs|
+    to_fetch = CohortSummary.where(results: nil)
+    pbar = ProgressBar.create(total: to_fetch.count, format: '%a |%b>%i| %p%% %t %e')
+    to_fetch.each do |cs|
       AnalysisStack.request_cohort_summary_results(cs)
+      pbar.increment
+      sleep 10
     end
   end
 

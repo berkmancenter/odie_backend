@@ -26,6 +26,7 @@ gem 'twitter'
 gem 'uglifier', '>= 1.3.0'
 gem 'httparty', '~> 0.18.1'
 gem 'whenever', '~> 1.0.0'
+gem 'ruby-progressbar', '~> 1.10.1'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
