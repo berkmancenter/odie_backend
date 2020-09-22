@@ -58,3 +58,18 @@ describe 'odie:create_timespans' do
     expect(Timespan.week_long.count).to eq(1)
   end
 end
+
+describe 'odie:create_cohort_summaries' do
+  before(:example) do
+    Rake::Task.clear
+    Rails.application.load_tasks
+  end
+
+  it 'creates num cohorts times num timespans summaries' do
+    create(:timespan)
+    create(:cohort)
+    expect(Timespan.day_long.count).to eq(1)
+    Rake::Task['odie:create_cohort_summary'].invoke
+    expect(Timespan.day_long.count).to eq(1)
+  end
+end
