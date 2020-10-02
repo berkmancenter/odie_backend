@@ -10,7 +10,7 @@ class CohortComparisonsController < ApplicationController
 
   def show
     render json: CohortComparisonSerializer.new(
-      @cohort_comparison
+      @cohort_comparison, params: { with_results: true }
     ).serialized_json
   end
 
@@ -22,10 +22,14 @@ class CohortComparisonsController < ApplicationController
   private
 
   def load_cohort_comparison
-    @cohort_comparison = CohortComparison.where(
-      cohort_a_id: params[:cohort_a_id],
-      timespan_a_id: params[:timespan_a_id],
-      cohort_b_id: params[:cohort_b_id],
-      timespan_b_id: params[:timespan_b_id]).first
+	if params[:cohort_a_id]
+      @cohort_comparison = CohortComparison.where(
+        cohort_a_id: params[:cohort_a_id],
+        timespan_a_id: params[:timespan_a_id],
+        cohort_b_id: params[:cohort_b_id],
+        timespan_b_id: params[:timespan_b_id]).first
+    elsif params[:id]
+      @cohort_comparison = CohortComparison.find(params[:id])
+    end
   end
 end

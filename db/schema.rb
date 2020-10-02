@@ -13,6 +13,7 @@
 ActiveRecord::Schema.define(version: 2020_09_21_222209) do
 
   # These are extensions that must be enabled in order to support this database
+  enable_extension "hstore"
   enable_extension "plpgsql"
 
   create_table "cohort_comparisons", force: :cascade do |t|

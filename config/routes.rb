@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   put 'cohort/:id/timespan/:timespan_id', to: 'cohort_summaries#update', as: :cohort_summary_receiver
 
   get 'cohort_comparisons', to: 'cohort_comparisons#index', as: :cohort_comparisons
+  get 'cohort_comparisons/:id', to: 'cohort_comparisons#show'
   get 'cohort/:cohort_a_id/timespan/:timespan_a_id/cohort/:cohort_b_id/timespan/:timespan_b_id',
     to: 'cohort_comparisons#show'
   put 'cohort/:cohort_a_id/timespan/:timespan_a_id/cohort/:cohort_b_id/timespan/:timespan_b_id',

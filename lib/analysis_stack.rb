@@ -35,7 +35,8 @@ module AnalysisStack
     request_url = ENV['ANALYSIS_HOST'] + path
     response = HTTParty.get(
       request_url,
-      query: params
+      query: params,
+	  timeout: 300
     )
     if response.code < 200 || response.code > 299
       raise "#{response.code} from analysis stack server"

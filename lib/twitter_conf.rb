@@ -1,51 +1,52 @@
 module TwitterConf
   TEMPLATE = <<EOF
-  input {
-   # twitter {
-   #   consumer_key => "<%= env['TWITTER_CONSUMER_KEY'] %>"
-   #   consumer_secret => "<%= env['TWITTER_CONSUMER_SECRET'] %>"
-   #   oauth_token => "<%= env['TWITTER_OAUTH_TOKEN'] %>"
-   #   oauth_token_secret => "<%= env['TWITTER_OAUTH_SECRET'] %>"
-   #   follows => [<%= acct_ids_to_cohort_prefix.keys().join(',') %>]
-   #   full_tweet => true
-   #   ignore_retweets => false
-   #   add_field => { "[@metadata][source]" => "api" }
-   # }
-
-    file {
-      path => "<%= env['TWEETS_DIR'] %>/*.ndjson"
-      file_completed_action => "delete"
-      mode => "read"
-      codec => "json"
-      add_field => {
-        "[@metadata][source]" => "file"
-        "[@metadata][filename]" => "[path]"
-      }
-    }
+input {
+  twitter {
+    consumer_key => "<%= env['TWITTER_CONSUMER_KEY'] %>"
+    consumer_secret => "<%= env['TWITTER_CONSUMER_SECRET'] %>"
+    oauth_token => "<%= env['TWITTER_OAUTH_TOKEN'] %>"
+    oauth_token_secret => "<%= env['TWITTER_OAUTH_SECRET'] %>"
+    follows => ["<%= acct_ids_to_cohort_prefix.keys().join('","') %>"]
+    full_tweet => true
+    ignore_retweets => false
+    add_field => { "[@metadata][source]" => "api" }
   }
 
-  filter {
-    date {
-      match => ["created_at", "E MMM dd HH:mm:ss Z yyyy"]
-    }
-
-    translate {
-      field => "[user][id_str]"
-      destination => "[@metadata][cohort_prefix]"
-      dictionary => {<% acct_ids_to_cohort_prefix.each do |acct_id, cohort_prefix| %>
-        <%= '"' + acct_id.to_s + '" => "' + cohort_prefix + '"' %><% end %>
-      }
-      fallback => "unknown_"
+  file {
+    path => "<%= env['TWEETS_DIR'] %>/*.ndjson"
+    file_completed_action => "delete"
+    mode => "read"
+    codec => "json"
+	file_chunk_size => 2097152
+    add_field => {
+      "[@metadata][source]" => "file"
+      "[@metadata][filename]" => "[path]"
     }
   }
+}
 
-  output {
-    elasticsearch {
-      hosts => "<%= env['ELASTICSEARCH_URL'] %>"
-      index => "%{[@metadata][cohort_prefix]}%{+yyyy-ww}"
-      document_id => "%{[id]}"
-    }
+filter {
+  date {
+    match => ["created_at", "E MMM dd HH:mm:ss Z yyyy"]
   }
+
+  translate {
+    field => "[user][id_str]"
+    destination => "[@metadata][cohort_prefix]"
+    dictionary => {<% acct_ids_to_cohort_prefix.each do |acct_id, cohort_prefix| %>
+      <%= '"' + acct_id.to_s + '" => "' + cohort_prefix + '"' %><% end %>
+    }
+    fallback => "unknown_"
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => "<%= env['ELASTICSEARCH_URL'] %>"
+    index => "%{[@metadata][cohort_prefix]}%{+yyyy-ww}"
+    document_id => "%{[id]}"
+  }
+}
 EOF
 
   # It will be easy for the needs of this file to drift out of sync with the

@@ -6,16 +6,26 @@ namespace :odie do
     to_fetch = CohortSummary.where(results: nil)
     pbar = ProgressBar.create(total: to_fetch.count, format: '%a |%b>%i| %p%% %c/%C %t %e')
     to_fetch.each do |cs|
-      AnalysisStack.request_cohort_summary_results(cs)
+	  begin
+        AnalysisStack.request_cohort_summary_results(cs)
+	  rescue
+  	  end
       pbar.increment
-      sleep 30
     end
   end
 
   desc 'Request outstanding cohort comparisons from analysis stack'
   task :get_cohort_comparisons => [:environment] do |t|
-    CohortComparison.where(results: nil).each do |cc|
-      AnalysisStack.request_cohort_comparison_results(cc)
+    #to_fetch = CohortComparison.where(results: nil, timespan_a: Timespan.day_long, timespan_b: Timespan.day_long)
+    #to_fetch = CohortComparison.where(results: nil).where('timespan_a_id = timespan_b_id').where(timespan_a: Timespan.day_long)
+	to_fetch = CohortComparison.where(results: nil)
+    pbar = ProgressBar.create(total: to_fetch.count, format: '%a |%b>%i| %p%% %c/%C %t %e')
+    to_fetch.shuffle.each do |cc|
+	  begin
+        AnalysisStack.request_cohort_comparison_results(cc)
+	  rescue
+	  end
+      pbar.increment
     end
   end
 end

@@ -33,5 +33,5 @@ class CohortComparisonSerializer
   attribute :timespan_a_id
   attribute :cohort_b_id
   attribute :timespan_b_id
-  attribute :results
+  attribute :results, if: Proc.new { |cc, params| params && params[:with_results] == true }
 end

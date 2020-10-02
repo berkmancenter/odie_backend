@@ -54,6 +54,7 @@ namespace :odie do
     if !Rails.env.test?
       puts "Ensuring existence of #{cohort_timespan_pairs.count} comparisons"
     end
+	pbar = ProgressBar.create(total: cohort_timespan_pairs.count, format: '%a |%b>%i| %p%% %c/%C %t %e')
     cohort_timespan_pairs.each do |cohort_timespan_pair|
       params = {
         cohort_a_id: cohort_timespan_pair[0][0],
@@ -61,6 +62,8 @@ namespace :odie do
         cohort_b_id: cohort_timespan_pair[1][0],
         timespan_b_id: cohort_timespan_pair[1][1]
       }
+      pbar.increment
+	  next unless (params[:cohort_a_id] != params[:cohort_b_id]) && (params[:timespan_a_id] == params[:timespan_b_id])
       next if CohortComparison.exists?(params)
       CohortComparison.create!(params)
     end
